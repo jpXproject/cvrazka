@@ -489,6 +489,8 @@ const APP_VERSION = '2.1.0';
 const SUPABASE_URL = 'https://ncidonlsvxndynssback.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jaWRvbmxzdnhuZHluc3NiYWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njg0NjgsImV4cCI6MjEwMDU0NDQ2OH0.yqEsaE7tu14lrYa4gleyLLVfyhlw7UB2HfAIUYkzgD0';
 // supabase is already declared via `var supabase` from vendor/supabase.min.js
+// Save library reference before overwriting with null
+const _supabaseLib = window.supabase;
 // We just assign null here (no let/var to avoid redeclaration conflict)
 supabase = null;
 let isAuthenticated = false;
@@ -498,7 +500,7 @@ let dataCache = { services: [], portfolio: [], testimonials: [], articles: [] };
 let _confirmCallback = null;
 let _editingIdx = { services: -1, portfolio: -1, testimonials: -1, articles: -1 };
 
-console.log('Admin Panel v'+APP_VERSION+' — local bundle:',!!(window.supabase&&window.supabase.createClient));
+console.log('Admin Panel v'+APP_VERSION+' — local bundle:',!!(_supabaseLib&&_supabaseLib.createClient),'dev mode:',window.location.search.includes('dev=1'));
 
 // CDN sources to try as fallback if local bundle fails
 const SUPABASE_CDN_URLS = [
@@ -508,6 +510,14 @@ const SUPABASE_CDN_URLS = [
 
 let _cdnAttempts = 0;
 let _localBundleLoaded = false;
+
+// Check for ?dev=1 URL parameter to bypass login
+function checkDevMode(){
+try{
+const p=new URLSearchParams(window.location.search);
+return p.get('dev')==='1';
+}catch(e){return false}
+}
 
 function showCdnStatus(show, msg){
 const el=document.getElementById('loginStatus');
@@ -532,7 +542,7 @@ if(el)el.style.display='none';
 // Try to get supabase from local bundle or CDN fallback
 async function ensureSupabaseLoaded(){
 // Check if local bundle was loaded (via <script src="vendor/supabase.min.js">)
-if(window.supabase&&window.supabase.createClient){
+if(_supabaseLib||(window.supabase&&window.supabase.createClient)){
 _localBundleLoaded=true;
 return true;
 }
@@ -637,7 +647,7 @@ else showCdnError('<strong>Semua CDN gagal.</strong> Nonaktifkan ad blocker untu
 return false;
 }
 try{
-supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+supabase=(_supabaseLib||window.supabase).createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 showCdnStatus(true,'Memeriksa sesi login...');
 // Check for existing session first (handles page refresh without re-login)
 const{data:{session}}=await supabase.auth.getSession();
@@ -692,7 +702,7 @@ text.textContent='Offline';
 }
 }
 
-// ===== LOGIN =====
+// ===== LOGIN or DEV MODE =====
 document.getElementById('loginForm').addEventListener('submit',async(e)=>{
 try{
 e.preventDefault();
@@ -705,8 +715,8 @@ if(!supabase){
 showCdnStatus(true,'Mencoba muat ulang Supabase...');
 let loaded=await ensureSupabaseLoaded();
 if(!loaded)loaded=await ensureSupabaseLoaded();
-if(loaded&&window.supabase&&window.supabase.createClient){
-supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+if(loaded&&(_supabaseLib||window.supabase)&&(_supabaseLib||window.supabase).createClient){
+supabase=(_supabaseLib||window.supabase).createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 showCdnStatus(false);
 hideCdnError();
 }else{
@@ -1238,6 +1248,29 @@ const savedEl=document.getElementById(key+'LastSaved');
 if(savedEl&&data)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleString('id-ID');
 }
 
+// ===== DEV MODE =====
+function enterDevMode(){
+isAuthenticated=true;
+adminEmail='dev@razkapratama.com';
+showApp();
+updateSyncStatus();
+dataCache={services:[
+{name:'Pekerjaan Sipil',icon:'drafting-compass',desc:'Pondasi, struktur beton, dan infrastruktur dasar untuk bangunan Anda.'},
+{name:'Renovasi & Rehab',icon:'paint-roller',desc:'Perbaikan, perluasan, dan modifikasi bangunan.'},
+{name:'Desain Arsitektur',icon:'pencil-ruler',desc:'Perencanaan tata ruang dan visualisasi fasad.'}
+],portfolio:[
+{name:'Proyek Residensial',cat:'residensial',loc:'Banyuwangi',desc:'Rumah tinggal modern 2 lantai',img:'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&q=60',year:'2025'},
+{name:'Proyek Komersial',cat:'komersial',loc:'Banyuwangi',desc:'Renovasi gudang',img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=200&q=60',year:'2024'},
+{name:'Infrastruktur Publik',cat:'pemerintah',loc:'Songgon',desc:'Drainase lingkungan',img:'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=200&q=60',year:'2024'}
+],testimonials:[
+{name:'Sariono Nugroho',position:'Kepala Desa',quote:'Proyek selesai tepat waktu.'},
+{name:'Agus Haryanto',position:'Pemilik Usaha',quote:'Hasil renovasi sangat rapi.'}
+],articles:[]};
+renderServices();renderPortfolio();renderTestimonials();renderArticles();
+document.getElementById('lastSavedInfo').textContent='🔧 DEV MODE — data dummy, tidak tersimpan ke database.';
+showToast('🔧 DEV MODE — Testing semua fitur','info');
+}
+
 // ===== PREVIEW FEATURE =====
 function openPreview(){
 try{
@@ -1271,6 +1304,12 @@ if(el)setupUploadZone(z.zone,z.input,z.preview,z.progress,z.path);
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',async()=>{
+// Check for ?dev=1 URL parameter (bypass login)
+if(checkDevMode()){
+enterDevMode();
+initUploadZones().catch(e=>console.warn('Upload zones:',e));
+return;
+}
 // Show login screen first (always visible until authenticated)
 document.getElementById('loginScreen').classList.remove('hidden');
 document.getElementById('appLayout').style.display='none';
