@@ -413,29 +413,14 @@ setTimeout(()=>t.classList.remove('show'),3500);
 // ===== SUPABASE INIT =====
 async function initSupabase(){
 try{
-supabase=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const{data:{user}}=await supabase.auth.getUser();
 if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});}
 return true;
 }catch(e){console.warn('Supabase init failed:',e.message);return false}
 }
 
-// ===== CHECK TABLES & SETUP =====
-async function checkTablesExist(){
-const allTables=['services','portfolio','testimonials','articles','settings'];
-let missing=[];
-for(const t of allTables){
-try{
-const{error}=await supabase.from(t).select('id').limit(1);
-if(error&&(error.code==='42P01'||error.message?.includes('does not exist')))missing.push(t);
-}catch(e){missing.push(t)}
-}
-return missing;
-}
-
 // Run after login — check tables and setup if missing
-// If tables are missing, we'll try to insert data (which auto-creates via Supabase)
-// For full setup, user needs to run supabase-schema.sql in SQL Editor
 async function setupMissingTables(missing){
 if(!missing.length)return true;
 // Try creating tables by inserting test data (PostgREST auto-creates if configured)
@@ -459,7 +444,7 @@ const{data,error}=await supabase.auth.signInWithPassword({email,password:pass});
 if(error){err.style.display='block';btn.querySelector('span').textContent='Masuk';btn.disabled=false;return}
 err.style.display='none';isAuthenticated=true;adminEmail=email;
 showToast('Selamat datang, '+email,'success');
-showApp();loadAllData();
+showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
 });
 
 document.getElementById('adminAvatar').addEventListener('click',()=>document.getElementById('logoutBtn').click());
@@ -656,14 +641,6 @@ renderArticles();closeModal();syncToSupabase('articles');showToast('Artikel berh
 }
 function editArticle(i){openArticleModal(i)}
 function deleteArticle(i){if(confirm('Hapus artikel ini?')){dataCache.articles.splice(i,1);renderArticles();syncToSupabase('articles');showToast('Artikel dihapus','info')}}
-
-// ===== SYNC TO SUPABASE =====
-async function syncToSupabase(table){
-if(!supabase||!isAuthenticated)return;
-try{
-await supabase.from(table).upsert({id:1,data:dataCache[table],updated_at:new Date().toISOString()},{onConflict:'id'});
-}catch(e){console.warn('Sync to Supabase failed:',e.message)}
-}
 
 // ===== LOAD ALL DATA =====
 async function loadAllData(){
