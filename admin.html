@@ -9,8 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- Supabase JS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Supabase JS dimuat dinamis agar tidak blocking -->
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--navy:#080e1a;--dark:#0c1525;--card:#0f172a;--border:rgba(255,255,255,.06);--red:#e63946;--red-hover:#c1121f;--text:#e2e8f0;--text-dim:#64748b;--text-muted:#94a3b8;--input-bg:rgba(255,255,255,.04);--sidebar-w:260px}
@@ -394,13 +393,26 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 
 <script>
 // ===== CONFIG =====
-// Ganti dengan credentials Supabase Anda setelah register
 const SUPABASE_URL = 'https://ncidonlsvxndynssback.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jaWRvbmxzdnhuZHluc3NiYWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njg0NjgsImV4cCI6MjEwMDU0NDQ2OH0.yqEsaE7tu14lrYa4gleyLLVfyhlw7UB2HfAIUYkzgD0';
 let supabase = null;
 let isAuthenticated = false;
 let adminEmail = '';
 let dataCache = { services: [], portfolio: [], testimonials: [], articles: [] };
+
+// Load Supabase CDN dynamically (non-blocking)
+function loadSupabaseCDN(){
+return new Promise((resolve)=>{
+if(window.supabase&&window.supabase.createClient)return resolve(true);
+const s=document.createElement('script');
+s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+let done=false;
+const t=setTimeout(()=>{if(!done){done=true;console.warn('Supabase CDN timeout (5s)');resolve(false)}},5000);
+s.onload=()=>{if(!done){done=true;clearTimeout(t);resolve(true)}};
+s.onerror=()=>{if(!done){done=true;clearTimeout(t);console.warn('Supabase CDN gagal');resolve(false)}};
+document.head.appendChild(s);
+});
+}
 
 // ===== TOAST =====
 function showToast(msg, type='success'){
@@ -412,12 +424,14 @@ setTimeout(()=>t.classList.remove('show'),3500);
 
 // ===== SUPABASE INIT =====
 async function initSupabase(){
+const cdnLoaded=await loadSupabaseCDN();
+if(!cdnLoaded){console.warn('Supabase CDN tidak tersedia');return false}
 try{
 supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const{data:{user}}=await supabase.auth.getUser();
 if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});}
 return true;
-}catch(e){console.warn('Supabase init failed:',e.message);return false}
+}catch(e){console.error('Supabase init error:',e);return false}
 }
 
 // Run after login — check tables and setup if missing
