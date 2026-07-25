@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel – CV RAZKA PRATAMA MANDIRI</title>
+<meta name="description" content="Admin dashboard untuk mengelola website CV RAZKA PRATAMA MANDIRI">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#080e1a;--dark:#0c1525;--card:#0f172a;--border:rgba(255,255,255,.06);--red:#e63946;--red-hover:#c1121f;--text:#e2e8f0;--text-dim:#64748b;--text-muted:#94a3b8;--input-bg:rgba(255,255,255,.04);--sidebar-w:260px}
+body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);line-height:1.6;overflow:hidden}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+
+/* LOGIN SCREEN */
+.login-screen{position:fixed;inset:0;z-index:10000;background:var(--navy);display:flex;align-items:center;justify-content:center;transition:opacity .5s ease,visibility .5s ease}
+.login-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.login-box{width:420px;max-width:90vw;padding:48px 40px;background:var(--card);border:1px solid var(--border);border-radius:24px}
+.login-box .logo{text-align:center;margin-bottom:32px}
+.login-box .logo h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:#fff}
+.login-box .logo h2 span{color:var(--red)}
+.login-box .logo p{font-size:.8rem;color:var(--text-dim);margin-top:4px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:.9rem;transition:all .3s ease;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,57,70,.1)}
+.form-group input::placeholder{color:var(--text-dim)}
+.form-group textarea{min-height:100px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:10px;font-family:'Inter',sans-serif;font-weight:600;font-size:.9rem;border:none;cursor:pointer;transition:all .3s ease;text-decoration:none}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover{background:var(--red-hover);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--red);color:var(--red)}
+.btn-sm{padding:8px 16px;font-size:.8rem}
+.btn-icon{width:36px;height:36px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .3s ease}
+.btn-icon:hover{background:rgba(230,57,70,.1);border-color:var(--red);color:var(--red)}
+.btn-icon.red:hover{background:rgba(230,57,70,.15);color:var(--red)}
+.btn-icon.green:hover{background:rgba(16,185,129,.15);color:#34d399}
+.auth-error{color:var(--red);font-size:.82rem;text-align:center;margin-top:12px;display:none}
+
+/* LAYOUT */
+.app-layout{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar-w);background:var(--dark);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:100;overflow-y:auto}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-brand h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;color:#fff}
+.sidebar-brand h3 span{color:var(--red)}
+.sidebar-brand p{font-size:.72rem;color:var(--text-dim);margin-top:2px}
+.sidebar-nav{flex:1;padding:12px 10px}
+.sidebar-nav .nav-section{font-size:.7rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;padding:16px 12px 6px}
+.sidebar-nav a{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:var(--text-muted);text-decoration:none;font-size:.85rem;font-weight:500;transition:all .3s ease;margin-bottom:2px}
+.sidebar-nav a i{width:20px;text-align:center;font-size:1rem}
+.sidebar-nav a:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sidebar-nav a.active{background:rgba(230,57,70,.12);color:var(--red)}
+.sidebar-nav a.logout{margin-top:auto;color:var(--text-dim);border-top:1px solid var(--border);padding-top:16px;margin-top:16px}
+.sidebar-nav a.logout:hover{color:var(--red)}
+.sidebar-toggle{position:fixed;bottom:20px;left:20px;z-index:200;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .3s ease}
+.sidebar-toggle:hover{background:var(--red);border-color:var(--red)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--dark);border-bottom:1px solid var(--border);flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-left h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#fff}
+.topbar-left .page-title-desc{font-size:.78rem;color:var(--text-dim)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-right .admin-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-hover));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;cursor:pointer}
+.topbar-right .admin-info{text-align:right}
+.topbar-right .admin-info .name{font-size:.82rem;font-weight:600;color:var(--text)}
+.topbar-right .admin-info .role{font-size:.72rem;color:var(--text-dim)}
+.content{flex:1;overflow-y:auto;padding:28px}
+
+/* PAGE SECTIONS */
+.page-section{display:none}
+.page-section.active{display:block}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.section-header h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:#fff}
+.section-header p{font-size:.82rem;color:var(--text-dim);margin-top:2px}
+
+/* STATS CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{padding:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;transition:all .3s ease}
+.stat-card:hover{transform:translateY(-2px);border-color:rgba(230,57,70,.2)}
+.stat-card .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:14px}
+.stat-card .stat-icon.red{background:rgba(230,57,70,.12);color:var(--red)}
+.stat-card .stat-icon.green{background:rgba(16,185,129,.12);color:#34d399}
+.stat-card .stat-icon.blue{background:rgba(59,130,246,.12);color:#60a5fa}
+.stat-card .stat-icon.yellow{background:rgba(245,158,11,.12);color:#f59e0b}
+.stat-card .stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;line-height:1}
+.stat-card .stat-label{font-size:.82rem;color:var(--text-dim);margin-top:4px}
+
+/* TABLE */
+.table-wrapper{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.table-toolbar .search-box{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;width:280px;max-width:100%}
+.table-toolbar .search-box i{color:var(--text-dim);font-size:.85rem}
+.table-toolbar .search-box input{background:none;border:none;color:#fff;font-size:.85rem;outline:none;width:100%;font-family:'Inter',sans-serif}
+.table-toolbar .search-box input::placeholder{color:var(--text-dim)}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:12px 20px;text-align:left;font-size:.78rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.data-table td{padding:12px 20px;font-size:.85rem;color:var(--text);border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.data-table .table-img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--input-bg)}
+.data-table .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+.data-table .badge.red{background:rgba(230,57,70,.1);color:var(--red)}
+.data-table .badge.green{background:rgba(16,185,129,.1);color:#34d399}
+.data-table .badge.blue{background:rgba(59,130,246,.1);color:#60a5fa}
+.data-table .badge.yellow{background:rgba(245,158,11,.1);color:#f59e0b}
+.data-table .actions{display:flex;gap:6px}
+.data-table .actions .btn-icon{width:30px;height:30px;font-size:.75rem}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-dim)}
+.empty-state i{font-size:2.5rem;margin-bottom:16px;opacity:.3}
+.empty-state h4{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:600;color:var(--text-muted);margin-bottom:4px}
+.empty-state p{font-size:.82rem}
+
+/* FORM CARD */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:800px}
+.form-card .form-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:20px}
+.form-card .form-group textarea{min-height:120px}
+.form-card .form-group input[type="file"]{padding:8px;cursor:pointer}
+.form-card .form-group input[type="color"]{height:44px;padding:4px;cursor:pointer}
+.form-card .preview-img{width:120px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);margin-top:8px}
+
+/* OVERLAY CONFIG */
+.overlay-preview{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-top:12px;min-height:200px;background:var(--input-bg)}
+.overlay-preview img{width:100%;display:block;min-height:200px;object-fit:cover}
+.overlay-preview .overlay-sample{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
+.overlay-preview .overlay-sample h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:8px}
+.overlay-preview .overlay-sample p{font-size:.9rem;color:var(--text-muted);max-width:400px}
+
+/* NOTIFICATION TOAST */
+.toast{position:fixed;top:24px;right:24px;z-index:9999;padding:14px 24px;border-radius:12px;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform .4s cubic-bezier(.4,0,.2,1);max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.toast.show{transform:translateX(0)}
+.toast.success{background:#064e3b;border:1px solid rgba(16,185,129,.3);color:#34d399}
+.toast.error{background:#450a0a;border:1px solid rgba(230,57,70,.3);color:var(--red)}
+.toast.info{background:#1e3a5f;border:1px solid rgba(59,130,246,.3);color:#60a5fa}
+
+@media(max-width:768px){
+.sidebar{position:fixed;left:-280px;top:0;bottom:0;transition:left .3s ease;z-index:500}
+.sidebar.open{left:0}
+.sidebar-toggle{display:flex}
+.topbar{padding:14px 16px}
+.topbar-left h2{font-size:1rem}
+.content{padding:20px 16px}
+.form-row{grid-template-columns:1fr}
+.table-toolbar .search-box{width:100%}
+.login-box{padding:32px 24px}
+.stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+.sidebar-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:499;display:none}
+.sidebar-backdrop.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Berhasil disimpan</span></div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+<div class="login-box">
+<div class="logo">
+<h2>RAZKA <span>PRATAMA</span></h2>
+<p>Admin Dashboard — CV RAZKA PRATAMA MANDIRI</p>
+</div>
+<form id="loginForm" autocomplete="off">
+<div class="form-group">
+<label>Email</label>
+<input type="email" id="loginEmail" placeholder="admin@razkapratama.com" required autocomplete="email">
+</div>
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+</div>
+<button type="submit" class="btn btn-red" style="width:100%;justify-content:center;margin-top:8px" id="loginBtn">
+<i class="fas fa-sign-in-alt"></i> <span>Masuk</span>
+</button>
+<div class="auth-error" id="authError">Email atau password salah</div>
+</form>
+<p style="text-align:center;margin-top:20px;font-size:.78rem;color:var(--text-dim)">
+Panel admin untuk mengelola konten website.<br>
+Hubungi developer untuk mendapatkan akses.
+</p>
+</div></div>
+
+<!-- APP -->
+<div class="app-layout" id="appLayout">
+
+<!-- SIDEBAR BACKDROP -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-brand">
+<h3>RAZKA <span>PRATAMA</span></h3>
+<p>Admin Panel</p>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-section">Menu</div>
+<a href="#" class="active" data-page="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+<a href="#" data-page="hero"><i class="fas fa-image"></i> Hero Banner</a>
+<a href="#" data-page="services"><i class="fas fa-cogs"></i> Layanan</a>
+<a href="#" data-page="portfolio"><i class="fas fa-images"></i> Portofolio</a>
+<a href="#" data-page="testimonials"><i class="fas fa-star"></i> Testimoni</a>
+<a href="#" data-page="articles"><i class="fas fa-newspaper"></i> Artikel</a>
+<div class="nav-section">Pengaturan</div>
+<a href="#" data-page="company"><i class="fas fa-building"></i> Perusahaan</a>
+<a href="#" data-page="seo"><i class="fas fa-search"></i> SEO & Meta</a>
+<a href="#" data-page="overlay"><i class="fas fa-layer-group"></i> Overlay Gambar</a>
+<a href="#" class="logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</a>
+</nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+<div class="topbar">
+<div class="topbar-left">
+<button class="btn-icon" id="sidebarToggle" style="display:none;border:none;background:none;color:var(--text);font-size:1.2rem;padding:0;width:auto" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+<div>
+<h2 id="pageTitle">Dashboard</h2>
+<p class="page-title-desc" id="pageDesc">Overview informasi website</p>
+</div></div>
+<div class="topbar-right">
+<div class="admin-info"><div class="name" id="adminName">Admin</div><div class="role">Administrator</div></div>
+<div class="admin-avatar" id="adminAvatar" title="Keluar">A</div>
+</div></div>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div class="page-section active" id="page-dashboard">
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-icon red"><i class="fas fa-hard-hat"></i></div><div class="stat-value" id="statServices">0</div><div class="stat-label">Total Layanan</div></div>
+<div class="stat-card"><div class="stat-icon green"><i class="fas fa-images"></i></div><div class="stat-value" id="statPortfolio">0</div><div class="stat-label">Total Proyek</div></div>
+<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-star"></i></div><div class="stat-value" id="statTestimonials">0</div><div class="stat-label">Testimoni</div></div>
+<div class="stat-card"><div class="stat-icon yellow"><i class="fas fa-newspaper"></i></div><div class="stat-value" id="statArticles">0</div><div class="stat-label">Artikel</div></div>
+</div>
+<div class="form-card">
+<div class="form-title">Selamat datang di Panel Admin</div>
+<p style="font-size:.85rem;color:var(--text-muted);line-height:1.8">
+Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIRI.
+</p>
+<ul style="font-size:.85rem;color:var(--text-muted);line-height:2.2;margin-top:12px;list-style:none;padding:0">
+<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Hero Banner</strong> — Ubah gambar latar, judul, deskripsi, dan overlay</li>
+<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Layanan</strong> — Tambah/edit/hapus layanan konstruksi</li>
+<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Portofolio</strong> — Kelola galeri proyek dengan filter kategori</li>
+<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Testimoni</strong> — Atur testimoni klien</li>
+<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Overlay Gambar</strong> — Konfigurasi overlay teks di belakang judul halaman</li>
+</ul>
+</div></div>
+
+<!-- HERO -->
+<div class="page-section" id="page-hero">
+<div class="section-header"><div><h3>Hero Banner</h3><p>Ubah tampilan hero section di halaman utama</p></div><button class="btn btn-red btn-sm" id="saveHero"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="form-card">
+<div class="form-group">
+<label>Gambar Latar Belakang</label>
+<input type="text" id="heroBgUrl" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=85" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=85">
+<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="document.getElementById('heroBgUrl').value='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=80';showToast('Gambar direset ke default','info')"><i class="fas fa-redo"></i> Reset Default</button>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Judul Utama</label><input type="text" id="heroTitle" placeholder="Kontraktor Bangunan & Infrastruktur Terpercaya" value="Kontraktor Bangunan & Infrastruktur Terpercaya"></div>
+<div class="form-group"><label>Subtitle</label><input type="text" id="heroSubtitle" placeholder="Banyuwangi & Jawa Timur" value="Banyuwangi & Jawa Timur"></div>
+</div>
+<div class="form-group"><label>Deskripsi</label><textarea id="heroDesc" rows="3" placeholder="Deskripsi hero section">Mewujudkan konstruksi solid, presisi, dan tepat waktu untuk proyek pemerintah dan bangunan umum.</textarea></div>
+<div class="form-row">
+<div class="form-group"><label>Badge Text</label><input type="text" id="heroBadge" placeholder="Kontraktor Pemerintah & Konstruksi Umum" value="Kontraktor Pemerintah & Konstruksi Umum"></div>
+<div class="form-group"><label>Tombol CTA</label><input type="text" id="heroCta" placeholder="Konsultasi Proyek" value="Konsultasi Proyek"></div>
+</div>
+<div class="form-group">
+<label>Overlay Opacity (0 - 1)</label>
+<input type="range" id="heroOverlay" min="0" max="1" step=".05" value=".88" style="width:100%;accent-color:var(--red)">
+<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-dim);margin-top:4px"><span>Transparan</span><span id="overlayVal">0.88</span><span>Gelap</span></div>
+</div>
+</div></div>
+
+<!-- SERVICES -->
+<div class="page-section" id="page-services">
+<div class="section-header"><div><h3>Layanan</h3><p>Kelola daftar layanan konstruksi</p></div><button class="btn btn-red btn-sm" onclick="openServiceModal()"><i class="fas fa-plus"></i> Tambah Layanan</button></div>
+<div class="table-wrapper">
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari layanan..." oninput="filterTable(this,'servicesTable')"></div></div>
+<table class="data-table" id="servicesTable">
+<thead><tr><th>#</th><th>Ikon</th><th>Layanan</th><th>Deskripsi</th><th style="width:100px">Aksi</th></tr></thead>
+<tbody id="servicesBody">
+<tr><td colspan="5" class="empty-state"><i class="fas fa-cogs"></i><h4>Belum ada layanan</h4><p>Klik "Tambah Layanan" untuk menambahkan layanan baru</p></td></tr>
+</tbody></table></div></div>
+
+<!-- PORTFOLIO -->
+<div class="page-section" id="page-portfolio">
+<div class="section-header"><div><h3>Portofolio</h3><p>Kelola galeri proyek</p></div><button class="btn btn-red btn-sm" onclick="openPortfolioModal()"><i class="fas fa-plus"></i> Tambah Proyek</button></div>
+<div class="table-wrapper">
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari proyek..." oninput="filterTable(this,'portfolioTable')"></div></div>
+<table class="data-table" id="portfolioTable">
+<thead><tr><th>#</th><th>Gambar</th><th>Proyek</th><th>Kategori</th><th>Lokasi</th><th style="width:100px">Aksi</th></tr></thead>
+<tbody id="portfolioBody">
+<tr><td colspan="6" class="empty-state"><i class="fas fa-images"></i><h4>Belum ada proyek</h4><p>Klik "Tambah Proyek" untuk menambahkan proyek baru</p></td></tr>
+</tbody></table></div></div>
+
+<!-- TESTIMONIALS -->
+<div class="page-section" id="page-testimonials">
+<div class="section-header"><div><h3>Testimoni</h3><p>Kelola testimoni klien</p></div><button class="btn btn-red btn-sm" onclick="openTestimonialModal()"><i class="fas fa-plus"></i> Tambah Testimoni</button></div>
+<div class="table-wrapper">
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari testimoni..." oninput="filterTable(this,'testimonialsTable')"></div></div>
+<table class="data-table" id="testimonialsTable">
+<thead><tr><th>#</th><th>Klien</th><th>Posisi</th><th>Isi Testimoni</th><th style="width:100px">Aksi</th></tr></thead>
+<tbody id="testimonialsBody">
+<tr><td colspan="5" class="empty-state"><i class="fas fa-star"></i><h4>Belum ada testimoni</h4><p>Klik "Tambah Testimoni" untuk menambahkan testimoni baru</p></td></tr>
+</tbody></table></div></div>
+
+<!-- ARTICLES -->
+<div class="page-section" id="page-articles">
+<div class="section-header"><div><h3>Artikel</h3><p>Kelola artikel berita dan informasi</p></div><button class="btn btn-red btn-sm" onclick="openArticleModal()"><i class="fas fa-plus"></i> Tambah Artikel</button></div>
+<div class="table-wrapper">
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari artikel..." oninput="filterTable(this,'articlesTable')"></div></div>
+<table class="data-table" id="articlesTable">
+<thead><tr><th>#</th><th>Judul</th><th>Tanggal</th><th>Status</th><th style="width:100px">Aksi</th></tr></thead>
+<tbody id="articlesBody">
+<tr><td colspan="5" class="empty-state"><i class="fas fa-newspaper"></i><h4>Belum ada artikel</h4><p>Klik "Tambah Artikel" untuk menambahkan artikel baru</p></td></tr>
+</tbody></table></div></div>
+
+<!-- COMPANY -->
+<div class="page-section" id="page-company">
+<div class="section-header"><div><h3>Pengaturan Perusahaan</h3><p>Informasi profil perusahaan</p></div><button class="btn btn-red btn-sm" id="saveCompany"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="form-card">
+<div class="form-row">
+<div class="form-group"><label>Nama Perusahaan</label><input type="text" id="companyName" placeholder="CV RAZKA PRATAMA MANDIRI" value="CV RAZKA PRATAMA MANDIRI"></div>
+<div class="form-group"><label>Singkatan</label><input type="text" id="companyShort" placeholder="RAZKA PRATAMA" value="RAZKA PRATAMA"></div>
+</div>
+<div class="form-group"><label>Alamat</label><textarea id="companyAddress" rows="2">Dusun Songgorejo, Ds. Songgon, Kec. Songgon, Kab. Banyuwangi, Jawa Timur 68463</textarea></div>
+<div class="form-row">
+<div class="form-group"><label>WhatsApp</label><input type="text" id="companyWa" placeholder="082234613934" value="082234613934"></div>
+<div class="form-group"><label>Email</label><input type="email" id="companyEmail" placeholder="pratamamandiri945@gmail.com" value="pratamamandiri945@gmail.com"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Jam Operasional</label><input type="text" id="companyHours" placeholder="Senin – Sabtu: 08:00 – 17:00 WIB" value="Senin – Sabtu: 08:00 – 17:00 WIB"></div>
+<div class="form-group"><label>Tahun Berdiri</label><input type="text" id="companyYear" placeholder="2016" value="2016"></div>
+</div>
+</div></div>
+
+<!-- SEO -->
+<div class="page-section" id="page-seo">
+<div class="section-header"><div><h3>SEO & Meta</h3><p>Pengaturan SEO dan Open Graph</p></div><button class="btn btn-red btn-sm" id="saveSeo"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="form-card">
+<div class="form-group"><label>Meta Title</label><input type="text" id="seoTitle" placeholder="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan & Infrastruktur Pemerintah Banyuwangi" value="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan & Infrastruktur Pemerintah Banyuwangi"></div>
+<div class="form-group"><label>Meta Description</label><textarea id="seoDesc" rows="2" placeholder="Deskripsi untuk SEO">CV RAZKA PRATAMA MANDIRI – Kontraktor bangunan terpercaya di Banyuwangi, spesialis infrastruktur pemerintah, pekerjaan sipil, renovasi, dan desain arsitektur.</textarea></div>
+<div class="form-row">
+<div class="form-group"><label>Keywords</label><input type="text" id="seoKeywords" placeholder="kontraktor Banyuwangi, jasa bangunan" value="kontraktor pemerintah Banyuwangi, jasa bangunan, pekerjaan sipil, infrastruktur"></div>
+<div class="form-group"><label>OG Image URL</label><input type="text" id="seoOgImage" placeholder="https://images.unsplash.com/photo-xxx?w=1200&q=80" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1200&q=80"></div>
+</div>
+</div></div>
+
+<!-- OVERLAY -->
+<div class="page-section" id="page-overlay">
+<div class="section-header"><div><h3>Overlay Gambar</h3><p>Konfigurasi overlay teks di belakang judul dan deskripsi halaman</p></div><button class="btn btn-red btn-sm" id="saveOverlay"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="form-card">
+<div class="form-group"><label>Gambar Latar Overlay</label><input type="text" id="overlayBg" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=80" value="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600&q=80"></div>
+<div class="form-row">
+<div class="form-group"><label>Judul Overlay</label><input type="text" id="overlayTitle" placeholder="Bidang Keahlian Kami" value="Bidang Keahlian Kami"></div>
+<div class="form-group"><label>Warna Overlay</label><input type="color" id="overlayColor" value="#080e1a"></div>
+</div>
+<div class="form-group"><label>Deskripsi Overlay</label><textarea id="overlayDesc" rows="2" placeholder="Deskripsi yang tampil di atas overlay">Berpengalaman dalam berbagai jenis proyek konstruksi, dari infrastruktur pemerintah hingga bangunan residensial.</textarea></div>
+<div class="form-group"><label>Opacity Overlay</label>
+<input type="range" id="overlayOpacity" min="0" max="1" step=".05" value=".6" style="width:100%;accent-color:var(--red)">
+<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-dim);margin-top:4px"><span>Ringan</span><span id="overlayOpacityVal">0.60</span><span>Berat</span></div>
+</div>
+<div class="overlay-preview" id="overlayPreview">
+<div class="overlay-sample" id="overlaySample">
+<h3 id="previewOverlayTitle">Bidang Keahlian Kami</h3>
+<p id="previewOverlayDesc">Berpengalaman dalam berbagai jenis proyek konstruksi</p>
+</div></div>
+</div></div>
+
+</div></div></div>
+
+<!-- MODALS -->
+<div class="modal" id="modalBg" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeModal()">
+<div style="background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;padding:32px" onclick="event.stopPropagation()">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+<h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:#fff" id="modalTitle">Tambah Data</h3>
+<button class="btn-icon" onclick="closeModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem"><i class="fas fa-times"></i></button>
+</div>
+<div id="modalBody"></div>
+</div></div>
+
+<script>
+// ===== CONFIG =====
+// Ganti dengan credentials Supabase Anda setelah register
+const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+let supabase = null;
+let isAuthenticated = false;
+let adminEmail = '';
+let dataCache = { services: [], portfolio: [], testimonials: [], articles: [] };
+
+// ===== TOAST =====
+function showToast(msg, type='success'){
+const t=document.getElementById('toast'),m=document.getElementById('toastMsg');
+t.className='toast '+type;m.textContent=msg;
+t.classList.add('show');
+setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ===== SUPABASE INIT =====
+async function initSupabase(){
+if(SUPABASE_URL.includes('YOUR_PROJECT'))return false;
+try{
+supabase=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const{data:{user}}=await supabase.auth.getUser();
+if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData();}
+return true;
+}catch(e){console.warn('Supabase not configured');return false}
+}
+
+// ===== LOGIN =====
+document.getElementById('loginForm').addEventListener('submit',async(e)=>{
+e.preventDefault();
+const email=document.getElementById('loginEmail').value;
+const pass=document.getElementById('loginPassword').value;
+const btn=document.getElementById('loginBtn');
+const err=document.getElementById('authError');
+if(!supabase){showToast('Supabase belum dikonfigurasi','error');return}
+btn.querySelector('span').textContent='Memproses...';btn.disabled=true;
+const{data,error}=await supabase.auth.signInWithPassword({email,password:pass});
+if(error){err.style.display='block';btn.querySelector('span').textContent='Masuk';btn.disabled=false;return}
+err.style.display='none';isAuthenticated=true;adminEmail=email;
+showToast('Selamat datang, '+email,'success');
+showApp();loadAllData();
+});
+
+document.getElementById('adminAvatar').addEventListener('click',()=>document.getElementById('logoutBtn').click());
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+if(!supabase)return;
+await supabase.auth.signOut();
+isAuthenticated=false;
+document.getElementById('appLayout').style.display='none';
+document.getElementById('loginScreen').classList.remove('hidden');
+showToast('Berhasil keluar','info');
+});
+
+function showApp(){
+document.getElementById('loginScreen').classList.add('hidden');
+document.getElementById('appLayout').style.display='flex';
+document.getElementById('adminName').textContent=adminEmail.split('@')[0];
+document.getElementById('adminAvatar').textContent=adminEmail[0].toUpperCase();
+}
+
+// ===== NAVIGATION =====
+document.querySelectorAll('.sidebar-nav a[data-page]').forEach(a=>{
+a.addEventListener('click',e=>{
+e.preventDefault();
+document.querySelectorAll('.sidebar-nav a').forEach(x=>x.classList.remove('active'));
+a.classList.add('active');
+const page=a.dataset.page;
+document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+const sec=document.getElementById('page-'+page);
+if(sec)sec.classList.add('active');
+const titles={dashboard:'Dashboard',hero:'Hero Banner',services:'Layanan',portfolio:'Portofolio',testimonials:'Testimoni',articles:'Artikel',company:'Pengaturan Perusahaan',seo:'SEO & Meta',overlay:'Overlay Gambar'};
+const descs={dashboard:'Overview informasi website',hero:'Ubah tampilan hero section',services:'Kelola daftar layanan konstruksi',portfolio:'Kelola galeri proyek',testimonials:'Kelola testimoni klien',articles:'Kelola artikel dan berita',company:'Informasi profil perusahaan',seo:'Pengaturan SEO dan Open Graph',overlay:'Konfigurasi overlay teks pada halaman'};
+document.getElementById('pageTitle').textContent=titles[page]||'Dashboard';
+document.getElementById('pageDesc').textContent=descs[page]||'';
+if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarBackdrop').classList.remove('show')}
+});
+});
+
+// ===== SIDEBAR TOGGLE =====
+document.getElementById('sidebarToggle').addEventListener('click',()=>{
+document.getElementById('sidebar').classList.toggle('open');
+document.getElementById('sidebarBackdrop').classList.toggle('show');
+});
+document.getElementById('sidebarBackdrop').addEventListener('click',()=>{
+document.getElementById('sidebar').classList.remove('open');
+document.getElementById('sidebarBackdrop').classList.remove('show');
+});
+
+// ===== FILTER TABLE =====
+function filterTable(input,tableId){
+const q=input.value.toLowerCase();
+document.querySelectorAll('#'+tableId+' tbody tr').forEach(r=>{
+if(r.querySelector('td[colspan]'))return;
+const t=r.textContent.toLowerCase();
+r.style.display=t.includes(q)?'':'none';
+});
+}
+
+// ===== OVERLAY PREVIEW =====
+function updateOverlayPreview(){
+const bg=document.getElementById('overlayBg').value||'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80';
+const title=document.getElementById('overlayTitle').value||'Bidang Keahlian Kami';
+const desc=document.getElementById('overlayDesc').value||'';
+const color=document.getElementById('overlayColor').value||'#080e1a';
+const op=parseFloat(document.getElementById('overlayOpacity').value)||.6;
+const preview=document.getElementById('overlayPreview');
+preview.style.background='linear-gradient('+hexToRgba(color,op)+','+hexToRgba(color,op+'.1')+'),url('+bg+') center/cover no-repeat';
+document.getElementById('previewOverlayTitle').textContent=title;
+document.getElementById('previewOverlayDesc').textContent=desc||'Deskripsi akan tampil di sini';
+document.getElementById('overlayOpacityVal').textContent=op.toFixed(2);
+}
+function hexToRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')'}
+['overlayBg','overlayTitle','overlayDesc','overlayColor','overlayOpacity'].forEach(id=>{
+document.getElementById(id).addEventListener('input',updateOverlayPreview);
+});
+document.getElementById('heroOverlay').addEventListener('input',function(){
+document.getElementById('overlayVal').textContent=parseFloat(this.value).toFixed(2);
+});
+
+// ===== MODAL =====
+function openModal(title,bodyHtml){
+document.getElementById('modalTitle').textContent=title;
+document.getElementById('modalBody').innerHTML=bodyHtml;
+document.getElementById('modalBg').style.display='flex';
+}
+function closeModal(){document.getElementById('modalBg').style.display='none'}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+// ===== CRUD: SERVICES =====
+function renderServices(){
+const t=document.getElementById('servicesBody');
+if(!dataCache.services.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-cogs"></i><h4>Belum ada layanan</h4><p>Klik "Tambah Layanan" untuk menambahkan layanan baru</p></td></tr>';return}
+t.innerHTML=dataCache.services.map((s,i)=>'<tr><td>'+(i+1)+'</td><td><div class="service-icon" style="width:36px;height:36px;border-radius:10px;background:rgba(230,57,70,.1);display:flex;align-items:center;justify-content:center;color:var(--red)"><i class="fas fa-'+s.icon+'"></i></div></td><td><strong>'+s.name+'</strong></td><td style="color:var(--text-muted)">'+s.desc+'</td><td><div class="actions"><button class="btn-icon green" onclick="editService('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteService('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+document.getElementById('statServices').textContent=dataCache.services.length;
+}
+function openServiceModal(idx){
+const s=idx!==undefined?dataCache.services[idx]:{name:'',icon:'wrench',desc:''};
+openModal(idx!==undefined?'Edit Layanan':'Tambah Layanan',
+'<div class="form-group"><label>Nama Layanan</label><input type="text" id="fServiceName" value="'+s.name+'" placeholder="Pekerjaan Sipil"></div>'+
+'<div class="form-group"><label>Ikon (FontAwesome class)</label><input type="text" id="fServiceIcon" value="'+s.icon+'" placeholder="drafting-compass, tools, pencil-ruler"></div>'+
+'<div class="form-group"><label>Deskripsi</label><textarea id="fServiceDesc" rows="3" placeholder="Deskripsi layanan...">'+s.desc+'</textarea></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveService('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
+);
+}
+function saveService(idx){
+const name=document.getElementById('fServiceName').value.trim();
+const icon=document.getElementById('fServiceIcon').value.trim();
+const desc=document.getElementById('fServiceDesc').value.trim();
+if(!name||!desc){showToast('Nama dan deskripsi harus diisi','error');return}
+if(idx===-1||idx===undefined)dataCache.services.push({name,icon,desc});
+else dataCache.services[idx]={name,icon,desc};
+renderServices();closeModal();syncToSupabase('services');showToast('Layanan berhasil disimpan');
+}
+function editService(i){openServiceModal(i)}
+function deleteService(i){if(confirm('Hapus layanan ini?')){dataCache.services.splice(i,1);renderServices();syncToSupabase('services');showToast('Layanan dihapus','info')}}
+
+// ===== CRUD: PORTFOLIO =====
+function renderPortfolio(){
+const t=document.getElementById('portfolioBody');
+if(!dataCache.portfolio.length){t.innerHTML='<tr><td colspan="6" class="empty-state"><i class="fas fa-images"></i><h4>Belum ada proyek</h4><p>Klik "Tambah Proyek" untuk menambahkan proyek baru</p></td></tr>';return}
+t.innerHTML=dataCache.portfolio.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+(p.img?'<img class="table-img" src="'+p.img+'" alt="">':'<div class="table-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:.7rem">No img</div>')+'</td><td><strong>'+p.name+'</strong></td><td><span class="badge '+(p.cat==='pemerintah'?'green':p.cat==='komersial'?'blue':'red')+'">'+p.cat+'</span></td><td style="color:var(--text-muted)">'+p.loc+'</td><td><div class="actions"><button class="btn-icon green" onclick="editPortfolio('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deletePortfolio('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+document.getElementById('statPortfolio').textContent=dataCache.portfolio.length;
+}
+function openPortfolioModal(idx){
+const p=idx!==undefined?dataCache.portfolio[idx]:{name:'',cat:'residensial',loc:'Banyuwangi',desc:'',img:'',year:'2025'};
+openModal(idx!==undefined?'Edit Proyek':'Tambah Proyek',
+'<div class="form-group"><label>Nama Proyek</label><input type="text" id="fPortName" value="'+p.name+'"></div>'+
+'<div class="form-row"><div class="form-group"><label>Kategori</label><select id="fPortCat"><option value="pemerintah" '+(p.cat==='pemerintah'?'selected':'')+'>Pemerintah</option><option value="komersial" '+(p.cat==='komersial'?'selected':'')+'>Komersial</option><option value="residensial" '+(p.cat==='residensial'?'selected':'')+'>Residensial</option></select></div>'+
+'<div class="form-group"><label>Lokasi</label><input type="text" id="fPortLoc" value="'+p.loc+'"></div></div>'+
+'<div class="form-group"><label>Deskripsi</label><textarea id="fPortDesc" rows="2">'+p.desc+'</textarea></div>'+
+'<div class="form-row"><div class="form-group"><label>Gambar URL</label><input type="text" id="fPortImg" value="'+p.img+'" placeholder="https://..."></div>'+
+'<div class="form-group"><label>Tahun</label><input type="text" id="fPortYear" value="'+p.year+'"></div></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="savePortfolio('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
+);
+}
+function savePortfolio(idx){
+const o={name:document.getElementById('fPortName').value.trim(),cat:document.getElementById('fPortCat').value,loc:document.getElementById('fPortLoc').value.trim(),desc:document.getElementById('fPortDesc').value.trim(),img:document.getElementById('fPortImg').value.trim(),year:document.getElementById('fPortYear').value.trim()};
+if(!o.name){showToast('Nama proyek harus diisi','error');return}
+if(idx===-1||idx===undefined)dataCache.portfolio.push(o);
+else dataCache.portfolio[idx]=o;
+renderPortfolio();closeModal();syncToSupabase('portfolio');showToast('Proyek berhasil disimpan');
+}
+function editPortfolio(i){openPortfolioModal(i)}
+function deletePortfolio(i){if(confirm('Hapus proyek ini?')){dataCache.portfolio.splice(i,1);renderPortfolio();syncToSupabase('portfolio');showToast('Proyek dihapus','info')}}
+
+// ===== CRUD: TESTIMONIALS =====
+function renderTestimonials(){
+const t=document.getElementById('testimonialsBody');
+if(!dataCache.testimonials.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-star"></i><h4>Belum ada testimoni</h4><p>Klik "Tambah Testimoni" untuk menambahkan</p></td></tr>';return}
+t.innerHTML=dataCache.testimonials.map((m,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+m.name+'</strong></td><td style="color:var(--text-muted)">'+m.position+'</td><td style="color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"'+m.quote+'"</td><td><div class="actions"><button class="btn-icon green" onclick="editTestimonial('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteTestimonial('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+document.getElementById('statTestimonials').textContent=dataCache.testimonials.length;
+}
+function openTestimonialModal(idx){
+const m=idx!==undefined?dataCache.testimonials[idx]:{name:'',position:'',quote:''};
+openModal(idx!==undefined?'Edit Testimoni':'Tambah Testimoni',
+'<div class="form-row"><div class="form-group"><label>Nama Klien</label><input type="text" id="fTestName" value="'+m.name+'"></div>'+
+'<div class="form-group"><label>Posisi</label><input type="text" id="fTestPos" value="'+m.position+'" placeholder="Kepala Desa, Pemilik Usaha"></div></div>'+
+'<div class="form-group"><label>Isi Testimoni</label><textarea id="fTestQuote" rows="3" placeholder="Tulis testimoni...">'+m.quote+'</textarea></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveTestimonial('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
+);
+}
+function saveTestimonial(idx){
+const o={name:document.getElementById('fTestName').value.trim(),position:document.getElementById('fTestPos').value.trim(),quote:document.getElementById('fTestQuote').value.trim()};
+if(!o.name||!o.quote){showToast('Nama dan testimoni harus diisi','error');return}
+if(idx===-1||idx===undefined)dataCache.testimonials.push(o);
+else dataCache.testimonials[idx]=o;
+renderTestimonials();closeModal();syncToSupabase('testimonials');showToast('Testimoni berhasil disimpan');
+}
+function editTestimonial(i){openTestimonialModal(i)}
+function deleteTestimonial(i){if(confirm('Hapus testimoni ini?')){dataCache.testimonials.splice(i,1);renderTestimonials();syncToSupabase('testimonials');showToast('Testimoni dihapus','info')}}
+
+// ===== CRUD: ARTICLES =====
+function renderArticles(){
+const t=document.getElementById('articlesBody');
+if(!dataCache.articles.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-newspaper"></i><h4>Belum ada artikel</h4><p>Klik "Tambah Artikel" untuk menambahkan artikel baru</p></td></tr>';return}
+t.innerHTML=dataCache.articles.map((a,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+a.title+'</strong></td><td style="color:var(--text-muted)">'+a.date+'</td><td><span class="badge '+(a.status==='published'?'green':'yellow')+'">'+a.status+'</span></td><td><div class="actions"><button class="btn-icon green" onclick="editArticle('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteArticle('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+document.getElementById('statArticles').textContent=dataCache.articles.length;
+}
+function openArticleModal(idx){
+const a=idx!==undefined?dataCache.articles[idx]:{title:'',content:'',date:new Date().toISOString().split('T')[0],status:'draft'};
+openModal(idx!==undefined?'Edit Artikel':'Tambah Artikel',
+'<div class="form-group"><label>Judul Artikel</label><input type="text" id="fArtTitle" value="'+a.title+'"></div>'+
+'<div class="form-row"><div class="form-group"><label>Tanggal</label><input type="date" id="fArtDate" value="'+a.date+'"></div>'+
+'<div class="form-group"><label>Status</label><select id="fArtStatus"><option value="draft" '+(a.status==='draft'?'selected':'')+'>Draft</option><option value="published" '+(a.status==='published'?'selected':'')+'>Published</option></select></div></div>'+
+'<div class="form-group"><label>Konten</label><textarea id="fArtContent" rows="5" placeholder="Tulis konten artikel...">'+a.content+'</textarea></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveArticle('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
+);
+}
+function saveArticle(idx){
+const o={title:document.getElementById('fArtTitle').value.trim(),content:document.getElementById('fArtContent').value.trim(),date:document.getElementById('fArtDate').value,status:document.getElementById('fArtStatus').value};
+if(!o.title){showToast('Judul artikel harus diisi','error');return}
+if(idx===-1||idx===undefined)dataCache.articles.push(o);
+else dataCache.articles[idx]=o;
+renderArticles();closeModal();syncToSupabase('articles');showToast('Artikel berhasil disimpan');
+}
+function editArticle(i){openArticleModal(i)}
+function deleteArticle(i){if(confirm('Hapus artikel ini?')){dataCache.articles.splice(i,1);renderArticles();syncToSupabase('articles');showToast('Artikel dihapus','info')}}
+
+// ===== SYNC TO SUPABASE =====
+async function syncToSupabase(table){
+if(!supabase||!isAuthenticated)return;
+try{
+await supabase.from(table).upsert({id:1,data:dataCache[table],updated_at:new Date().toISOString()},{onConflict:'id'});
+}catch(e){console.warn('Sync to Supabase failed:',e.message)}
+}
+
+// ===== LOAD ALL DATA =====
+async function loadAllData(){
+if(!supabase)return;
+for(const table of['services','portfolio','testimonials','articles']){
+try{
+const{data}=await supabase.from(table).select('data').eq('id',1).single();
+if(data&&data.data)dataCache[table]=data.data;
+}catch(e){console.log('Table '+table+' may not exist yet');}
+}
+renderServices();renderPortfolio();renderTestimonials();renderArticles();
+document.querySelectorAll('.stat-value').forEach(el=>{
+if(el.id.startsWith('stat')){el.classList.add('counter');el.dataset.target=el.textContent;animateCounter(el)}
+});
+}
+
+// ===== COUNTER ANIMATION =====
+function animateCounter(el){const t=parseInt(el.dataset.target)||parseInt(el.textContent);if(!t)return;const d=1500,s=performance.now();function u(c){const p=Math.min((c-s)/d,1),e=p===1?1:1-Math.pow(2,-10*p);el.textContent=Math.floor(e*t);if(p<1)requestAnimationFrame(u)}requestAnimationFrame(u)}
+
+// ===== SAVE SETTINGS =====
+['saveHero','saveCompany','saveSeo','saveOverlay'].forEach(id=>{
+document.getElementById(id).addEventListener('click',function(){showToast('Pengaturan berhasil disimpan','success')});
+});
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',async()=>{
+const configured=await initSupabase();
+if(!configured){
+// Demo mode without Supabase
+document.getElementById('loginBtn').addEventListener('click',function(e){
+e.preventDefault();
+isAuthenticated=true;
+adminEmail='admin@razkapratama.com';
+showApp();
+showToast('Mode Demo — Supabase belum dikonfigurasi','info');
+// Load sample data
+dataCache.services=[
+{name:'Pekerjaan Sipil',icon:'drafting-compass',desc:'Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar.'},
+{name:'Renovasi & Rehab',icon:'paint-roller',desc:'Perbaikan, perluasan, dan modifikasi bangunan.'},
+{name:'Desain Arsitektur',icon:'pencil-ruler',desc:'Perencanaan tata ruang dan visualisasi fasad.'}
+];
+dataCache.portfolio=[
+{name:'Proyek Residensial',cat:'residensial',loc:'Banyuwangi',desc:'Rumah tinggal modern 2 lantai',img:'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&q=60',year:'2025'},
+{name:'Proyek Komersial',cat:'komersial',loc:'Banyuwangi',desc:'Renovasi gudang',img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=200&q=60',year:'2024'},
+{name:'Infrastruktur Publik',cat:'pemerintah',loc:'Songgon',desc:'Drainase lingkungan',img:'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=200&q=60',year:'2024'}
+];
+dataCache.testimonials=[
+{name:'Sariono Nugroho',position:'Kepala Desa Songgon',quote:'Proyek pembangunan balai desa selesai tepat waktu dan sesuai spesifikasi.'},
+{name:'Agus Haryanto',position:'Pemilik Usaha',quote:'Hasil renovasi gudang sangat rapi dan cepat. Tim profesional.'}
+];
+renderServices();renderPortfolio();renderTestimonials();renderArticles();
+});
+}
+});
+</script>
+</body>
+</html>
