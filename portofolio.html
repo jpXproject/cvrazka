@@ -165,8 +165,8 @@ navToggle.addEventListener('click',()=>{navToggle.classList.toggle('active');nav
 document.querySelectorAll('.navbar-links a').forEach(l=>l.addEventListener('click',()=>{navToggle.classList.remove('active');navLinks.classList.remove('open')}));
 const obs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-const filterBtns=document.querySelectorAll('.portfolio-filter-btn'),cards=document.querySelectorAll('.portfolio-card');
-filterBtns.forEach(btn=>{btn.addEventListener('click',()=>{filterBtns.forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;cards.forEach(c=>{if(f==='all'||c.dataset.category===f){c.classList.remove('hidden');c.classList.add('visible')}else{c.classList.add('hidden');c.classList.remove('visible')}})})});
+document.querySelectorAll('.portfolio-filter-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.portfolio-filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;document.querySelectorAll('.portfolio-card').forEach(c=>{if(f==='all'||c.dataset.category===f){c.classList.remove('hidden');c.classList.add('visible')}else{c.classList.add('hidden');c.classList.remove('visible')}})})});
+fetch('supabase-loader.js?t='+Date.now()).then(r=>r.text()).then(c=>{const s=document.createElement('script');s.textContent=c;document.body.appendChild(s)}).catch(()=>{});
 </script>
 </body>
 </html>

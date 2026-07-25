@@ -170,6 +170,7 @@ const obs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.targe
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 const contactForm=document.getElementById('contactForm'),formSubmitBtn=document.getElementById('formSubmitBtn'),formFeedback=document.getElementById('formFeedback');
 contactForm.addEventListener('submit',function(e){const n=document.getElementById('name').value.trim(),em=document.getElementById('email').value.trim(),msg=document.getElementById('message').value.trim();if(!n||!em||!msg){e.preventDefault();alert('Harap isi Nama, Email, dan Pesan.');return}const ot=formSubmitBtn.innerHTML;formSubmitBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Mengirim...';formSubmitBtn.disabled=true;const sub=encodeURIComponent('Pesan Baru dari '+n+' - CV RAZKA PRATAMA MANDIRI'),bd=encodeURIComponent('Nama: '+n+'\nEmail: '+em+'\nTelepon: '+document.getElementById('phone').value.trim()+'\n\nPesan:\n'+msg);this.action='mailto:pratamamandiri945@gmail.com?subject='+sub+'&body='+bd;setTimeout(()=>{formFeedback.style.display='block';formSubmitBtn.innerHTML=ot;formSubmitBtn.disabled=false;contactForm.reset();setTimeout(()=>{formFeedback.style.display='none'},6000)},800)});
+fetch('supabase-loader.js?t='+Date.now()).then(r=>r.text()).then(c=>{const s=document.createElement('script');s.textContent=c;document.body.appendChild(s)}).catch(()=>{});
 </script>
 </body>
 </html>

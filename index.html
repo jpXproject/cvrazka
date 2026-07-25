@@ -346,15 +346,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hotspot-img-placeholder .hs-center-text p{font-size:.8rem}
 }
 
-/* LOADER */
-.page-loader{position:fixed;inset:0;z-index:9999;background:#080e1a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .7s ease,visibility .7s ease}
-.page-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
-.loader-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:#fff}
-.loader-logo span{color:#e63946}
-.loader-bar{width:160px;height:3px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
-.loader-bar::after{content:'';display:block;height:100%;width:40%;background:#e63946;border-radius:4px;animation:loaderSlide 1s ease-in-out infinite}
-@keyframes loaderSlide{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
 </style>
+<script>fetch('supabase-loader.js?t='+Date.now()).then(r=>r.text()).then(c=>{const s=document.createElement('script');s.textContent=c;document.body.appendChild(s)}).catch(()=>{});</script>
 </head>
 <body>
 <div class="page-loader" id="pageLoader"><div class="loader-logo">RAZKA <span>PRATAMA</span></div><div class="loader-bar"></div></div>

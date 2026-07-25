@@ -199,6 +199,7 @@ document.querySelectorAll('.navbar-links a').forEach(l=>l.addEventListener('clic
 const revEls=document.querySelectorAll('.reveal');
 const obs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.1});
 revEls.forEach(el=>obs.observe(el));
+fetch('supabase-loader.js?t='+Date.now()).then(r=>r.text()).then(c=>{const s=document.createElement('script');s.textContent=c;document.body.appendChild(s)}).catch(()=>{});
 </script>
 </body>
 </html>
