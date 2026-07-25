@@ -246,6 +246,7 @@ Hubungi developer untuk mendapatkan akses.
 </div>
 <div class="form-card">
 <div class="form-title">Selamat datang di Panel Admin</div>
+<div id="setupNotice" style="display:none;padding:16px 20px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:12px;margin-bottom:20px;font-size:.85rem;color:#f59e0b"><i class="fas fa-database"></i> <strong>Database perlu disetup.</strong> Buka Supabase Dashboard → SQL Editor → jalankan file <code>supabase-schema.sql</code> dari repo ini.</div>
 <p style="font-size:.85rem;color:var(--text-muted);line-height:1.8">
 Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIRI.
 </p>
@@ -414,7 +415,7 @@ async function initSupabase(){
 try{
 supabase=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const{data:{user}}=await supabase.auth.getUser();
-if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData();}
+if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData().then(async()=>{const missing=await checkTablesExist();if(missing.length)setupMissingTables(missing)});}
 return true;
 }catch(e){console.warn('Supabase init failed:',e.message);return false}
 }
@@ -757,13 +758,39 @@ if(data.subtitle)document.getElementById('heroSubtitle').value=data.subtitle;
 if(data.description)document.getElementById('heroDesc').value=data.description;
 if(data.badge)document.getElementById('heroBadge').value=data.badge;
 if(data.cta)document.getElementById('heroCta').value=data.cta;
-if(data.overlay_opacity)document.getElementById('heroOverlay').value=data.overlay_opacity;
+if(data.overlay_opacity!=null)document.getElementById('heroOverlay').value=data.overlay_opacity;
+}
+if(key==='company'){
+if(data.name)document.getElementById('companyName').value=data.name;
+if(data.short)document.getElementById('companyShort').value=data.short;
+if(data.address)document.getElementById('companyAddress').value=data.address;
+if(data.whatsapp)document.getElementById('companyWa').value=data.whatsapp;
+if(data.email)document.getElementById('companyEmail').value=data.email;
+if(data.hours)document.getElementById('companyHours').value=data.hours;
+if(data.year)document.getElementById('companyYear').value=data.year;
+}
+if(key==='seo'){
+if(data.title)document.getElementById('seoTitle').value=data.title;
+if(data.description)document.getElementById('seoDesc').value=data.description;
+if(data.keywords)document.getElementById('seoKeywords').value=data.keywords;
+if(data.og_image)document.getElementById('seoOgImage').value=data.og_image;
+}
+if(key==='overlay'){
+if(data.bg_url)document.getElementById('overlayBg').value=data.bg_url;
+if(data.title)document.getElementById('overlayTitle').value=data.title;
+if(data.description)document.getElementById('overlayDesc').value=data.description;
+if(data.color)document.getElementById('overlayColor').value=data.color;
+if(data.opacity!=null)document.getElementById('overlayOpacity').value=data.opacity;
+updateOverlayPreview();
 }
 }
 
-// Load hero settings when page is viewed
-document.querySelector('[data-page="hero"]').addEventListener('click',()=>{
-setTimeout(()=>loadSettingsToForm('hero'),200);
+// Load settings when nav link clicked
+const settingsPages={hero:'hero',company:'company',seo:'seo',overlay:'overlay'};
+Object.keys(settingsPages).forEach(page=>{
+document.querySelector('[data-page="'+page+'"]').addEventListener('click',()=>{
+setTimeout(()=>loadSettingsToForm(settingsPages[page]),300);
+});
 });
 
 // ===== INIT =====
