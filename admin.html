@@ -488,7 +488,9 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 const APP_VERSION = '2.1.0';
 const SUPABASE_URL = 'https://ncidonlsvxndynssback.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jaWRvbmxzdnhuZHluc3NiYWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njg0NjgsImV4cCI6MjEwMDU0NDQ2OH0.yqEsaE7tu14lrYa4gleyLLVfyhlw7UB2HfAIUYkzgD0';
-let supabase = null;
+// supabase is already declared via `var supabase` from vendor/supabase.min.js
+// We just assign null here (no let/var to avoid redeclaration conflict)
+supabase = null;
 let isAuthenticated = false;
 let adminEmail = '';
 let adminUser = null;
