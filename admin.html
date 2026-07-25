@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- Supabase JS dimuat dinamis agar tidak blocking -->
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--navy:#080e1a;--dark:#0c1525;--card:#0f172a;--border:rgba(255,255,255,.06);--red:#e63946;--red-hover:#c1121f;--text:#e2e8f0;--text-dim:#64748b;--text-muted:#94a3b8;--input-bg:rgba(255,255,255,.04);--sidebar-w:260px}
@@ -35,16 +34,19 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 .form-group textarea{min-height:100px;resize:vertical}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:10px;font-family:'Inter',sans-serif;font-weight:600;font-size:.9rem;border:none;cursor:pointer;transition:all .3s ease;text-decoration:none}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .btn-red{background:var(--red);color:#fff}
-.btn-red:hover{background:var(--red-hover);transform:translateY(-1px)}
+.btn-red:hover:not(:disabled){background:var(--red-hover);transform:translateY(-1px)}
 .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
-.btn-outline:hover{border-color:var(--red);color:var(--red)}
+.btn-outline:hover:not(:disabled){border-color:var(--red);color:var(--red)}
 .btn-sm{padding:8px 16px;font-size:.8rem}
+.btn-xs{padding:5px 12px;font-size:.75rem;border-radius:8px}
 .btn-icon{width:36px;height:36px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .3s ease}
 .btn-icon:hover{background:rgba(230,57,70,.1);border-color:var(--red);color:var(--red)}
 .btn-icon.red:hover{background:rgba(230,57,70,.15);color:var(--red)}
 .btn-icon.green:hover{background:rgba(16,185,129,.15);color:#34d399}
 .auth-error{color:var(--red);font-size:.82rem;text-align:center;margin-top:12px;display:none}
+.login-hint{text-align:center;margin-top:16px;font-size:.72rem;color:var(--text-dim)}
 
 /* LAYOUT */
 .app-layout{display:flex;height:100vh;overflow:hidden}
@@ -61,32 +63,39 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 .sidebar-nav a.active{background:rgba(230,57,70,.12);color:var(--red)}
 .sidebar-nav a.logout{margin-top:auto;color:var(--text-dim);border-top:1px solid var(--border);padding-top:16px;margin-top:16px}
 .sidebar-nav a.logout:hover{color:var(--red)}
-.sidebar-toggle{position:fixed;bottom:20px;left:20px;z-index:200;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .3s ease}
+.sidebar-toggle{position:fixed;bottom:20px;left:20px;z-index:200;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease}
 .sidebar-toggle:hover{background:var(--red);border-color:var(--red)}
 
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--dark);border-bottom:1px solid var(--border);flex-shrink:0}
-.topbar-left{display:flex;align-items:center;gap:16px}
-.topbar-left h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#fff}
-.topbar-left .page-title-desc{font-size:.78rem;color:var(--text-dim)}
-.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--dark);border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:16px;min-width:0}
+.topbar-left .topbar-mobile-menu{display:none;background:none;border:none;color:var(--text);font-size:1.2rem;cursor:pointer;padding:4px}
+.topbar-left h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#fff;white-space:nowrap}
+.topbar-left .page-title-desc{font-size:.78rem;color:var(--text-dim);white-space:nowrap}
+.topbar-center{display:flex;align-items:center;gap:10px}
+.topbar-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .topbar-right .admin-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-hover));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;cursor:pointer}
 .topbar-right .admin-info{text-align:right}
 .topbar-right .admin-info .name{font-size:.82rem;font-weight:600;color:var(--text)}
 .topbar-right .admin-info .role{font-size:.72rem;color:var(--text-dim)}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;white-space:nowrap}
+.sync-badge.online{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.2)}
+.sync-badge.offline{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.2)}
+.sync-badge i{font-size:.65rem}
 .content{flex:1;overflow-y:auto;padding:28px}
 
 /* PAGE SECTIONS */
-.page-section{display:none}
+.page-section{display:none;animation:fadeIn .3s ease}
 .page-section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
 .section-header h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:#fff}
 .section-header p{font-size:.82rem;color:var(--text-dim);margin-top:2px}
 
 /* STATS CARDS */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
-.stat-card{padding:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;transition:all .3s ease}
+.stat-card{padding:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;transition:all .3s ease;cursor:default}
 .stat-card:hover{transform:translateY(-2px);border-color:rgba(230,57,70,.2)}
 .stat-card .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:14px}
 .stat-card .stat-icon.red{background:rgba(230,57,70,.12);color:var(--red)}
@@ -95,6 +104,10 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 .stat-card .stat-icon.yellow{background:rgba(245,158,11,.12);color:#f59e0b}
 .stat-card .stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;line-height:1}
 .stat-card .stat-label{font-size:.82rem;color:var(--text-dim);margin-top:4px}
+
+/* QUICK ACTIONS */
+.quick-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.quick-actions .btn{font-size:.82rem;padding:10px 20px}
 
 /* TABLE */
 .table-wrapper{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
@@ -142,6 +155,19 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 .form-card .form-group input[type="file"]{padding:8px;cursor:pointer}
 .form-card .form-group input[type="color"]{height:44px;padding:4px;cursor:pointer}
 .form-card .preview-img{width:120px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);margin-top:8px}
+.form-card .last-saved{font-size:.75rem;color:var(--text-dim);margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* CONFIRM MODAL */
+.confirm-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay.show{display:flex}
+.confirm-box{background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:400px;padding:32px;text-align:center}
+.confirm-box .confirm-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 16px}
+.confirm-box .confirm-icon.warning{background:rgba(245,158,11,.12);color:#f59e0b}
+.confirm-box .confirm-icon.danger{background:rgba(230,57,70,.12);color:var(--red)}
+.confirm-box h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:8px}
+.confirm-box p{font-size:.85rem;color:var(--text-muted);margin-bottom:24px}
+.confirm-box .confirm-actions{display:flex;gap:12px;justify-content:center}
+.confirm-box .confirm-actions .btn{min-width:100px;justify-content:center}
 
 /* OVERLAY CONFIG */
 .overlay-preview{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-top:12px;min-height:200px;background:var(--input-bg)}
@@ -150,24 +176,35 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 .overlay-preview .overlay-sample h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:8px}
 .overlay-preview .overlay-sample p{font-size:.9rem;color:var(--text-muted);max-width:400px}
 
-/* NOTIFICATION TOAST */
+/* TOAST */
 .toast{position:fixed;top:24px;right:24px;z-index:9999;padding:14px 24px;border-radius:12px;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform .4s cubic-bezier(.4,0,.2,1);max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.4)}
 .toast.show{transform:translateX(0)}
 .toast.success{background:#064e3b;border:1px solid rgba(16,185,129,.3);color:#34d399}
 .toast.error{background:#450a0a;border:1px solid rgba(230,57,70,.3);color:var(--red)}
 .toast.info{background:#1e3a5f;border:1px solid rgba(59,130,246,.3);color:#60a5fa}
 
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.spinner-sm{width:12px;height:12px;border-width:1.5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 @media(max-width:768px){
 .sidebar{position:fixed;left:-280px;top:0;bottom:0;transition:left .3s ease;z-index:500}
 .sidebar.open{left:0}
-.sidebar-toggle{display:flex}
-.topbar{padding:14px 16px}
-.topbar-left h2{font-size:1rem}
-.content{padding:20px 16px}
+.sidebar-toggle{display:flex!important}
+.topbar{padding:10px 12px;flex-wrap:wrap}
+.topbar-left .topbar-mobile-menu{display:flex!important}
+.topbar-left .page-title-desc{display:none}
+.topbar-center{order:3;width:100%;justify-content:flex-end}
+.topbar-right .admin-info{display:none}
+.content{padding:20px 12px}
 .form-row{grid-template-columns:1fr}
 .table-toolbar .search-box{width:100%}
 .login-box{padding:32px 24px}
 .stats-grid{grid-template-columns:repeat(2,1fr)}
+.data-table th,.data-table td{padding:10px 12px}
+.data-table td:nth-child(4),.data-table th:nth-child(4){display:none}
+.quick-actions .btn{flex:1;min-width:calc(50% - 5px);justify-content:center}
 }
 .sidebar-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:499;display:none}
 .sidebar-backdrop.show{display:block}
@@ -178,6 +215,17 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <!-- TOAST -->
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Berhasil disimpan</span></div>
 
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirmOverlay" onclick="if(event.target===this)hideConfirm()">
+<div class="confirm-box" onclick="event.stopPropagation()">
+<div class="confirm-icon warning" id="confirmIcon"><i class="fas fa-exclamation-triangle"></i></div>
+<h3 id="confirmTitle">Hapus data?</h3>
+<p id="confirmMsg">Data yang dihapus tidak dapat dikembalikan.</p>
+<div class="confirm-actions">
+<button class="btn btn-outline btn-sm" onclick="hideConfirm()">Batal</button>
+<button class="btn btn-red btn-sm" id="confirmOkBtn" onclick="confirmAction()">Hapus</button>
+</div></div></div>
+
 <!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
 <div class="login-box">
@@ -185,7 +233,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <h2>RAZKA <span>PRATAMA</span></h2>
 <p>Admin Dashboard — CV RAZKA PRATAMA MANDIRI</p>
 </div>
-<form id="loginForm" autocomplete="off">
+<form id="loginForm">
 <div class="form-group">
 <label>Email</label>
 <input type="email" id="loginEmail" placeholder="admin@razkapratama.com" required autocomplete="email">
@@ -199,10 +247,11 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 </button>
 <div class="auth-error" id="authError">Email atau password salah</div>
 </form>
-<p style="text-align:center;margin-top:20px;font-size:.78rem;color:var(--text-dim)">
-Panel admin untuk mengelola konten website.
-</p>
-<button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:12px" id="demoModeBtn"><i class="fas fa-flask"></i> Mode Demo (Testing)</button>
+<div class="login-hint">Panel admin untuk mengelola konten website CV RAZKA PRATAMA MANDIRI.</div>
+<div style="display:flex;gap:10px;margin-top:16px">
+<button class="btn btn-outline" style="flex:1;justify-content:center" id="demoModeBtn"><i class="fas fa-flask"></i> Demo</button>
+<button class="btn btn-outline" style="flex:1;justify-content:center" onclick="window.open('index.html','_blank')"><i class="fas fa-external-link-alt"></i> Website</button>
+</div>
 </div></div>
 
 <!-- APP -->
@@ -237,12 +286,19 @@ Panel admin untuk mengelola konten website.
 <div class="main">
 <div class="topbar">
 <div class="topbar-left">
-<button class="btn-icon" id="sidebarToggle" style="display:none;border:none;background:none;color:var(--text);font-size:1.2rem;padding:0;width:auto" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+<button class="topbar-mobile-menu" id="mobileMenuBtn" aria-label="Menu"><i class="fas fa-bars"></i></button>
 <div>
 <h2 id="pageTitle">Dashboard</h2>
 <p class="page-title-desc" id="pageDesc">Overview informasi website</p>
 </div></div>
+<div class="topbar-center">
+<span class="sync-badge offline" id="syncBadge"><i class="fas fa-database"></i> <span id="syncBadgeText">Demo</span></span>
+</div>
 <div class="topbar-right">
+<button class="btn btn-outline btn-xs" onclick="window.open('index.html','_blank')" title="Buka website"><i class="fas fa-external-link-alt"></i> Website</button>
+<button class="btn btn-outline btn-xs" onclick="exportData()" title="Backup data"><i class="fas fa-download"></i></button>
+<button class="btn btn-outline btn-xs" onclick="document.getElementById('importFileInput').click()" title="Restore data"><i class="fas fa-upload"></i></button>
+<input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(this)">
 <div class="admin-info"><div class="name" id="adminName">Admin</div><div class="role">Administrator</div></div>
 <div class="admin-avatar" id="adminAvatar" title="Keluar">A</div>
 </div></div>
@@ -252,24 +308,24 @@ Panel admin untuk mengelola konten website.
 <!-- DASHBOARD -->
 <div class="page-section active" id="page-dashboard">
 <div class="stats-grid">
-<div class="stat-card"><div class="stat-icon red"><i class="fas fa-hard-hat"></i></div><div class="stat-value" id="statServices">0</div><div class="stat-label">Total Layanan</div></div>
-<div class="stat-card"><div class="stat-icon green"><i class="fas fa-images"></i></div><div class="stat-value" id="statPortfolio">0</div><div class="stat-label">Total Proyek</div></div>
-<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-star"></i></div><div class="stat-value" id="statTestimonials">0</div><div class="stat-label">Testimoni</div></div>
-<div class="stat-card"><div class="stat-icon yellow"><i class="fas fa-newspaper"></i></div><div class="stat-value" id="statArticles">0</div><div class="stat-label">Artikel</div></div>
+<div class="stat-card" onclick="navigateTo('services')"><div class="stat-icon red"><i class="fas fa-hard-hat"></i></div><div class="stat-value" id="statServices">0</div><div class="stat-label">Layanan</div></div>
+<div class="stat-card" onclick="navigateTo('portfolio')"><div class="stat-icon green"><i class="fas fa-images"></i></div><div class="stat-value" id="statPortfolio">0</div><div class="stat-label">Proyek</div></div>
+<div class="stat-card" onclick="navigateTo('testimonials')"><div class="stat-icon blue"><i class="fas fa-star"></i></div><div class="stat-value" id="statTestimonials">0</div><div class="stat-label">Testimoni</div></div>
+<div class="stat-card" onclick="navigateTo('articles')"><div class="stat-icon yellow"><i class="fas fa-newspaper"></i></div><div class="stat-value" id="statArticles">0</div><div class="stat-label">Artikel</div></div>
 </div>
 <div class="form-card">
 <div class="form-title">Selamat datang di Panel Admin</div>
 <div id="setupNotice" style="display:none;padding:16px 20px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:12px;margin-bottom:20px;font-size:.85rem;color:#f59e0b"><i class="fas fa-database"></i> <strong>Database perlu disetup.</strong> Buka Supabase Dashboard → SQL Editor → jalankan file <code>supabase-schema.sql</code> dari repo ini.</div>
-<p style="font-size:.85rem;color:var(--text-muted);line-height:1.8">
-Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIRI.
-</p>
-<ul style="font-size:.85rem;color:var(--text-muted);line-height:2.2;margin-top:12px;list-style:none;padding:0">
-<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Hero Banner</strong> — Ubah gambar latar, judul, deskripsi, dan overlay</li>
-<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Layanan</strong> — Tambah/edit/hapus layanan konstruksi</li>
-<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Portofolio</strong> — Kelola galeri proyek dengan filter kategori</li>
-<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Testimoni</strong> — Atur testimoni klien</li>
-<li><i class="fas fa-check" style="color:var(--red);margin-right:10px;font-size:.75rem"></i> <strong>Overlay Gambar</strong> — Konfigurasi overlay teks di belakang judul halaman</li>
-</ul>
+<p style="font-size:.85rem;color:var(--text-muted);line-height:1.8">Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIRI. Data akan otomatis tersimpan ke database (jika login) atau lokal (mode Demo).</p>
+<div class="quick-actions">
+<button class="btn btn-red btn-sm" onclick="navigateTo('hero')"><i class="fas fa-image"></i> Hero Banner</button>
+<button class="btn btn-outline btn-sm" onclick="navigateTo('services')"><i class="fas fa-cogs"></i> Layanan</button>
+<button class="btn btn-outline btn-sm" onclick="navigateTo('portfolio')"><i class="fas fa-images"></i> Portofolio</button>
+<button class="btn btn-outline btn-sm" onclick="navigateTo('company')"><i class="fas fa-building"></i> Perusahaan</button>
+<button class="btn btn-outline btn-sm" onclick="exportData()"><i class="fas fa-download"></i> Backup Data</button>
+<button class="btn btn-outline btn-sm" onclick="window.open('index.html','_blank')"><i class="fas fa-external-link-alt"></i> Lihat Website</button>
+</div>
+<p style="font-size:.78rem;color:var(--text-dim);margin-top:20px" id="lastSavedInfo">Belum ada data tersimpan.</p>
 </div></div>
 
 <!-- HERO -->
@@ -278,17 +334,17 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="form-card">
 <div class="form-group">
 <label>Gambar Latar Belakang</label>
-<input type="text" id="heroBgUrl" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=85" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=85">
+<div style="display:flex;gap:8px"><input type="text" id="heroBgUrl" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=85" style="flex:1" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=85"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('heroBgUrl')" title="Tempel dari clipboard"><i class="fas fa-paste"></i></button></div>
 <img class="preview-img" id="heroBgPreview" src="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=200&q=60" alt="preview" style="display:block">
 <div class="upload-zone" id="heroUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
 <div class="upload-progress" id="heroUploadProgress"><div class="bar"></div></div>
-<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="document.getElementById('heroBgUrl').value='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=80';document.getElementById('heroBgPreview').src='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=200&q=60';showToast('Gambar direset ke default','info')"><i class="fas fa-redo"></i> Reset Default</button>
+<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="resetHeroBg()"><i class="fas fa-redo"></i> Reset Default</button>
 </div>
 <div class="form-row">
 <div class="form-group"><label>Judul Utama</label><input type="text" id="heroTitle" placeholder="Kontraktor Bangunan & Infrastruktur Terpercaya" value="Kontraktor Bangunan & Infrastruktur Terpercaya"></div>
 <div class="form-group"><label>Subtitle</label><input type="text" id="heroSubtitle" placeholder="Banyuwangi & Jawa Timur" value="Banyuwangi & Jawa Timur"></div>
 </div>
-<div class="form-group"><label>Deskripsi</label><textarea id="heroDesc" rows="3" placeholder="Deskripsi hero section">Mewujudkan konstruksi solid, presisi, dan tepat waktu untuk proyek pemerintah dan bangunan umum.</textarea></div>
+<div class="form-group"><label>Deskripsi</label><textarea id="heroDesc" rows="3">Mewujudkan konstruksi solid, presisi, dan tepat waktu untuk proyek pemerintah dan bangunan umum.</textarea></div>
 <div class="form-row">
 <div class="form-group"><label>Badge Text</label><input type="text" id="heroBadge" placeholder="Kontraktor Pemerintah & Konstruksi Umum" value="Kontraktor Pemerintah & Konstruksi Umum"></div>
 <div class="form-group"><label>Tombol CTA</label><input type="text" id="heroCta" placeholder="Konsultasi Proyek" value="Konsultasi Proyek"></div>
@@ -298,13 +354,14 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <input type="range" id="heroOverlay" min="0" max="1" step=".05" value=".88" style="width:100%;accent-color:var(--red)">
 <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-dim);margin-top:4px"><span>Transparan</span><span id="overlayVal">0.88</span><span>Gelap</span></div>
 </div>
+<div class="last-saved" id="heroLastSaved"></div>
 </div></div>
 
 <!-- SERVICES -->
 <div class="page-section" id="page-services">
 <div class="section-header"><div><h3>Layanan</h3><p>Kelola daftar layanan konstruksi</p></div><button class="btn btn-red btn-sm" onclick="openServiceModal()"><i class="fas fa-plus"></i> Tambah Layanan</button></div>
 <div class="table-wrapper">
-<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari layanan..." oninput="filterTable(this,'servicesTable')"></div></div>
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari layanan..." oninput="filterTable(this,'servicesTable')"></div><span style="font-size:.78rem;color:var(--text-dim)" id="servicesCount">0 item</span></div>
 <table class="data-table" id="servicesTable">
 <thead><tr><th>#</th><th>Ikon</th><th>Layanan</th><th>Deskripsi</th><th style="width:100px">Aksi</th></tr></thead>
 <tbody id="servicesBody">
@@ -315,7 +372,7 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="page-section" id="page-portfolio">
 <div class="section-header"><div><h3>Portofolio</h3><p>Kelola galeri proyek</p></div><button class="btn btn-red btn-sm" onclick="openPortfolioModal()"><i class="fas fa-plus"></i> Tambah Proyek</button></div>
 <div class="table-wrapper">
-<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari proyek..." oninput="filterTable(this,'portfolioTable')"></div></div>
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari proyek..." oninput="filterTable(this,'portfolioTable')"></div><span style="font-size:.78rem;color:var(--text-dim)" id="portfolioCount">0 item</span></div>
 <table class="data-table" id="portfolioTable">
 <thead><tr><th>#</th><th>Gambar</th><th>Proyek</th><th>Kategori</th><th>Lokasi</th><th style="width:100px">Aksi</th></tr></thead>
 <tbody id="portfolioBody">
@@ -326,7 +383,7 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="page-section" id="page-testimonials">
 <div class="section-header"><div><h3>Testimoni</h3><p>Kelola testimoni klien</p></div><button class="btn btn-red btn-sm" onclick="openTestimonialModal()"><i class="fas fa-plus"></i> Tambah Testimoni</button></div>
 <div class="table-wrapper">
-<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari testimoni..." oninput="filterTable(this,'testimonialsTable')"></div></div>
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari testimoni..." oninput="filterTable(this,'testimonialsTable')"></div><span style="font-size:.78rem;color:var(--text-dim)" id="testimonialsCount">0 item</span></div>
 <table class="data-table" id="testimonialsTable">
 <thead><tr><th>#</th><th>Klien</th><th>Posisi</th><th>Isi Testimoni</th><th style="width:100px">Aksi</th></tr></thead>
 <tbody id="testimonialsBody">
@@ -337,7 +394,7 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="page-section" id="page-articles">
 <div class="section-header"><div><h3>Artikel</h3><p>Kelola artikel berita dan informasi</p></div><button class="btn btn-red btn-sm" onclick="openArticleModal()"><i class="fas fa-plus"></i> Tambah Artikel</button></div>
 <div class="table-wrapper">
-<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari artikel..." oninput="filterTable(this,'articlesTable')"></div></div>
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari artikel..." oninput="filterTable(this,'articlesTable')"></div><span style="font-size:.78rem;color:var(--text-dim)" id="articlesCount">0 item</span></div>
 <table class="data-table" id="articlesTable">
 <thead><tr><th>#</th><th>Judul</th><th>Tanggal</th><th>Status</th><th style="width:100px">Aksi</th></tr></thead>
 <tbody id="articlesBody">
@@ -361,51 +418,56 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="form-group"><label>Jam Operasional</label><input type="text" id="companyHours" placeholder="Senin – Sabtu: 08:00 – 17:00 WIB" value="Senin – Sabtu: 08:00 – 17:00 WIB"></div>
 <div class="form-group"><label>Tahun Berdiri</label><input type="text" id="companyYear" placeholder="2016" value="2016"></div>
 </div>
+<div class="last-saved" id="companyLastSaved"></div>
 </div></div>
 
 <!-- SEO -->
 <div class="page-section" id="page-seo">
 <div class="section-header"><div><h3>SEO & Meta</h3><p>Pengaturan SEO dan Open Graph</p></div><button class="btn btn-red btn-sm" id="saveSeo"><i class="fas fa-save"></i> Simpan</button></div>
 <div class="form-card">
-<div class="form-group"><label>Meta Title</label><input type="text" id="seoTitle" placeholder="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan & Infrastruktur Pemerintah Banyuwangi" value="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan & Infrastruktur Pemerintah Banyuwangi"></div>
-<div class="form-group"><label>Meta Description</label><textarea id="seoDesc" rows="2" placeholder="Deskripsi untuk SEO">CV RAZKA PRATAMA MANDIRI – Kontraktor bangunan terpercaya di Banyuwangi, spesialis infrastruktur pemerintah, pekerjaan sipil, renovasi, dan desain arsitektur.</textarea></div>
+<div class="form-group"><label>Meta Title</label><input type="text" id="seoTitle" placeholder="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan..." value="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan & Infrastruktur Pemerintah Banyuwangi"></div>
+<div class="form-group"><label>Meta Description</label><textarea id="seoDesc" rows="2">CV RAZKA PRATAMA MANDIRI – Kontraktor bangunan terpercaya di Banyuwangi, spesialis infrastruktur pemerintah, pekerjaan sipil, renovasi, dan desain arsitektur.</textarea></div>
 <div class="form-row">
-<div class="form-group"><label>Keywords</label><input type="text" id="seoKeywords" placeholder="kontraktor Banyuwangi, jasa bangunan" value="kontraktor pemerintah Banyuwangi, jasa bangunan, pekerjaan sipil, infrastruktur"></div>
-<div class="form-group"><label>OG Image URL</label><input type="text" id="seoOgImage" placeholder="https://images.unsplash.com/photo-xxx?w=1200&q=80" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1200&q=80">
+<div class="form-group"><label>Keywords</label><input type="text" id="seoKeywords" value="kontraktor pemerintah Banyuwangi, jasa bangunan, pekerjaan sipil, infrastruktur"></div>
+<div class="form-group"><label>OG Image URL</label>
+<div style="display:flex;gap:8px"><input type="text" id="seoOgImage" style="flex:1" placeholder="https://images.unsplash.com/photo-xxx?w=1200&q=80" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1200&q=80"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('seoOgImage')"><i class="fas fa-paste"></i></button></div>
 <div class="upload-zone" id="seoUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
-<div class="upload-progress" id="seoUploadProgress"><div class="bar"></div></div></div>
+<div class="upload-progress" id="seoUploadProgress"><div class="bar"></div></div>
 </div>
+</div>
+<div class="last-saved" id="seoLastSaved"></div>
 </div></div>
 
 <!-- OVERLAY -->
 <div class="page-section" id="page-overlay">
 <div class="section-header"><div><h3>Overlay Gambar</h3><p>Konfigurasi overlay teks di belakang judul dan deskripsi halaman</p></div><button class="btn btn-red btn-sm" id="saveOverlay"><i class="fas fa-save"></i> Simpan</button></div>
 <div class="form-card">
-<div class="form-group"><label>Gambar Latar Overlay</label><input type="text" id="overlayBg" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=80" value="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600&q=80">
+<div class="form-group"><label>Gambar Latar Overlay</label>
+<div style="display:flex;gap:8px"><input type="text" id="overlayBg" style="flex:1" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=80" value="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600&q=80"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('overlayBg')"><i class="fas fa-paste"></i></button></div>
 <div class="upload-zone" id="overlayUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
 <div class="upload-progress" id="overlayUploadProgress"><div class="bar"></div></div></div>
 <div class="form-row">
 <div class="form-group"><label>Judul Overlay</label><input type="text" id="overlayTitle" placeholder="Bidang Keahlian Kami" value="Bidang Keahlian Kami"></div>
 <div class="form-group"><label>Warna Overlay</label><input type="color" id="overlayColor" value="#080e1a"></div>
 </div>
-<div class="form-group"><label>Deskripsi Overlay</label><textarea id="overlayDesc" rows="2" placeholder="Deskripsi yang tampil di atas overlay">Berpengalaman dalam berbagai jenis proyek konstruksi, dari infrastruktur pemerintah hingga bangunan residensial.</textarea></div>
+<div class="form-group"><label>Deskripsi Overlay</label><textarea id="overlayDesc" rows="2">Berpengalaman dalam berbagai jenis proyek konstruksi, dari infrastruktur pemerintah hingga bangunan residensial.</textarea></div>
 <div class="form-group"><label>Opacity Overlay</label>
 <input type="range" id="overlayOpacity" min="0" max="1" step=".05" value=".6" style="width:100%;accent-color:var(--red)">
-<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-dim);margin-top:4px"><span>Ringan</span><span id="overlayOpacityVal">0.60</span><span>Berat</span></div>
-</div>
+<div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-dim);margin-top:4px"><span>Ringan</span><span id="overlayOpacityVal">0.60</span><span>Berat</span></div></div>
 <div class="overlay-preview" id="overlayPreview">
 <div class="overlay-sample" id="overlaySample">
 <h3 id="previewOverlayTitle">Bidang Keahlian Kami</h3>
 <p id="previewOverlayDesc">Berpengalaman dalam berbagai jenis proyek konstruksi</p>
 </div></div>
+<div class="last-saved" id="overlayLastSaved"></div>
 </div></div>
 
 </div></div></div>
 
 <!-- MODALS -->
 <div class="modal" id="modalBg" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeModal()">
-<div style="background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;padding:32px" onclick="event.stopPropagation()">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+<div style="background:var(--card);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;padding:32px" onclick="event.stopPropagation()">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;position:sticky;top:0;background:var(--card);z-index:1">
 <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:#fff" id="modalTitle">Tambah Data</h3>
 <button class="btn-icon" onclick="closeModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem"><i class="fas fa-times"></i></button>
 </div>
@@ -418,8 +480,11 @@ const SUPABASE_URL = 'https://ncidonlsvxndynssback.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jaWRvbmxzdnhuZHluc3NiYWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njg0NjgsImV4cCI6MjEwMDU0NDQ2OH0.yqEsaE7tu14lrYa4gleyLLVfyhlw7UB2HfAIUYkzgD0';
 let supabase = null;
 let isAuthenticated = false;
+let isDemo = false;
 let adminEmail = '';
 let dataCache = { services: [], portfolio: [], testimonials: [], articles: [] };
+let _confirmCallback = null;
+let _editingIdx = { services: -1, portfolio: -1, testimonials: -1, articles: -1 };
 
 // Load Supabase CDN dynamically (non-blocking)
 function loadSupabaseCDN(){
@@ -428,7 +493,7 @@ if(window.supabase&&window.supabase.createClient)return resolve(true);
 const s=document.createElement('script');
 s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
 let done=false;
-const t=setTimeout(()=>{if(!done){done=true;console.warn('Supabase CDN timeout (5s)');resolve(false)}},5000);
+const t=setTimeout(()=>{if(!done){done=true;console.warn('Supabase CDN timeout');resolve(false)}},5000);
 s.onload=()=>{if(!done){done=true;clearTimeout(t);resolve(true)}};
 s.onerror=()=>{if(!done){done=true;clearTimeout(t);console.warn('Supabase CDN gagal');resolve(false)}};
 document.head.appendChild(s);
@@ -438,9 +503,39 @@ document.head.appendChild(s);
 // ===== TOAST =====
 function showToast(msg, type='success'){
 const t=document.getElementById('toast'),m=document.getElementById('toastMsg');
+if(msg.includes('Gagal')||msg.includes('error')||msg.includes('salah'))type='error';
 t.className='toast '+type;m.textContent=msg;
+t.classList.remove('show');void t.offsetWidth;
 t.classList.add('show');
-setTimeout(()=>t.classList.remove('show'),3500);
+if(window._toastTimer)clearTimeout(window._toastTimer);
+window._toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ===== CONFIRM MODAL =====
+function showConfirm(title,msg,callback,icon='warning'){
+document.getElementById('confirmTitle').textContent=title;
+document.getElementById('confirmMsg').textContent=msg;
+const ci=document.getElementById('confirmIcon');
+ci.className='confirm-icon '+(icon||'warning');
+ci.innerHTML=icon==='danger'?'<i class="fas fa-trash-alt"></i>':'<i class="fas fa-exclamation-triangle"></i>';
+document.getElementById('confirmOkBtn').textContent=icon==='danger'?'Hapus':'Ya';
+_confirmCallback=callback;
+document.getElementById('confirmOverlay').classList.add('show');
+}
+function hideConfirm(){document.getElementById('confirmOverlay').classList.remove('show');_confirmCallback=null}
+function confirmAction(){if(_confirmCallback){_confirmCallback();_confirmCallback=null}hideConfirm()}
+
+// ===== UTILITY =====
+function pasteFromClipboard(inputId){
+navigator.clipboard.readText().then(t=>{
+if(t)document.getElementById(inputId).value=t;
+showToast('URL ditempel dari clipboard','info');
+}).catch(()=>showToast('Gagal membaca clipboard','error'));
+}
+
+function navigateTo(page){
+const link=document.querySelector('.sidebar-nav a[data-page="'+page+'"]');
+if(link)link.click();
 }
 
 // ===== SUPABASE INIT =====
@@ -450,44 +545,60 @@ if(!cdnLoaded){console.warn('Supabase CDN tidak tersedia');return false}
 try{
 supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const{data:{user}}=await supabase.auth.getUser();
-if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});}
+if(user){isAuthenticated=true;isDemo=false;adminEmail=user.email;showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});}
 return true;
 }catch(e){console.error('Supabase init error:',e);return false}
 }
 
-// Run after login — check tables and setup if missing
 async function setupMissingTables(missing){
-if(!missing.length)return true;
-// Try creating tables by inserting test data (PostgREST auto-creates if configured)
-// If that fails, show a setup notification
+if(!missing.length)return;
 const setupNotice=document.getElementById('setupNotice');
 if(setupNotice)setupNotice.style.display='block';
-showToast('Database perlu disetup. Buka Supabase SQL Editor dan jalankan supabase-schema.sql','info');
-return false;
+showToast('Database perlu disetup. Buka Supabase SQL Editor, jalankan supabase-schema.sql','info');
+}
+
+// ===== SYNC STATUS =====
+function updateSyncStatus(){
+const badge=document.getElementById('syncBadge');
+const text=document.getElementById('syncBadgeText');
+if(isDemo){
+badge.className='sync-badge offline';
+text.textContent='Demo (Lokal)';
+}else if(isAuthenticated&&supabase){
+badge.className='sync-badge online';
+text.textContent='Terhubung';
+}else{
+badge.className='sync-badge offline';
+text.textContent='Offline';
+}
 }
 
 // ===== LOGIN =====
-document.getElementById('loginForm').addEventListener('submit',async(e)=>{e.preventDefault();
+document.getElementById('loginForm').addEventListener('submit',async(e)=>{
 e.preventDefault();
 const email=document.getElementById('loginEmail').value;
 const pass=document.getElementById('loginPassword').value;
 const btn=document.getElementById('loginBtn');
 const err=document.getElementById('authError');
-if(!supabase){showToast('Supabase belum dikonfigurasi','error');return}
-btn.querySelector('span').textContent='Memproses...';btn.disabled=true;
+if(!supabase){showToast('Supabase tidak tersedia. Gunakan Mode Demo.','error');return}
+btn.disabled=true;btn.querySelector('span').textContent='Memproses...';
 const{data,error}=await supabase.auth.signInWithPassword({email,password:pass});
-if(error){err.style.display='block';err.textContent=error.message||'Email atau password salah';btn.querySelector('span').textContent='Masuk';btn.disabled=false;console.error('Login error:',error);return}
-err.style.display='none';isAuthenticated=true;adminEmail=email;
-showToast('Selamat datang, '+email,'success');
-showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
-initUploadZones().catch(e=>console.warn('initUploadZones:',e));
+if(error){
+err.style.display='block';err.textContent='Email atau password salah';
+btn.disabled=false;btn.querySelector('span').textContent='Masuk';
+console.error('Login error:',error);return}
+err.style.display='none';isAuthenticated=true;isDemo=false;adminEmail=email;
+showToast('Selamat datang, '+email.split('@')[0],'success');
+showApp();updateSyncStatus();
+loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
+initUploadZones().catch(e=>console.warn('Upload zones:',e));
 });
 
 document.getElementById('adminAvatar').addEventListener('click',()=>document.getElementById('logoutBtn').click());
+
 document.getElementById('logoutBtn').addEventListener('click',async()=>{
-if(!supabase)return;
-await supabase.auth.signOut();
-isAuthenticated=false;
+if(supabase&&isAuthenticated)await supabase.auth.signOut();
+isAuthenticated=false;isDemo=false;
 document.getElementById('appLayout').style.display='none';
 document.getElementById('loginScreen').classList.remove('hidden');
 showToast('Berhasil keluar','info');
@@ -496,7 +607,8 @@ showToast('Berhasil keluar','info');
 function showApp(){
 document.getElementById('loginScreen').classList.add('hidden');
 document.getElementById('appLayout').style.display='flex';
-document.getElementById('adminName').textContent=adminEmail.split('@')[0];
+const name=adminEmail.split('@')[0];
+document.getElementById('adminName').textContent=name.charAt(0).toUpperCase()+name.slice(1);
 document.getElementById('adminAvatar').textContent=adminEmail[0].toUpperCase();
 }
 
@@ -514,12 +626,16 @@ const titles={dashboard:'Dashboard',hero:'Hero Banner',services:'Layanan',portfo
 const descs={dashboard:'Overview informasi website',hero:'Ubah tampilan hero section',services:'Kelola daftar layanan konstruksi',portfolio:'Kelola galeri proyek',testimonials:'Kelola testimoni klien',articles:'Kelola artikel dan berita',company:'Informasi profil perusahaan',seo:'Pengaturan SEO dan Open Graph',overlay:'Konfigurasi overlay teks pada halaman'};
 document.getElementById('pageTitle').textContent=titles[page]||'Dashboard';
 document.getElementById('pageDesc').textContent=descs[page]||'';
+// Load settings when navigating to settings pages
+if(['hero','company','seo','overlay'].includes(page))loadSettingsToForm(page);
 if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarBackdrop').classList.remove('show')}
+// Scroll content to top
+document.querySelector('.content').scrollTop=0;
 });
 });
 
-// ===== SIDEBAR TOGGLE =====
-document.getElementById('sidebarToggle').addEventListener('click',()=>{
+// Mobile menu
+document.getElementById('mobileMenuBtn').addEventListener('click',()=>{
 document.getElementById('sidebar').classList.toggle('open');
 document.getElementById('sidebarBackdrop').classList.toggle('show');
 });
@@ -531,11 +647,18 @@ document.getElementById('sidebarBackdrop').classList.remove('show');
 // ===== FILTER TABLE =====
 function filterTable(input,tableId){
 const q=input.value.toLowerCase();
+let count=0;
 document.querySelectorAll('#'+tableId+' tbody tr').forEach(r=>{
 if(r.querySelector('td[colspan]'))return;
 const t=r.textContent.toLowerCase();
-r.style.display=t.includes(q)?'':'none';
+const show=t.includes(q);
+r.style.display=show?'':'none';
+if(show)count++;
 });
+// Update count
+const countId=tableId.replace('Table','Count');
+const el=document.getElementById(countId);
+if(el)el.textContent=count+' item';
 }
 
 // ===== SUPABASE STORAGE =====
@@ -546,14 +669,10 @@ if(!supabase)return false;
 try{
 const{data:buckets}=await supabase.storage.listBuckets();
 if(buckets&&buckets.find(b=>b.name===STORAGE_BUCKET))return true;
-// Try to create bucket via API (may fail with anon key)
 const{error}=await supabase.storage.createBucket(STORAGE_BUCKET,{public:true});
-if(error){
-showToast('Buat bucket "razka-images" di Supabase Dashboard → Storage agar upload berfungsi','info');
-return false;
-}
+if(error){showToast('Buat bucket "razka-images" di Supabase Dashboard → Storage','info');return false}
 return true;
-}catch(e){console.warn('Storage bucket error:',e.message);return false}
+}catch(e){console.warn('Storage:',e.message);return false}
 }
 
 async function uploadToStorage(file,path){
@@ -562,30 +681,29 @@ const ext=file.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'');
 const fileName=Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
 const filePath=path+'/'+fileName;
 const{data,error}=await supabase.storage.from(STORAGE_BUCKET).upload(filePath,file,{upsert:true});
-if(error){console.error('Upload error:',error);showToast('Gagal upload: '+error.message,'error');return null}
+if(error){showToast('Gagal upload: '+error.message,'error');return null}
 const{data:{publicUrl}}=supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
 return publicUrl;
 }
 
 function setupUploadZone(zoneId,inputId,previewId,progressId,path){
 const zone=document.getElementById(zoneId);
+if(!zone)return;
 const input=zone.querySelector('input[type="file"]');
 if(!input)return;
-input.addEventListener('change',async function(e){
+// Remove old listener by cloning
+const newInput=input.cloneNode(true);
+input.parentNode.replaceChild(newInput,input);
+newInput.addEventListener('change',async function(){
 const file=this.files[0];
 if(!file)return;
-// Show progress
 const prog=document.getElementById(progressId);
 if(prog){prog.style.display='block';prog.querySelector('.bar').style.width='30%'}
-// Validate file type
-if(!file.type.startsWith('image/')){showToast('Hanya file gambar yang diizinkan','error');return}
-// Validate size (max 5MB)
-if(file.size>5*1024*1024){showToast('Maksimal ukuran file 5MB','error');return}
-// Show preview
+if(!file.type.startsWith('image/')){showToast('Hanya file gambar','error');return}
+if(file.size>5*1024*1024){showToast('Maks 5MB','error');return}
 const reader=new FileReader();
 reader.onload=function(ev){zone.style.backgroundImage='url('+ev.target.result+')';zone.style.backgroundSize='cover';zone.style.backgroundPosition='center'};
 reader.readAsDataURL(file);
-// Upload
 if(prog)prog.querySelector('.bar').style.width='60%';
 const url=await uploadToStorage(file,path);
 if(url){
@@ -615,11 +733,18 @@ document.getElementById('overlayOpacityVal').textContent=op.toFixed(2);
 }
 function hexToRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')'}
 ['overlayBg','overlayTitle','overlayDesc','overlayColor','overlayOpacity'].forEach(id=>{
-document.getElementById(id).addEventListener('input',updateOverlayPreview);
+const el=document.getElementById(id);
+if(el)el.addEventListener('input',updateOverlayPreview);
 });
 document.getElementById('heroOverlay').addEventListener('input',function(){
 document.getElementById('overlayVal').textContent=parseFloat(this.value).toFixed(2);
 });
+
+function resetHeroBg(){
+document.getElementById('heroBgUrl').value='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=80';
+document.getElementById('heroBgPreview').src='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=200&q=60';
+showToast('Gambar direset ke default','info');
+}
 
 // ===== MODAL =====
 function openModal(title,bodyHtml){
@@ -630,117 +755,188 @@ document.getElementById('modalBg').style.display='flex';
 function closeModal(){document.getElementById('modalBg').style.display='none'}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
+// ===== DATA PERSISTENCE (localStorage for demo) =====
+function saveCacheToLocal(){
+try{localStorage.setItem('razka_admin_cache',JSON.stringify({data:dataCache,time:Date.now()}))}catch(e){}
+}
+function loadCacheFromLocal(){
+try{
+const raw=localStorage.getItem('razka_admin_cache');
+if(!raw)return false;
+const{data}=JSON.parse(raw);
+if(data){dataCache=data;return true}
+}catch(e){}
+return false;
+}
+
 // ===== CRUD: SERVICES =====
 function renderServices(){
 const t=document.getElementById('servicesBody');
-if(!dataCache.services.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-cogs"></i><h4>Belum ada layanan</h4><p>Klik "Tambah Layanan" untuk menambahkan layanan baru</p></td></tr>';return}
-t.innerHTML=dataCache.services.map((s,i)=>'<tr><td>'+(i+1)+'</td><td><div class="service-icon" style="width:36px;height:36px;border-radius:10px;background:rgba(230,57,70,.1);display:flex;align-items:center;justify-content:center;color:var(--red)"><i class="fas fa-'+s.icon+'"></i></div></td><td><strong>'+s.name+'</strong></td><td style="color:var(--text-muted)">'+s.desc+'</td><td><div class="actions"><button class="btn-icon green" onclick="editService('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteService('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+if(!dataCache.services.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-cogs"></i><h4>Belum ada layanan</h4><p>Klik "Tambah Layanan" untuk menambahkan</p></td></tr>';
+document.getElementById('servicesCount').textContent='0 item';return}
+t.innerHTML=dataCache.services.map((s,i)=>'<tr><td>'+(i+1)+'</td><td><div style="width:36px;height:36px;border-radius:10px;background:rgba(230,57,70,.1);display:flex;align-items:center;justify-content:center;color:var(--red)"><i class="fas fa-'+s.icon+'"></i></div></td><td><strong>'+escHtml(s.name)+'</strong></td><td style="color:var(--text-muted);max-width:280px">'+escHtml(s.desc)+'</td><td><div class="actions"><button class="btn-icon green" onclick="editService('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteService('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statServices').textContent=dataCache.services.length;
+document.getElementById('servicesCount').textContent=dataCache.services.length+' item';
+saveCacheToLocal();
 }
 function openServiceModal(idx){
 const s=idx!==undefined?dataCache.services[idx]:{name:'',icon:'wrench',desc:''};
+_editingIdx.services=idx!==undefined?idx:-1;
 openModal(idx!==undefined?'Edit Layanan':'Tambah Layanan',
-'<div class="form-group"><label>Nama Layanan</label><input type="text" id="fServiceName" value="'+s.name+'" placeholder="Pekerjaan Sipil"></div>'+
-'<div class="form-group"><label>Ikon (FontAwesome class)</label><input type="text" id="fServiceIcon" value="'+s.icon+'" placeholder="drafting-compass, tools, pencil-ruler"></div>'+
-'<div class="form-group"><label>Deskripsi</label><textarea id="fServiceDesc" rows="3" placeholder="Deskripsi layanan...">'+s.desc+'</textarea></div>'+
-'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveService('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
-);
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Nama Layanan</label><input type="text" id="fServiceName" value="'+escAttr(s.name)+'" placeholder="Pekerjaan Sipil" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Ikon (FontAwesome)</label><input type="text" id="fServiceIcon" value="'+escAttr(s.icon)+'" placeholder="drafting-compass, tools, pencil-ruler" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:20px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Deskripsi</label><textarea id="fServiceDesc" rows="3" placeholder="Deskripsi layanan..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(s.desc)+'</textarea></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveService()"><i class="fas fa-save"></i> Simpan</button>');
 }
-function saveService(idx){
+function saveService(){
 const name=document.getElementById('fServiceName').value.trim();
 const icon=document.getElementById('fServiceIcon').value.trim();
 const desc=document.getElementById('fServiceDesc').value.trim();
 if(!name||!desc){showToast('Nama dan deskripsi harus diisi','error');return}
-if(idx===-1||idx===undefined)dataCache.services.push({name,icon,desc});
-else dataCache.services[idx]={name,icon,desc};
+if(_editingIdx.services===-1)dataCache.services.push({name,icon,desc});
+else dataCache.services[_editingIdx.services]={name,icon,desc};
 renderServices();closeModal();syncToSupabase('services');showToast('Layanan berhasil disimpan');
 }
 function editService(i){openServiceModal(i)}
-function deleteService(i){if(confirm('Hapus layanan ini?')){dataCache.services.splice(i,1);renderServices();syncToSupabase('services');showToast('Layanan dihapus','info')}}
+function deleteService(i){
+showConfirm('Hapus Layanan?','Layanan "'+dataCache.services[i].name+'" akan dihapus.',()=>{dataCache.services.splice(i,1);renderServices();syncToSupabase('services');showToast('Layanan dihapus','info')},'danger');
+}
 
 // ===== CRUD: PORTFOLIO =====
 function renderPortfolio(){
 const t=document.getElementById('portfolioBody');
-if(!dataCache.portfolio.length){t.innerHTML='<tr><td colspan="6" class="empty-state"><i class="fas fa-images"></i><h4>Belum ada proyek</h4><p>Klik "Tambah Proyek" untuk menambahkan proyek baru</p></td></tr>';return}
-t.innerHTML=dataCache.portfolio.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+(p.img?'<img class="table-img" src="'+p.img+'" alt="">':'<div class="table-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:.7rem">No img</div>')+'</td><td><strong>'+p.name+'</strong></td><td><span class="badge '+(p.cat==='pemerintah'?'green':p.cat==='komersial'?'blue':'red')+'">'+p.cat+'</span></td><td style="color:var(--text-muted)">'+p.loc+'</td><td><div class="actions"><button class="btn-icon green" onclick="editPortfolio('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deletePortfolio('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+if(!dataCache.portfolio.length){t.innerHTML='<tr><td colspan="6" class="empty-state"><i class="fas fa-images"></i><h4>Belum ada proyek</h4><p>Klik "Tambah Proyek" untuk menambahkan</p></td></tr>';
+document.getElementById('portfolioCount').textContent='0 item';return}
+t.innerHTML=dataCache.portfolio.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+(p.img?'<img class="table-img" src="'+p.img+'" alt="" style="object-fit:cover" onerror="this.style.display=\'none\'">':'<div class="table-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:.7rem">—</div>')+'</td><td><strong>'+escHtml(p.name)+'</strong></td><td><span class="badge '+(p.cat==='pemerintah'?'green':p.cat==='komersial'?'blue':'red')+'">'+(p.cat||'residensial')+'</span></td><td style="color:var(--text-muted)">'+escHtml(p.loc)+'</td><td><div class="actions"><button class="btn-icon green" onclick="editPortfolio('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deletePortfolio('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statPortfolio').textContent=dataCache.portfolio.length;
+document.getElementById('portfolioCount').textContent=dataCache.portfolio.length+' item';
+saveCacheToLocal();
 }
 function openPortfolioModal(idx){
 const p=idx!==undefined?dataCache.portfolio[idx]:{name:'',cat:'residensial',loc:'Banyuwangi',desc:'',img:'',year:'2025'};
+_editingIdx.portfolio=idx!==undefined?idx:-1;
 openModal(idx!==undefined?'Edit Proyek':'Tambah Proyek',
-'<div class="form-group"><label>Nama Proyek</label><input type="text" id="fPortName" value="'+p.name+'"></div>'+
-'<div class="form-row"><div class="form-group"><label>Kategori</label><select id="fPortCat"><option value="pemerintah" '+(p.cat==='pemerintah'?'selected':'')+'>Pemerintah</option><option value="komersial" '+(p.cat==='komersial'?'selected':'')+'>Komersial</option><option value="residensial" '+(p.cat==='residensial'?'selected':'')+'>Residensial</option></select></div>'+
-'<div class="form-group"><label>Lokasi</label><input type="text" id="fPortLoc" value="'+p.loc+'"></div></div>'+
-'<div class="form-group"><label>Deskripsi</label><textarea id="fPortDesc" rows="2">'+p.desc+'</textarea></div>'+
-'<div class="form-row"><div class="form-group"><label>Gambar URL</label><input type="text" id="fPortImg" value="'+p.img+'" placeholder="https://..."></div>'+
-'<div class="form-group"><label>Tahun</label><input type="text" id="fPortYear" value="'+p.year+'"></div></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Nama Proyek</label><input type="text" id="fPortName" value="'+escAttr(p.name)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Kategori</label><select id="fPortCat" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"><option value="pemerintah" '+(p.cat==='pemerintah'?'selected':'')+'>Pemerintah</option><option value="komersial" '+(p.cat==='komersial'?'selected':'')+'>Komersial</option><option value="residensial" '+(p.cat==='residensial'?'selected':'')+'>Residensial</option></select></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Lokasi</label><input type="text" id="fPortLoc" value="'+escAttr(p.loc)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Deskripsi</label><textarea id="fPortDesc" rows="2" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(p.desc)+'</textarea></div>'+
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Gambar URL</label><input type="text" id="fPortImg" value="'+escAttr(p.img)+'" placeholder="https://..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none">'+(p.img?'<img src="'+p.img+'" style="width:60px;height:40px;border-radius:6px;object-fit:cover;margin-top:6px" onerror="this.style.display=\'none\'">':'')+'</div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Tahun</label><input type="text" id="fPortYear" value="'+escAttr(p.year)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
 '<div class="upload-zone" id="portUploadZone" style="margin-bottom:16px"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar proyek</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>'+
 '<div class="upload-progress" id="portUploadProgress" style="margin-bottom:16px"><div class="bar"></div></div>'+
-'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="savePortfolio('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
-);
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="savePortfolio()"><i class="fas fa-save"></i> Simpan</button>');
+setTimeout(()=>{const z=document.getElementById('portUploadZone');if(z)setupUploadZone('portUploadZone','fPortImg',null,'portUploadProgress','portfolio')},50);
 }
-function savePortfolio(idx){
+function savePortfolio(){
 const o={name:document.getElementById('fPortName').value.trim(),cat:document.getElementById('fPortCat').value,loc:document.getElementById('fPortLoc').value.trim(),desc:document.getElementById('fPortDesc').value.trim(),img:document.getElementById('fPortImg').value.trim(),year:document.getElementById('fPortYear').value.trim()};
 if(!o.name){showToast('Nama proyek harus diisi','error');return}
-if(idx===-1||idx===undefined)dataCache.portfolio.push(o);
-else dataCache.portfolio[idx]=o;
+if(_editingIdx.portfolio===-1)dataCache.portfolio.push(o);
+else dataCache.portfolio[_editingIdx.portfolio]=o;
 renderPortfolio();closeModal();syncToSupabase('portfolio');showToast('Proyek berhasil disimpan');
 }
 function editPortfolio(i){openPortfolioModal(i)}
-function deletePortfolio(i){if(confirm('Hapus proyek ini?')){dataCache.portfolio.splice(i,1);renderPortfolio();syncToSupabase('portfolio');showToast('Proyek dihapus','info')}}
+function deletePortfolio(i){
+showConfirm('Hapus Proyek?','Proyek "'+dataCache.portfolio[i].name+'" akan dihapus.',()=>{dataCache.portfolio.splice(i,1);renderPortfolio();syncToSupabase('portfolio');showToast('Proyek dihapus','info')},'danger');
+}
 
 // ===== CRUD: TESTIMONIALS =====
 function renderTestimonials(){
 const t=document.getElementById('testimonialsBody');
-if(!dataCache.testimonials.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-star"></i><h4>Belum ada testimoni</h4><p>Klik "Tambah Testimoni" untuk menambahkan</p></td></tr>';return}
-t.innerHTML=dataCache.testimonials.map((m,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+m.name+'</strong></td><td style="color:var(--text-muted)">'+m.position+'</td><td style="color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"'+m.quote+'"</td><td><div class="actions"><button class="btn-icon green" onclick="editTestimonial('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteTestimonial('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+if(!dataCache.testimonials.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-star"></i><h4>Belum ada testimoni</h4><p>Klik "Tambah Testimoni" untuk menambahkan</p></td></tr>';
+document.getElementById('testimonialsCount').textContent='0 item';return}
+t.innerHTML=dataCache.testimonials.map((m,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+escHtml(m.name)+'</strong></td><td style="color:var(--text-muted)">'+escHtml(m.position)+'</td><td style="color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"'+escHtml(m.quote)+'"</td><td><div class="actions"><button class="btn-icon green" onclick="editTestimonial('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteTestimonial('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statTestimonials').textContent=dataCache.testimonials.length;
+document.getElementById('testimonialsCount').textContent=dataCache.testimonials.length+' item';
+saveCacheToLocal();
 }
 function openTestimonialModal(idx){
 const m=idx!==undefined?dataCache.testimonials[idx]:{name:'',position:'',quote:''};
+_editingIdx.testimonials=idx!==undefined?idx:-1;
 openModal(idx!==undefined?'Edit Testimoni':'Tambah Testimoni',
-'<div class="form-row"><div class="form-group"><label>Nama Klien</label><input type="text" id="fTestName" value="'+m.name+'"></div>'+
-'<div class="form-group"><label>Posisi</label><input type="text" id="fTestPos" value="'+m.position+'" placeholder="Kepala Desa, Pemilik Usaha"></div></div>'+
-'<div class="form-group"><label>Isi Testimoni</label><textarea id="fTestQuote" rows="3" placeholder="Tulis testimoni...">'+m.quote+'</textarea></div>'+
-'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveTestimonial('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
-);
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Nama Klien</label><input type="text" id="fTestName" value="'+escAttr(m.name)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Posisi</label><input type="text" id="fTestPos" value="'+escAttr(m.position)+'" placeholder="Kepala Desa, Pemilik Usaha" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
+'<div style="margin-bottom:20px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Isi Testimoni</label><textarea id="fTestQuote" rows="3" placeholder="Tulis testimoni..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(m.quote)+'</textarea></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveTestimonial()"><i class="fas fa-save"></i> Simpan</button>');
 }
-function saveTestimonial(idx){
+function saveTestimonial(){
 const o={name:document.getElementById('fTestName').value.trim(),position:document.getElementById('fTestPos').value.trim(),quote:document.getElementById('fTestQuote').value.trim()};
 if(!o.name||!o.quote){showToast('Nama dan testimoni harus diisi','error');return}
-if(idx===-1||idx===undefined)dataCache.testimonials.push(o);
-else dataCache.testimonials[idx]=o;
+if(_editingIdx.testimonials===-1)dataCache.testimonials.push(o);
+else dataCache.testimonials[_editingIdx.testimonials]=o;
 renderTestimonials();closeModal();syncToSupabase('testimonials');showToast('Testimoni berhasil disimpan');
 }
 function editTestimonial(i){openTestimonialModal(i)}
-function deleteTestimonial(i){if(confirm('Hapus testimoni ini?')){dataCache.testimonials.splice(i,1);renderTestimonials();syncToSupabase('testimonials');showToast('Testimoni dihapus','info')}}
+function deleteTestimonial(i){
+showConfirm('Hapus Testimoni?','Testimoni dari "'+dataCache.testimonials[i].name+'" akan dihapus.',()=>{dataCache.testimonials.splice(i,1);renderTestimonials();syncToSupabase('testimonials');showToast('Testimoni dihapus','info')},'danger');
+}
 
 // ===== CRUD: ARTICLES =====
 function renderArticles(){
 const t=document.getElementById('articlesBody');
-if(!dataCache.articles.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-newspaper"></i><h4>Belum ada artikel</h4><p>Klik "Tambah Artikel" untuk menambahkan artikel baru</p></td></tr>';return}
-t.innerHTML=dataCache.articles.map((a,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+a.title+'</strong></td><td style="color:var(--text-muted)">'+a.date+'</td><td><span class="badge '+(a.status==='published'?'green':'yellow')+'">'+a.status+'</span></td><td><div class="actions"><button class="btn-icon green" onclick="editArticle('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteArticle('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+if(!dataCache.articles.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-newspaper"></i><h4>Belum ada artikel</h4><p>Klik "Tambah Artikel" untuk menambahkan</p></td></tr>';
+document.getElementById('articlesCount').textContent='0 item';return}
+t.innerHTML=dataCache.articles.map((a,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+escHtml(a.title)+'</strong></td><td style="color:var(--text-muted)">'+a.date+'</td><td><span class="badge '+(a.status==='published'?'green':'yellow')+'">'+(a.status||'draft')+'</span></td><td><div class="actions"><button class="btn-icon green" onclick="editArticle('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteArticle('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statArticles').textContent=dataCache.articles.length;
+document.getElementById('articlesCount').textContent=dataCache.articles.length+' item';
+saveCacheToLocal();
 }
 function openArticleModal(idx){
 const a=idx!==undefined?dataCache.articles[idx]:{title:'',content:'',date:new Date().toISOString().split('T')[0],status:'draft'};
+_editingIdx.articles=idx!==undefined?idx:-1;
 openModal(idx!==undefined?'Edit Artikel':'Tambah Artikel',
-'<div class="form-group"><label>Judul Artikel</label><input type="text" id="fArtTitle" value="'+a.title+'"></div>'+
-'<div class="form-row"><div class="form-group"><label>Tanggal</label><input type="date" id="fArtDate" value="'+a.date+'"></div>'+
-'<div class="form-group"><label>Status</label><select id="fArtStatus"><option value="draft" '+(a.status==='draft'?'selected':'')+'>Draft</option><option value="published" '+(a.status==='published'?'selected':'')+'>Published</option></select></div></div>'+
-'<div class="form-group"><label>Konten</label><textarea id="fArtContent" rows="5" placeholder="Tulis konten artikel...">'+a.content+'</textarea></div>'+
-'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveArticle('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
-);
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Judul Artikel</label><input type="text" id="fArtTitle" value="'+escAttr(a.title)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Tanggal</label><input type="date" id="fArtDate" value="'+a.date+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Status</label><select id="fArtStatus" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"><option value="draft" '+(a.status==='draft'?'selected':'')+'>Draft</option><option value="published" '+(a.status==='published'?'selected':'')+'>Published</option></select></div></div>'+
+'<div style="margin-bottom:20px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Konten</label><textarea id="fArtContent" rows="5" placeholder="Tulis konten artikel..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(a.content)+'</textarea></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveArticle()"><i class="fas fa-save"></i> Simpan</button>');
 }
-function saveArticle(idx){
+function saveArticle(){
 const o={title:document.getElementById('fArtTitle').value.trim(),content:document.getElementById('fArtContent').value.trim(),date:document.getElementById('fArtDate').value,status:document.getElementById('fArtStatus').value};
 if(!o.title){showToast('Judul artikel harus diisi','error');return}
-if(idx===-1||idx===undefined)dataCache.articles.push(o);
-else dataCache.articles[idx]=o;
+if(_editingIdx.articles===-1)dataCache.articles.push(o);
+else dataCache.articles[_editingIdx.articles]=o;
 renderArticles();closeModal();syncToSupabase('articles');showToast('Artikel berhasil disimpan');
 }
 function editArticle(i){openArticleModal(i)}
-function deleteArticle(i){if(confirm('Hapus artikel ini?')){dataCache.articles.splice(i,1);renderArticles();syncToSupabase('articles');showToast('Artikel dihapus','info')}}
+function deleteArticle(i){
+showConfirm('Hapus Artikel?','Artikel "'+dataCache.articles[i].title+'" akan dihapus.',()=>{dataCache.articles.splice(i,1);renderArticles();syncToSupabase('articles');showToast('Artikel dihapus','info')},'danger');
+}
+
+// ===== ESCAPE HTML =====
+function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function escAttr(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+// ===== EXPORT / IMPORT =====
+function exportData(){
+const data={exported:new Date().toISOString(),dataCache,settings:{}};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+const a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='razka-admin-backup-'+new Date().toISOString().split('T')[0]+'.json';
+a.click();
+URL.revokeObjectURL(a.href);
+showToast('Data berhasil diexport!','success');
+}
+
+function importData(input){
+const file=input.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=function(e){
+try{
+const data=JSON.parse(e.target.result);
+if(data.dataCache){
+dataCache=data.dataCache;
+renderServices();renderPortfolio();renderTestimonials();renderArticles();
+showToast('Data berhasil direstore!','success');
+}else{
+showToast('Format file tidak valid','error');
+}
+}catch(err){showToast('Gagal membaca file: '+err.message,'error')}
+input.value='';
+};
+reader.readAsText(file);
+}
 
 // ===== LOAD ALL DATA =====
 async function loadAllData(){
@@ -751,24 +947,36 @@ try{
 const{data,error}=await supabase.from(table).select('*').order('sort_order',{ascending:true});
 if(error)throw error;
 if(data&&data.length){
-if(table==='services')dataCache[table]=data.map(r=>({name:r.name,icon:r.icon,desc:r.description}));
-else if(table==='portfolio')dataCache[table]=data.map(r=>({name:r.name,cat:r.category,loc:r.location,desc:r.description,img:r.image_url,year:r.year}));
-else if(table==='testimonials')dataCache[table]=data.map(r=>({name:r.client_name,position:r.position,quote:r.quote}));
-else if(table==='articles')dataCache[table]=data.map(r=>({title:r.title,content:r.content,date:r.date,status:r.status}));
+if(table==='services')dataCache[table]=data.map(r=>({name:r.name||'',icon:r.icon||'wrench',desc:r.description||''}));
+else if(table==='portfolio')dataCache[table]=data.map(r=>({name:r.name||'',cat:r.category||'residensial',loc:r.location||'',desc:r.description||'',img:r.image_url||'',year:r.year||''}));
+else if(table==='testimonials')dataCache[table]=data.map(r=>({name:r.client_name||'',position:r.position||'',quote:r.quote||''}));
+else if(table==='articles')dataCache[table]=data.map(r=>({title:r.title||'',content:r.content||'',date:r.date||'',status:r.status||'draft'}));
 }
 }catch(e){missing.push(table)}
 }
 renderServices();renderPortfolio();renderTestimonials();renderArticles();
+// Animate counters
 document.querySelectorAll('.stat-value').forEach(el=>{
-if(el.id.startsWith('stat')){el.classList.add('counter');el.dataset.target=el.textContent;animateCounter(el)}
+const t=parseInt(el.textContent);
+if(t>0){el.dataset.target=t;animateCounter(el)}
 });
+// Update dashboard last-saved info
+const savedEl=document.getElementById('lastSavedInfo');
+if(savedEl)savedEl.textContent='Data dari database Supabase — '+new Date().toLocaleString('id-ID');
 return missing;
 }
 
 // ===== LOAD SETTINGS =====
-// Di panggil saat halaman settings dibuka
 async function loadSettings(key){
-if(!supabase)return;
+if(!supabase&&!isDemo)return null;
+// Demo mode - try localStorage
+if(isDemo){
+try{
+const raw=localStorage.getItem('razka_admin_settings_'+key);
+if(raw)return JSON.parse(raw);
+}catch(e){}
+return null;
+}
 try{
 const{data}=await supabase.from('settings').select('value').eq('key',key).single();
 if(data&&data.value)return data.value;
@@ -777,17 +985,16 @@ return null;
 }
 
 async function saveSetting(key,value){
-if(!supabase)return;
+if(!supabase){showToast('Mode Demo: data tidak disimpan ke database','info');return}
 try{
 await supabase.from('settings').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});
 }catch(e){console.warn('Save setting failed:',e.message)}
 }
 
-// ===== SYNC TO SUPABASE (new row-based) =====
+// ===== SYNC TO SUPABASE =====
 async function syncToSupabase(table){
 if(!supabase||!isAuthenticated)return;
 try{
-// Delete existing rows and re-insert
 const{data:existing}=await supabase.from(table).select('id');
 if(existing&&existing.length){
 await supabase.from(table).delete().in('id',existing.map(r=>r.id));
@@ -804,34 +1011,82 @@ if(rows.length)await supabase.from(table).insert(rows);
 }
 
 // ===== COUNTER ANIMATION =====
-function animateCounter(el){const t=parseInt(el.dataset.target)||parseInt(el.textContent);if(!t)return;const d=1500,s=performance.now();function u(c){const p=Math.min((c-s)/d,1),e=p===1?1:1-Math.pow(2,-10*p);el.textContent=Math.floor(e*t);if(p<1)requestAnimationFrame(u)}requestAnimationFrame(u)}
-
-// ===== SAVE SETTINGS (with Supabase sync) =====
-['saveHero','saveCompany','saveSeo','saveOverlay'].forEach(id=>{
-document.getElementById(id).addEventListener('click',async function(){
-const keyMap={saveHero:'hero',saveCompany:'company',saveSeo:'seo',saveOverlay:'overlay'};
-const key=keyMap[id];
-let value={};
-if(key==='hero'){
-value={bg_url:document.getElementById('heroBgUrl').value,title:document.getElementById('heroTitle').value,subtitle:document.getElementById('heroSubtitle').value,description:document.getElementById('heroDesc').value,badge:document.getElementById('heroBadge').value,cta:document.getElementById('heroCta').value,overlay_opacity:parseFloat(document.getElementById('heroOverlay').value)};
-}else if(key==='company'){
-value={name:document.getElementById('companyName').value,short:document.getElementById('companyShort').value,address:document.getElementById('companyAddress').value,whatsapp:document.getElementById('companyWa').value,email:document.getElementById('companyEmail').value,hours:document.getElementById('companyHours').value,year:document.getElementById('companyYear').value};
-}else if(key==='seo'){
-value={title:document.getElementById('seoTitle').value,description:document.getElementById('seoDesc').value,keywords:document.getElementById('seoKeywords').value,og_image:document.getElementById('seoOgImage').value};
-}else if(key==='overlay'){
-value={bg_url:document.getElementById('overlayBg').value,title:document.getElementById('overlayTitle').value,description:document.getElementById('overlayDesc').value,color:document.getElementById('overlayColor').value,opacity:parseFloat(document.getElementById('overlayOpacity').value)};
+function animateCounter(el){
+const t=parseInt(el.dataset.target)||0;
+if(!t)return;
+const d=1500,s=performance.now();
+function u(c){
+const p=Math.min((c-s)/d,1),e=p===1?1:1-Math.pow(2,-10*p);
+el.textContent=Math.floor(e*t);
+if(p<1)requestAnimationFrame(u);
 }
-await saveSetting(key,value);
+requestAnimationFrame(u);
+}
+
+// ===== SAVE SETTINGS =====
+function saveSettingsHandler(key,getValue){
+showToast('Menyimpan...','info');
+const value=getValue();
+saveSetting(key,value);
 showToast('Pengaturan berhasil disimpan','success');
-});
+// Save to localStorage for demo mode too
+if(isDemo){
+try{localStorage.setItem('razka_admin_settings_'+key,JSON.stringify(value))}catch(e){}
+}
+// Update last saved timestamp
+const savedEl=document.getElementById(key+'LastSaved');
+if(savedEl)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleString('id-ID');
+}
+
+document.getElementById('saveHero').addEventListener('click',function(){
+saveSettingsHandler('hero',()=>({
+bg_url:document.getElementById('heroBgUrl').value,
+title:document.getElementById('heroTitle').value,
+subtitle:document.getElementById('heroSubtitle').value,
+description:document.getElementById('heroDesc').value,
+badge:document.getElementById('heroBadge').value,
+cta:document.getElementById('heroCta').value,
+overlay_opacity:parseFloat(document.getElementById('heroOverlay').value)
+}));
 });
 
-// Load settings when entering page
+document.getElementById('saveCompany').addEventListener('click',function(){
+saveSettingsHandler('company',()=>({
+name:document.getElementById('companyName').value,
+short:document.getElementById('companyShort').value,
+address:document.getElementById('companyAddress').value,
+whatsapp:document.getElementById('companyWa').value,
+email:document.getElementById('companyEmail').value,
+hours:document.getElementById('companyHours').value,
+year:document.getElementById('companyYear').value
+}));
+});
+
+document.getElementById('saveSeo').addEventListener('click',function(){
+saveSettingsHandler('seo',()=>({
+title:document.getElementById('seoTitle').value,
+description:document.getElementById('seoDesc').value,
+keywords:document.getElementById('seoKeywords').value,
+og_image:document.getElementById('seoOgImage').value
+}));
+});
+
+document.getElementById('saveOverlay').addEventListener('click',function(){
+saveSettingsHandler('overlay',()=>({
+bg_url:document.getElementById('overlayBg').value,
+title:document.getElementById('overlayTitle').value,
+description:document.getElementById('overlayDesc').value,
+color:document.getElementById('overlayColor').value,
+opacity:parseFloat(document.getElementById('overlayOpacity').value)
+}));
+});
+
+// ===== LOAD SETTINGS TO FORM =====
 async function loadSettingsToForm(key){
 const data=await loadSettings(key);
 if(!data)return;
 if(key==='hero'){
-if(data.bg_url)document.getElementById('heroBgUrl').value=data.bg_url;
+if(data.bg_url){document.getElementById('heroBgUrl').value=data.bg_url;document.getElementById('heroBgPreview').src=data.bg_url.replace('w=1600','w=200')}
 if(data.title)document.getElementById('heroTitle').value=data.title;
 if(data.subtitle)document.getElementById('heroSubtitle').value=data.subtitle;
 if(data.description)document.getElementById('heroDesc').value=data.description;
@@ -862,27 +1117,24 @@ if(data.color)document.getElementById('overlayColor').value=data.color;
 if(data.opacity!=null)document.getElementById('overlayOpacity').value=data.opacity;
 updateOverlayPreview();
 }
+// Update last saved timestamp
+const savedEl=document.getElementById(key+'LastSaved');
+if(savedEl&&data)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleString('id-ID');
 }
 
-// Load settings when nav link clicked
-const settingsPages={hero:'hero',company:'company',seo:'seo',overlay:'overlay'};
-Object.keys(settingsPages).forEach(page=>{
-document.querySelector('[data-page="'+page+'"]').addEventListener('click',()=>{
-setTimeout(()=>loadSettingsToForm(settingsPages[page]),300);
-});
-});
-
-// ===== INIT =====
 // ===== DEMO MODE =====
 function enterDemoMode(){
-isAuthenticated=true;
+isAuthenticated=true;isDemo=true;
 adminEmail='admin@razkapratama.com';
 showApp();
-showToast('Mode Demo — Data disimpan lokal (tidak ke database)','info');
+updateSyncStatus();
+// Try loading from localStorage first
+const loaded=loadCacheFromLocal();
+if(!loaded){
 dataCache.services=[
-{name:'Pekerjaan Sipil',icon:'drafting-compass',desc:'Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar.'},
-{name:'Renovasi & Rehab',icon:'paint-roller',desc:'Perbaikan, perluasan, dan modifikasi bangunan.'},
-{name:'Desain Arsitektur',icon:'pencil-ruler',desc:'Perencanaan tata ruang dan visualisasi fasad.'}
+{name:'Pekerjaan Sipil',icon:'drafting-compass',desc:'Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar untuk bangunan Anda.'},
+{name:'Renovasi & Rehab',icon:'paint-roller',desc:'Perbaikan, perluasan, dan modifikasi bangunan dengan hasil rapi dan bernilai tambah.'},
+{name:'Desain Arsitektur',icon:'pencil-ruler',desc:'Perencanaan tata ruang efisien dan visualisasi fasad bangunan modern.'}
 ];
 dataCache.portfolio=[
 {name:'Proyek Residensial',cat:'residensial',loc:'Banyuwangi',desc:'Rumah tinggal modern 2 lantai',img:'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&q=60',year:'2025'},
@@ -891,14 +1143,17 @@ dataCache.portfolio=[
 ];
 dataCache.testimonials=[
 {name:'Sariono Nugroho',position:'Kepala Desa Songgon',quote:'Proyek pembangunan balai desa selesai tepat waktu dan sesuai spesifikasi.'},
-{name:'Agus Haryanto',position:'Pemilik Usaha',quote:'Hasil renovasi gudang sangat rapi dan cepat. Tim profesional.'}
+{name:'Agus Haryanto',position:'Pemilik Usaha',quote:'Hasil renovasi gudang sangat rapi. Tim profesional dan mudah diajak diskusi.'}
 ];
+}
 renderServices();renderPortfolio();renderTestimonials();renderArticles();
+const savedEl=document.getElementById('lastSavedInfo');
+if(savedEl)savedEl.textContent='Mode Demo — data disimpan di browser (localStorage).';
+showToast('Mode Demo — Data aman disimpan di browser','info');
 }
 
 // ===== SETUP UPLOAD ZONES =====
 async function initUploadZones(){
-// Ensure storage bucket exists before setting up upload zones
 if(supabase)await ensureStorageBucket();
 const zones=[
 {zone:'heroUploadZone',input:'heroBgUrl',preview:'heroBgPreview',progress:'heroUploadProgress',path:'hero'},
@@ -910,26 +1165,19 @@ const el=document.getElementById(z.zone);
 if(el)setupUploadZone(z.zone,z.input,z.preview,z.progress,z.path);
 });
 }
-// Re-init upload zones after modal opens (for portfolio)
-const origOpenModal=openModal;
-openModal=function(title,bodyHtml){
-origOpenModal(title,bodyHtml);
-// Setup portfolio upload zone (innerHTML is synchronous, elements exist immediately)
-const portZone=document.getElementById('portUploadZone');
-if(portZone)setupUploadZone('portUploadZone','fPortImg',null,'portUploadProgress','portfolio');
-};
 
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded',async()=>{
-// Register demo mode button IMMEDIATELY (before CDN load attempt)
+// Register demo mode button IMMEDIATELY
 document.getElementById('demoModeBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
 // Then try Supabase init (may take up to 5s for CDN timeout)
 const configured=await initSupabase();
-console.log('Supabase configured:',configured,'supabase:',!!supabase);
 if(!configured){
+// If Supabase fails, auto-assign demo mode to login button too
 document.getElementById('loginBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
 }
-// Init upload zones after entering the app
-initUploadZones().catch(e=>console.warn('initUploadZones:',e));
+updateSyncStatus();
+initUploadZones().catch(e=>console.warn('Upload zones:',e));
 });
 </script>
 </body>
