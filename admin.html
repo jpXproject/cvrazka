@@ -187,9 +187,9 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <div class="auth-error" id="authError">Email atau password salah</div>
 </form>
 <p style="text-align:center;margin-top:20px;font-size:.78rem;color:var(--text-dim)">
-Panel admin untuk mengelola konten website.<br>
-Hubungi developer untuk mendapatkan akses.
+Panel admin untuk mengelola konten website.
 </p>
+<button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:12px" id="demoModeBtn"><i class="fas fa-flask"></i> Mode Demo (Testing)</button>
 </div></div>
 
 <!-- APP -->
@@ -441,7 +441,7 @@ const err=document.getElementById('authError');
 if(!supabase){showToast('Supabase belum dikonfigurasi','error');return}
 btn.querySelector('span').textContent='Memproses...';btn.disabled=true;
 const{data,error}=await supabase.auth.signInWithPassword({email,password:pass});
-if(error){err.style.display='block';btn.querySelector('span').textContent='Masuk';btn.disabled=false;return}
+if(error){err.style.display='block';err.textContent=error.message||'Email atau password salah';btn.querySelector('span').textContent='Masuk';btn.disabled=false;console.error('Login error:',error);return}
 err.style.display='none';isAuthenticated=true;adminEmail=email;
 showToast('Selamat datang, '+email,'success');
 showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
@@ -773,17 +773,12 @@ setTimeout(()=>loadSettingsToForm(settingsPages[page]),300);
 });
 
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded',async()=>{
-const configured=await initSupabase();
-if(!configured){
-// Demo mode without Supabase
-document.getElementById('loginBtn').addEventListener('click',function(e){
-e.preventDefault();
+// ===== DEMO MODE =====
+function enterDemoMode(){
 isAuthenticated=true;
 adminEmail='admin@razkapratama.com';
 showApp();
-showToast('Mode Demo — Supabase belum dikonfigurasi','info');
-// Load sample data
+showToast('Mode Demo — Data disimpan lokal (tidak ke database)','info');
 dataCache.services=[
 {name:'Pekerjaan Sipil',icon:'drafting-compass',desc:'Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar.'},
 {name:'Renovasi & Rehab',icon:'paint-roller',desc:'Perbaikan, perluasan, dan modifikasi bangunan.'},
@@ -799,8 +794,17 @@ dataCache.testimonials=[
 {name:'Agus Haryanto',position:'Pemilik Usaha',quote:'Hasil renovasi gudang sangat rapi dan cepat. Tim profesional.'}
 ];
 renderServices();renderPortfolio();renderTestimonials();renderArticles();
-});
 }
+
+document.addEventListener('DOMContentLoaded',async()=>{
+const configured=await initSupabase();
+console.log('Supabase configured:',configured,'supabase:',!!supabase);
+if(!configured){
+// Demo mode without Supabase
+document.getElementById('loginBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
+}
+// Always add demo mode button handler (works regardless of Supabase state)
+document.getElementById('demoModeBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
 });
 </script>
 </body>
