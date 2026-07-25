@@ -13,7 +13,6 @@ Desktop.ini
 .idea/
 *.sublime-project
 *.sublime-workspace
-*.sublime-workspace
 
 # ===== Node / npm (if ever used) =====
 node_modules/
