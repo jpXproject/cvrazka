@@ -415,7 +415,7 @@ async function initSupabase(){
 try{
 supabase=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const{data:{user}}=await supabase.auth.getUser();
-if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData().then(async()=>{const missing=await checkTablesExist();if(missing.length)setupMissingTables(missing)});}
+if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});}
 return true;
 }catch(e){console.warn('Supabase init failed:',e.message);return false}
 }
@@ -667,7 +667,8 @@ await supabase.from(table).upsert({id:1,data:dataCache[table],updated_at:new Dat
 
 // ===== LOAD ALL DATA =====
 async function loadAllData(){
-if(!supabase)return;
+if(!supabase)return[];
+const missing=[];
 for(const table of['services','portfolio','testimonials','articles']){
 try{
 const{data,error}=await supabase.from(table).select('*').order('sort_order',{ascending:true});
@@ -678,12 +679,13 @@ else if(table==='portfolio')dataCache[table]=data.map(r=>({name:r.name,cat:r.cat
 else if(table==='testimonials')dataCache[table]=data.map(r=>({name:r.client_name,position:r.position,quote:r.quote}));
 else if(table==='articles')dataCache[table]=data.map(r=>({title:r.title,content:r.content,date:r.date,status:r.status}));
 }
-}catch(e){console.log('Loading '+table+':',e.message);}
+}catch(e){missing.push(table)}
 }
 renderServices();renderPortfolio();renderTestimonials();renderArticles();
 document.querySelectorAll('.stat-value').forEach(el=>{
 if(el.id.startsWith('stat')){el.classList.add('counter');el.dataset.target=el.textContent;animateCounter(el)}
 });
+return missing;
 }
 
 // ===== LOAD SETTINGS =====
