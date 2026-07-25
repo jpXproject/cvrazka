@@ -7,15 +7,31 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 
 let _sb=null;
 
+// Try local vendor bundle first, then CDN fallback
 function loadSupabase(){
 return new Promise(r=>{
+// Check if already loaded (via vendor/supabase.min.js)
 if(window.supabase&&window.supabase.createClient){r(true);return}
+// Try loading local bundle
 const s=document.createElement('script');
-s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+s.src='vendor/supabase.min.js';
 let done=false;
-const t=setTimeout(()=>{if(!done){done=true;r(false)}},4000);
-s.onload=()=>{if(!done){done=true;clearTimeout(t);r(true)}};
-s.onerror=()=>{if(!done){done=true;clearTimeout(t);r(false)}};
+let cdnTimer=null;
+// Timeout: local file didn't load within 2s → try CDN
+const t=setTimeout(()=>{
+if(done)return;
+console.warn('Local supabase bundle not found, trying CDN...');
+const s2=document.createElement('script');
+s2.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+cdnTimer=setTimeout(()=>{if(!done){done=true;r(false)}},6000);
+s2.onload=()=>{if(!done){done=true;if(cdnTimer)clearTimeout(cdnTimer);r(true)}};
+s2.onerror=()=>{if(!done){done=true;if(cdnTimer)clearTimeout(cdnTimer);r(false)}};
+document.head.appendChild(s2);
+},2000);
+// Local file loaded successfully
+s.onload=()=>{if(!done){done=true;clearTimeout(t);if(cdnTimer)clearTimeout(cdnTimer);r(true)}};
+// Local file 404/error — don't resolve! Let the 2s timeout try CDN
+s.onerror=()=>{console.warn('Local supabase not found (404), waiting for CDN fallback...')};
 document.head.appendChild(s);
 });
 }
