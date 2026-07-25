@@ -421,7 +421,7 @@ return true;
 }
 
 // ===== LOGIN =====
-document.getElementById('loginForm').addEventListener('submit',async(e)=>{
+document.getElementById('loginForm').addEventListener('submit',async(e)=>{e.preventDefault();
 e.preventDefault();
 const email=document.getElementById('loginEmail').value;
 const pass=document.getElementById('loginPassword').value;
@@ -499,7 +499,7 @@ const desc=document.getElementById('overlayDesc').value||'';
 const color=document.getElementById('overlayColor').value||'#080e1a';
 const op=parseFloat(document.getElementById('overlayOpacity').value)||.6;
 const preview=document.getElementById('overlayPreview');
-preview.style.background='linear-gradient('+hexToRgba(color,op)+','+hexToRgba(color,op+'.1')+'),url('+bg+') center/cover no-repeat';
+preview.style.background='linear-gradient('+hexToRgba(color,op)+','+hexToRgba(color,Math.min(op+0.1,1))+'),url('+bg+') center/cover no-repeat';
 document.getElementById('previewOverlayTitle').textContent=title;
 document.getElementById('previewOverlayDesc').textContent=desc||'Deskripsi akan tampil di sini';
 document.getElementById('overlayOpacityVal').textContent=op.toFixed(2);
