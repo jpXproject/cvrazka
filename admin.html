@@ -247,6 +247,11 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 </button>
 <div class="auth-error" id="authError">Email atau password salah</div>
 </form>
+<div class="login-hint" id="loginStatus" style="display:none"><span class="spinner" style="display:inline-block;vertical-align:middle;margin-right:6px"></span> <span id="loginStatusText">Memuat Supabase...</span></div>
+<div id="cdnRetryArea" style="display:none;margin-top:12px">
+<div style="padding:12px 16px;background:rgba(230,57,70,.08);border:1px solid rgba(230,57,70,.15);border-radius:10px;font-size:.78rem;color:var(--text-muted);margin-bottom:12px" id="cdnErrorDetail"></div>
+<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center" onclick="window._retryCDN()"><i class="fas fa-sync"></i> Coba Lagi Muat Supabase</button>
+</div>
 <div class="login-hint">Panel admin untuk mengelola konten website CV RAZKA PRATAMA MANDIRI.</div>
 <div style="display:flex;gap:10px;margin-top:16px">
 <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="openPreview()"><i class="fas fa-external-link-alt"></i> Preview Website</button>
@@ -489,19 +494,108 @@ let dataCache = { services: [], portfolio: [], testimonials: [], articles: [] };
 let _confirmCallback = null;
 let _editingIdx = { services: -1, portfolio: -1, testimonials: -1, articles: -1 };
 
-// Load Supabase CDN dynamically (non-blocking)
-function loadSupabaseCDN(){
+// CDN sources to try (ordered by reliability)
+const SUPABASE_CDN_URLS = [
+'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js'
+];
+
+let _cdnAttempts = 0;
+
+function showCdnStatus(show, msg, isError){
+const el=document.getElementById('loginStatus');
+const txt=document.getElementById('loginStatusText');
+if(!show){if(el)el.style.display='none';return}
+if(el)el.style.display='block';
+if(txt)txt.textContent=msg||'Memuat Supabase...';
+}
+
+function showCdnError(msg){
+const area=document.getElementById('cdnRetryArea');
+const detail=document.getElementById('cdnErrorDetail');
+if(area)area.style.display='block';
+if(detail)detail.innerHTML=msg;
+}
+
+function hideCdnError(){
+const el=document.getElementById('cdnRetryArea');
+if(el)el.style.display='none';
+}
+
+// Load Supabase CDN with multiple fallback sources and retry
+async function loadSupabaseCDN(){
+if(window.supabase&&window.supabase.createClient)return true;
+
+_cdnAttempts++;
+const maxAttempts = SUPABASE_CDN_URLS.length * 2;
+if(_cdnAttempts > maxAttempts){
+showCdnError('<strong>Semua percobaan gagal.</strong> Mungkin koneksi internet Anda memblokir CDN. Coba:<br>• Gunakan VPN atau koneksi lain<br>• Buka Settings → Privacy & Security → disable ad blocker<br>• Hubungi kami untuk bantuan manual');
+return false;
+}
+
+// Cycle through CDN URLs
+const urlIdx = (_cdnAttempts - 1) % SUPABASE_CDN_URLS.length;
+const cdnUrl = SUPABASE_CDN_URLS[urlIdx];
+
+showCdnStatus(true, 'Mencoba '+(urlIdx+1)+'/'+SUPABASE_CDN_URLS.length+': '+cdnUrl.split('/').slice(2,3).join('')+'...');
+
 return new Promise((resolve)=>{
-if(window.supabase&&window.supabase.createClient)return resolve(true);
 const s=document.createElement('script');
-s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+s.src=cdnUrl;
+s.crossOrigin='anonymous';
 let done=false;
-const t=setTimeout(()=>{if(!done){done=true;console.warn('Supabase CDN timeout');resolve(false)}},5000);
-s.onload=()=>{if(!done){done=true;clearTimeout(t);resolve(true)}};
-s.onerror=()=>{if(!done){done=true;clearTimeout(t);console.warn('Supabase CDN gagal');resolve(false)}};
+const timeoutMs = 12000; // 12s per attempt
+const t=setTimeout(()=>{
+if(!done){
+done=true;
+console.warn('CDN timeout:',cdnUrl);
+showCdnError('<strong>Timeout (12 detik):</strong> <code>'+cdnUrl+'</code><br>Mencoba sumber lain...');
+resolve(false)
+}
+},timeoutMs);
+s.onload=()=>{
+if(!done){
+done=true;
+clearTimeout(t);
+hideCdnError();
+showCdnStatus(true, 'Supabase berhasil dimuat!');
+setTimeout(()=>{showCdnStatus(false)},800);
+resolve(true)
+}
+};
+s.onerror=(ev)=>{
+if(!done){
+done=true;
+clearTimeout(t);
+const errMsg = 'DNS error / koneksi ditolak';
+console.warn('CDN gagal:',cdnUrl,ev);
+showCdnError('<strong>Gagal:</strong> <code>'+cdnUrl+'</code><br>'+errMsg+'<br>Mencoba sumber lain...');
+resolve(false)
+}
+};
 document.head.appendChild(s);
 });
 }
+
+// Retry mechanism exposed globally
+window._retryCDN = async function(){
+_cdnAttempts = 0;
+hideCdnError();
+showCdnStatus(true, 'Mencoba ulang...');
+document.getElementById('loginBtn').disabled=true;
+document.getElementById('loginBtn').querySelector('span').textContent='Memuat...';
+const ok = await loadSupabaseCDN();
+if(ok){
+try{
+await initSupabase();
+}catch(e){}
+}
+if(!isAuthenticated){
+showCdnStatus(false);
+document.getElementById('loginBtn').disabled=false;
+document.getElementById('loginBtn').querySelector('span').textContent='Masuk';
+}
+};
 
 // ===== TOAST =====
 function showToast(msg, type='success'){
@@ -543,14 +637,28 @@ if(link)link.click();
 
 // ===== SUPABASE INIT =====
 async function initSupabase(){
-const cdnLoaded=await loadSupabaseCDN();
-if(!cdnLoaded){console.warn('Supabase CDN tidak tersedia');return false}
+showCdnStatus(true,'Memeriksa sesi yang ada...');
+// Try loading CDN with retry loop (up to 3 attempts)
+let loaded=false;
+for(let i=0;i<3;i++){
+loaded=await loadSupabaseCDN();
+if(loaded)break;
+}
+if(!loaded){
+showCdnStatus(false);
+showCdnError('<strong>Supabase tidak bisa dimuat.</strong> Coba:<br>• <strong>Nonaktifkan ad blocker / VPN</strong> untuk domain jsdelivr.net dan unpkg.com<br>• Periksa koneksi internet<br>• Klik tombol "Coba Lagi" di bawah');
+console.warn('Supabase CDN tidak tersedia setelah semua percobaan');
+return false;
+}
 try{
-supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+showCdnStatus(true,'Memeriksa sesi login...');
 // Check for existing session first (handles page refresh without re-login)
 const{data:{session}}=await supabase.auth.getSession();
 if(session&&session.user){
 isAuthenticated=true;adminEmail=session.user.email||'';adminUser=session.user;
+showCdnStatus(false);
+hideCdnError();
 showApp();updateSyncStatus();
 loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
 initUploadZones().catch(e=>console.warn('Upload zones:',e));
@@ -560,12 +668,22 @@ return true;
 const{data:{user}}=await supabase.auth.getUser();
 if(user){
 isAuthenticated=true;adminEmail=user.email||'';adminUser=user;
+showCdnStatus(false);
+hideCdnError();
 showApp();updateSyncStatus();
 loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
 initUploadZones().catch(e=>console.warn('Upload zones:',e));
-}
 return true;
-}catch(e){console.error('Supabase init error:',e);return false}
+}
+showCdnStatus(false);
+hideCdnError();
+return true;
+}catch(e){
+console.error('Supabase init error:',e);
+showCdnError('<strong>Kesalahan koneksi ke Supabase:</strong> '+e.message+'<br>Periksa apakah URL proyek dan anon key sudah benar.');
+showCdnStatus(false);
+return false;
+}
 }
 
 async function setupMissingTables(missing){
@@ -596,7 +714,24 @@ const pass=document.getElementById('loginPassword').value;
 const btn=document.getElementById('loginBtn');
 const err=document.getElementById('authError');
 err.style.display='none';
-if(!supabase){err.style.display='block';err.textContent='Supabase gagal dimuat. Segarkan halaman atau periksa koneksi internet.';return}
+if(!supabase){
+// Try loading CDN again before showing error
+showCdnStatus(true,'Mencoba muat ulang Supabase...');
+const loaded=await loadSupabaseCDN();
+if(!loaded){
+loaded=await loadSupabaseCDN();
+}
+if(loaded&&window.supabase&&window.supabase.createClient){
+supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+showCdnStatus(false);
+hideCdnError();
+}else{
+showCdnStatus(false);
+err.style.display='block';
+err.textContent='Supabase gagal dimuat. Klik "Coba Lagi" atau periksa koneksi internet. Jika masalah berlanjut, nonaktifkan ad blocker untuk domain jsdelivr.net & unpkg.com.';
+return;
+}
+}
 btn.disabled=true;btn.querySelector('span').textContent='Memproses...';
 const{data,error}=await supabase.auth.signInWithPassword({email,password:pass});
 if(error){
@@ -1135,14 +1270,24 @@ if(el)setupUploadZone(z.zone,z.input,z.preview,z.progress,z.path);
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',async()=>{
-// Try Supabase session recovery first (no login screen if already authenticated)
-const configured=await initSupabase();
-// If not authenticated, show login screen
-if(!isAuthenticated){
+// Show login screen first (always visible until authenticated)
 document.getElementById('loginScreen').classList.remove('hidden');
 document.getElementById('appLayout').style.display='none';
+// Try Supabase session recovery
+showCdnStatus(true,'Memuat Supabase...');
+const configured=await initSupabase();
+// If not authenticated, show login form (already visible) and update status
+if(!isAuthenticated){
+showCdnStatus(false);
+if(configured){
+// CDN loaded but no session - show normal login
+hideCdnError();
+document.getElementById('loginBtn').disabled=false;
+document.getElementById('loginBtn').querySelector('span').textContent='Masuk';
 }else{
-// Already handled in initSupabase
+// CDN failed - show retry button
+showCdnError('<strong>Supabase tidak tersedia.</strong> Klik "Coba Lagi" untuk mencoba ulang atau periksa koneksi internet Anda.');
+}
 }
 updateSyncStatus();
 initUploadZones().catch(e=>console.warn('Upload zones:',e));
