@@ -187,7 +187,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .portfolio-filter-btn:hover{border-color:rgba(230,57,70,.3);color:#fff}
 .portfolio-filter-btn.active{background:rgba(230,57,70,.15);border-color:#e63946;color:#e63946}
 .portfolio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;margin-top:36px}
-.portfolio-card{position:relative;border-radius:20px;overflow:hidden;min-height:360px;cursor:pointer;transition:all .5s cubic-bezier(.4,0,.2,1);display:flex;align-items:flex-end;border:1px solid rgba(255,255,255,.06)}.portfolio-card.hidden{display:none}
+.portfolio-card{position:relative;border-radius:20px;overflow:hidden;min-height:360px;cursor:pointer;transition:all .5s cubic-bezier(.4,0,.2,1);display:flex;align-items:flex-end;border:1px solid rgba(255,255,255,.06)}.portfolio-card{position:relative;border-radius:20px;overflow:hidden;min-height:360px;cursor:pointer;transition:all .5s cubic-bezier(.4,0,.2,1);display:flex;align-items:flex-end;border:1px solid rgba(255,255,255,.06);flex-shrink:0;width:100%}.portfolio-card.hidden{opacity:0;visibility:hidden;transform:scale(.95);pointer-events:none;position:absolute;z-index:-1}
 .portfolio-card:hover{transform:translateY(-8px);border-color:rgba(230,57,70,.2);box-shadow:0 24px 64px rgba(0,0,0,.4)}
 .portfolio-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;transition:transform .7s cubic-bezier(.4,0,.2,1)}
 .portfolio-card:hover .portfolio-bg{transform:scale(1.1)}
@@ -663,7 +663,7 @@ const revEls=document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reve
 let curObs;
 function buildObs(){const m=window.innerWidth<768,t=window.innerWidth>=768&&window.innerWidth<1024;const th=m?.05:t?.08:.12,rm2=m?'0px 0px -40px 0px':'0px 0px -80px 0px';const o=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){const el=e.target;el.querySelectorAll('.counter[data-target]').forEach(c=>{if(!c.dataset.animated){c.dataset.animated='true';animateCounter(c)}});el.classList.add('visible')}})},{threshold:th,rootMargin:rm2});revEls.forEach(el=>o.observe(el));return o}
 curObs=buildObs();
-const heroStats=document.querySelector('.hero-stats');if(heroStats){const ho=new IntersectionObserver((e)=>{e.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.counter[data-target]').forEach(c=>{if(!c.dataset.animated){c.dataset.animated='true';animateCounter(c)}});ho.unobserve(e.target)}})});curObs.disconnect();curObs=buildObs()}
+// Hero stats counter triggered by main observer
 let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(curObs){revEls.forEach(el=>curObs.unobserve(el));curObs.disconnect()}curObs=buildObs()},300)});
 
 // CONTACT FORM
