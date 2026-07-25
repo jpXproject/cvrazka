@@ -485,6 +485,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 
 <script>
 // ===== CONFIG =====
+const APP_VERSION = '2.1.0';
 const SUPABASE_URL = 'https://ncidonlsvxndynssback.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jaWRvbmxzdnhuZHluc3NiYWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njg0NjgsImV4cCI6MjEwMDU0NDQ2OH0.yqEsaE7tu14lrYa4gleyLLVfyhlw7UB2HfAIUYkzgD0';
 let supabase = null;
@@ -494,6 +495,8 @@ let adminUser = null;
 let dataCache = { services: [], portfolio: [], testimonials: [], articles: [] };
 let _confirmCallback = null;
 let _editingIdx = { services: -1, portfolio: -1, testimonials: -1, articles: -1 };
+
+console.log('Admin Panel v'+APP_VERSION+' — local bundle:',!!(window.supabase&&window.supabase.createClient));
 
 // CDN sources to try as fallback if local bundle fails
 const SUPABASE_CDN_URLS = [
@@ -689,6 +692,7 @@ text.textContent='Offline';
 
 // ===== LOGIN =====
 document.getElementById('loginForm').addEventListener('submit',async(e)=>{
+try{
 e.preventDefault();
 const email=document.getElementById('loginEmail').value;
 const pass=document.getElementById('loginPassword').value;
@@ -697,8 +701,8 @@ const err=document.getElementById('authError');
 err.style.display='none';
 if(!supabase){
 showCdnStatus(true,'Mencoba muat ulang Supabase...');
-const loaded=await ensureSupabaseLoaded();
-if(!loaded) loaded=await ensureSupabaseLoaded();
+let loaded=await ensureSupabaseLoaded();
+if(!loaded)loaded=await ensureSupabaseLoaded();
 if(loaded&&window.supabase&&window.supabase.createClient){
 supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 showCdnStatus(false);
@@ -725,6 +729,13 @@ showToast('Selamat datang, '+email.split('@')[0],'success');
 showApp();updateSyncStatus();
 loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
 initUploadZones().catch(e=>console.warn('Upload zones:',e));
+}catch(ex){
+console.error('Login handler error:',ex);
+document.getElementById('authError').style.display='block';
+document.getElementById('authError').textContent='Terjadi kesalahan: '+(ex.message||String(ex));
+document.getElementById('loginBtn').disabled=false;
+document.getElementById('loginBtn').querySelector('span').textContent='Masuk';
+}
 });
 
 document.getElementById('adminAvatar').addEventListener('click',()=>document.getElementById('logoutBtn').click());
@@ -1227,9 +1238,19 @@ if(savedEl&&data)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleSt
 
 // ===== PREVIEW FEATURE =====
 function openPreview(){
-// Open main website with preview parameter to bypass cache
-window.open('index.html?preview='+Date.now(),'_blank');
+try{
+const url='index.html?preview='+Date.now();
+const w=window.open(url,'_blank');
+if(!w||w.closed||typeof w.closed==='undefined'){
+// Popup blocked — show direct link instead
+showToast('Pop-up diblokir! Klik link: '+window.location.href.replace('admin.html','')+url,'error');
+showToast('Buka manual: '+window.location.href.replace('admin.html','')+url,'info',6000);
+}else{
 showToast('Membuka preview website...','info');
+}
+}catch(e){
+showToast('Gagal membuka preview: '+e.message,'error');
+}
 }
 
 // ===== SETUP UPLOAD ZONES =====
