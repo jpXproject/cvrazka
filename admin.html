@@ -249,9 +249,9 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 </form>
 <div class="login-hint">Panel admin untuk mengelola konten website CV RAZKA PRATAMA MANDIRI.</div>
 <div style="display:flex;gap:10px;margin-top:16px">
-<button class="btn btn-outline" style="flex:1;justify-content:center" id="demoModeBtn"><i class="fas fa-flask"></i> Demo</button>
-<button class="btn btn-outline" style="flex:1;justify-content:center" onclick="window.open('index.html','_blank')"><i class="fas fa-external-link-alt"></i> Website</button>
+<button class="btn btn-outline" style="flex:1;justify-content:center" onclick="openPreview()"><i class="fas fa-external-link-alt"></i> Preview Website</button>
 </div>
+<div class="login-hint" style="font-size:.7rem;color:var(--text-dim);opacity:.7">💡 Panel ini memerlukan login Supabase. Data tersimpan aman di database.</div>
 </div></div>
 
 <!-- APP -->
@@ -292,10 +292,10 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <p class="page-title-desc" id="pageDesc">Overview informasi website</p>
 </div></div>
 <div class="topbar-center">
-<span class="sync-badge offline" id="syncBadge"><i class="fas fa-database"></i> <span id="syncBadgeText">Demo</span></span>
+<span class="sync-badge offline" id="syncBadge"><i class="fas fa-database"></i> <span id="syncBadgeText">Terputus</span></span>
 </div>
 <div class="topbar-right">
-<button class="btn btn-outline btn-xs" onclick="window.open('index.html','_blank')" title="Buka website"><i class="fas fa-external-link-alt"></i> Website</button>
+<button class="btn btn-red btn-xs" onclick="openPreview()" title="Lihat perubahan di website"><i class="fas fa-eye"></i> Preview</button>
 <button class="btn btn-outline btn-xs" onclick="exportData()" title="Backup data"><i class="fas fa-download"></i></button>
 <button class="btn btn-outline btn-xs" onclick="document.getElementById('importFileInput').click()" title="Restore data"><i class="fas fa-upload"></i></button>
 <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(this)">
@@ -316,21 +316,24 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <div class="form-card">
 <div class="form-title">Selamat datang di Panel Admin</div>
 <div id="setupNotice" style="display:none;padding:16px 20px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:12px;margin-bottom:20px;font-size:.85rem;color:#f59e0b"><i class="fas fa-database"></i> <strong>Database perlu disetup.</strong> Buka Supabase Dashboard → SQL Editor → jalankan file <code>supabase-schema.sql</code> dari repo ini.</div>
-<p style="font-size:.85rem;color:var(--text-muted);line-height:1.8">Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIRI. Data akan otomatis tersimpan ke database (jika login) atau lokal (mode Demo).</p>
+<p style="font-size:.85rem;color:var(--text-muted);line-height:1.8">Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIRI. Semua perubahan otomatis tersimpan ke database Supabase dan langsung tampil di halaman utama website.</p>
+<div style="padding:14px 18px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.12);border-radius:12px;margin:16px 0;font-size:.82rem;color:var(--text-muted)">
+<strong style="color:#60a5fa">🍪 Tentang Cookies:</strong> Supabase Auth sudah menangani sesi login secara otomatis via <strong>localStorage</strong> + <strong>httpOnly auth cookie</strong> — tidak perlu kuki tambahan. Halaman ini menyimpan token sesi untuk menjaga login tetap aktif saat halaman direfresh. Data tidak pernah dijual atau dilacak.
+</div>
 <div class="quick-actions">
 <button class="btn btn-red btn-sm" onclick="navigateTo('hero')"><i class="fas fa-image"></i> Hero Banner</button>
 <button class="btn btn-outline btn-sm" onclick="navigateTo('services')"><i class="fas fa-cogs"></i> Layanan</button>
 <button class="btn btn-outline btn-sm" onclick="navigateTo('portfolio')"><i class="fas fa-images"></i> Portofolio</button>
 <button class="btn btn-outline btn-sm" onclick="navigateTo('company')"><i class="fas fa-building"></i> Perusahaan</button>
 <button class="btn btn-outline btn-sm" onclick="exportData()"><i class="fas fa-download"></i> Backup Data</button>
-<button class="btn btn-outline btn-sm" onclick="window.open('index.html','_blank')"><i class="fas fa-external-link-alt"></i> Lihat Website</button>
+<button class="btn btn-red btn-sm" onclick="openPreview()"><i class="fas fa-eye"></i> Preview Website</button>
 </div>
 <p style="font-size:.78rem;color:var(--text-dim);margin-top:20px" id="lastSavedInfo">Belum ada data tersimpan.</p>
 </div></div>
 
 <!-- HERO -->
 <div class="page-section" id="page-hero">
-<div class="section-header"><div><h3>Hero Banner</h3><p>Ubah tampilan hero section di halaman utama</p></div><button class="btn btn-red btn-sm" id="saveHero"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="section-header"><div><h3>Hero Banner</h3><p>Ubah tampilan hero section di halaman utama</p></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="openPreview()" title="Lihat perubahan"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-red btn-sm" id="saveHero"><i class="fas fa-save"></i> Simpan</button></div></div>
 <div class="form-card">
 <div class="form-group">
 <label>Gambar Latar Belakang</label>
@@ -403,7 +406,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 
 <!-- COMPANY -->
 <div class="page-section" id="page-company">
-<div class="section-header"><div><h3>Pengaturan Perusahaan</h3><p>Informasi profil perusahaan</p></div><button class="btn btn-red btn-sm" id="saveCompany"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="section-header"><div><h3>Pengaturan Perusahaan</h3><p>Informasi profil perusahaan</p></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="openPreview()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-red btn-sm" id="saveCompany"><i class="fas fa-save"></i> Simpan</button></div></div>
 <div class="form-card">
 <div class="form-row">
 <div class="form-group"><label>Nama Perusahaan</label><input type="text" id="companyName" placeholder="CV RAZKA PRATAMA MANDIRI" value="CV RAZKA PRATAMA MANDIRI"></div>
@@ -423,7 +426,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 
 <!-- SEO -->
 <div class="page-section" id="page-seo">
-<div class="section-header"><div><h3>SEO & Meta</h3><p>Pengaturan SEO dan Open Graph</p></div><button class="btn btn-red btn-sm" id="saveSeo"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="section-header"><div><h3>SEO & Meta</h3><p>Pengaturan SEO dan Open Graph</p></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="openPreview()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-red btn-sm" id="saveSeo"><i class="fas fa-save"></i> Simpan</button></div></div>
 <div class="form-card">
 <div class="form-group"><label>Meta Title</label><input type="text" id="seoTitle" placeholder="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan..." value="CV RAZKA PRATAMA MANDIRI – Kontraktor Bangunan & Infrastruktur Pemerintah Banyuwangi"></div>
 <div class="form-group"><label>Meta Description</label><textarea id="seoDesc" rows="2">CV RAZKA PRATAMA MANDIRI – Kontraktor bangunan terpercaya di Banyuwangi, spesialis infrastruktur pemerintah, pekerjaan sipil, renovasi, dan desain arsitektur.</textarea></div>
@@ -440,7 +443,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 
 <!-- OVERLAY -->
 <div class="page-section" id="page-overlay">
-<div class="section-header"><div><h3>Overlay Gambar</h3><p>Konfigurasi overlay teks di belakang judul dan deskripsi halaman</p></div><button class="btn btn-red btn-sm" id="saveOverlay"><i class="fas fa-save"></i> Simpan</button></div>
+<div class="section-header"><div><h3>Overlay Gambar</h3><p>Konfigurasi overlay teks di belakang judul dan deskripsi halaman</p></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="openPreview()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-red btn-sm" id="saveOverlay"><i class="fas fa-save"></i> Simpan</button></div></div>
 <div class="form-card">
 <div class="form-group"><label>Gambar Latar Overlay</label>
 <div style="display:flex;gap:8px"><input type="text" id="overlayBg" style="flex:1" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=80" value="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600&q=80"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('overlayBg')"><i class="fas fa-paste"></i></button></div>
@@ -480,8 +483,8 @@ const SUPABASE_URL = 'https://ncidonlsvxndynssback.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jaWRvbmxzdnhuZHluc3NiYWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njg0NjgsImV4cCI6MjEwMDU0NDQ2OH0.yqEsaE7tu14lrYa4gleyLLVfyhlw7UB2HfAIUYkzgD0';
 let supabase = null;
 let isAuthenticated = false;
-let isDemo = false;
 let adminEmail = '';
+let adminUser = null;
 let dataCache = { services: [], portfolio: [], testimonials: [], articles: [] };
 let _confirmCallback = null;
 let _editingIdx = { services: -1, portfolio: -1, testimonials: -1, articles: -1 };
@@ -544,8 +547,23 @@ const cdnLoaded=await loadSupabaseCDN();
 if(!cdnLoaded){console.warn('Supabase CDN tidak tersedia');return false}
 try{
 supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+// Check for existing session first (handles page refresh without re-login)
+const{data:{session}}=await supabase.auth.getSession();
+if(session&&session.user){
+isAuthenticated=true;adminEmail=session.user.email||'';adminUser=session.user;
+showApp();updateSyncStatus();
+loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
+initUploadZones().catch(e=>console.warn('Upload zones:',e));
+return true;
+}
+// Also try getUser as fallback
 const{data:{user}}=await supabase.auth.getUser();
-if(user){isAuthenticated=true;isDemo=false;adminEmail=user.email;showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});}
+if(user){
+isAuthenticated=true;adminEmail=user.email||'';adminUser=user;
+showApp();updateSyncStatus();
+loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
+initUploadZones().catch(e=>console.warn('Upload zones:',e));
+}
 return true;
 }catch(e){console.error('Supabase init error:',e);return false}
 }
@@ -561,12 +579,9 @@ showToast('Database perlu disetup. Buka Supabase SQL Editor, jalankan supabase-s
 function updateSyncStatus(){
 const badge=document.getElementById('syncBadge');
 const text=document.getElementById('syncBadgeText');
-if(isDemo){
-badge.className='sync-badge offline';
-text.textContent='Demo (Lokal)';
-}else if(isAuthenticated&&supabase){
+if(isAuthenticated&&supabase){
 badge.className='sync-badge online';
-text.textContent='Terhubung';
+text.textContent='Terhubung — '+adminEmail;
 }else{
 badge.className='sync-badge offline';
 text.textContent='Offline';
@@ -580,14 +595,19 @@ const email=document.getElementById('loginEmail').value;
 const pass=document.getElementById('loginPassword').value;
 const btn=document.getElementById('loginBtn');
 const err=document.getElementById('authError');
-if(!supabase){showToast('Supabase tidak tersedia. Gunakan Mode Demo.','error');return}
+err.style.display='none';
+if(!supabase){err.style.display='block';err.textContent='Supabase gagal dimuat. Segarkan halaman atau periksa koneksi internet.';return}
 btn.disabled=true;btn.querySelector('span').textContent='Memproses...';
 const{data,error}=await supabase.auth.signInWithPassword({email,password:pass});
 if(error){
-err.style.display='block';err.textContent='Email atau password salah';
+const msg=error.message.includes('Invalid login credentials')?'Email atau password salah'
+:error.message.includes('Email not confirmed')?'Email belum dikonfirmasi. Cek inbox atau spam.'
+:error.message.includes('rate limit')?'Terlalu banyak percobaan. Coba beberapa saat lagi.'
+:'Gagal masuk: '+error.message;
+err.style.display='block';err.textContent=msg;
 btn.disabled=false;btn.querySelector('span').textContent='Masuk';
 console.error('Login error:',error);return}
-err.style.display='none';isAuthenticated=true;isDemo=false;adminEmail=email;
+isAuthenticated=true;adminEmail=email;adminUser=data.user;
 showToast('Selamat datang, '+email.split('@')[0],'success');
 showApp();updateSyncStatus();
 loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
@@ -598,7 +618,7 @@ document.getElementById('adminAvatar').addEventListener('click',()=>document.get
 
 document.getElementById('logoutBtn').addEventListener('click',async()=>{
 if(supabase&&isAuthenticated)await supabase.auth.signOut();
-isAuthenticated=false;isDemo=false;
+isAuthenticated=false;adminUser=null;
 document.getElementById('appLayout').style.display='none';
 document.getElementById('loginScreen').classList.remove('hidden');
 showToast('Berhasil keluar','info');
@@ -755,20 +775,6 @@ document.getElementById('modalBg').style.display='flex';
 function closeModal(){document.getElementById('modalBg').style.display='none'}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
-// ===== DATA PERSISTENCE (localStorage for demo) =====
-function saveCacheToLocal(){
-try{localStorage.setItem('razka_admin_cache',JSON.stringify({data:dataCache,time:Date.now()}))}catch(e){}
-}
-function loadCacheFromLocal(){
-try{
-const raw=localStorage.getItem('razka_admin_cache');
-if(!raw)return false;
-const{data}=JSON.parse(raw);
-if(data){dataCache=data;return true}
-}catch(e){}
-return false;
-}
-
 // ===== CRUD: SERVICES =====
 function renderServices(){
 const t=document.getElementById('servicesBody');
@@ -777,7 +783,6 @@ document.getElementById('servicesCount').textContent='0 item';return}
 t.innerHTML=dataCache.services.map((s,i)=>'<tr><td>'+(i+1)+'</td><td><div style="width:36px;height:36px;border-radius:10px;background:rgba(230,57,70,.1);display:flex;align-items:center;justify-content:center;color:var(--red)"><i class="fas fa-'+s.icon+'"></i></div></td><td><strong>'+escHtml(s.name)+'</strong></td><td style="color:var(--text-muted);max-width:280px">'+escHtml(s.desc)+'</td><td><div class="actions"><button class="btn-icon green" onclick="editService('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteService('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statServices').textContent=dataCache.services.length;
 document.getElementById('servicesCount').textContent=dataCache.services.length+' item';
-saveCacheToLocal();
 }
 function openServiceModal(idx){
 const s=idx!==undefined?dataCache.services[idx]:{name:'',icon:'wrench',desc:''};
@@ -810,7 +815,6 @@ document.getElementById('portfolioCount').textContent='0 item';return}
 t.innerHTML=dataCache.portfolio.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+(p.img?'<img class="table-img" src="'+p.img+'" alt="" style="object-fit:cover" onerror="this.style.display=\'none\'">':'<div class="table-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:.7rem">—</div>')+'</td><td><strong>'+escHtml(p.name)+'</strong></td><td><span class="badge '+(p.cat==='pemerintah'?'green':p.cat==='komersial'?'blue':'red')+'">'+(p.cat||'residensial')+'</span></td><td style="color:var(--text-muted)">'+escHtml(p.loc)+'</td><td><div class="actions"><button class="btn-icon green" onclick="editPortfolio('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deletePortfolio('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statPortfolio').textContent=dataCache.portfolio.length;
 document.getElementById('portfolioCount').textContent=dataCache.portfolio.length+' item';
-saveCacheToLocal();
 }
 function openPortfolioModal(idx){
 const p=idx!==undefined?dataCache.portfolio[idx]:{name:'',cat:'residensial',loc:'Banyuwangi',desc:'',img:'',year:'2025'};
@@ -847,7 +851,6 @@ document.getElementById('testimonialsCount').textContent='0 item';return}
 t.innerHTML=dataCache.testimonials.map((m,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+escHtml(m.name)+'</strong></td><td style="color:var(--text-muted)">'+escHtml(m.position)+'</td><td style="color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"'+escHtml(m.quote)+'"</td><td><div class="actions"><button class="btn-icon green" onclick="editTestimonial('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteTestimonial('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statTestimonials').textContent=dataCache.testimonials.length;
 document.getElementById('testimonialsCount').textContent=dataCache.testimonials.length+' item';
-saveCacheToLocal();
 }
 function openTestimonialModal(idx){
 const m=idx!==undefined?dataCache.testimonials[idx]:{name:'',position:'',quote:''};
@@ -878,7 +881,6 @@ document.getElementById('articlesCount').textContent='0 item';return}
 t.innerHTML=dataCache.articles.map((a,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+escHtml(a.title)+'</strong></td><td style="color:var(--text-muted)">'+a.date+'</td><td><span class="badge '+(a.status==='published'?'green':'yellow')+'">'+(a.status||'draft')+'</span></td><td><div class="actions"><button class="btn-icon green" onclick="editArticle('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteArticle('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
 document.getElementById('statArticles').textContent=dataCache.articles.length;
 document.getElementById('articlesCount').textContent=dataCache.articles.length+' item';
-saveCacheToLocal();
 }
 function openArticleModal(idx){
 const a=idx!==undefined?dataCache.articles[idx]:{title:'',content:'',date:new Date().toISOString().split('T')[0],status:'draft'};
@@ -968,15 +970,7 @@ return missing;
 
 // ===== LOAD SETTINGS =====
 async function loadSettings(key){
-if(!supabase&&!isDemo)return null;
-// Demo mode - try localStorage
-if(isDemo){
-try{
-const raw=localStorage.getItem('razka_admin_settings_'+key);
-if(raw)return JSON.parse(raw);
-}catch(e){}
-return null;
-}
+if(!supabase)return null;
 try{
 const{data}=await supabase.from('settings').select('value').eq('key',key).single();
 if(data&&data.value)return data.value;
@@ -985,7 +979,7 @@ return null;
 }
 
 async function saveSetting(key,value){
-if(!supabase){showToast('Mode Demo: data tidak disimpan ke database','info');return}
+if(!supabase){showToast('Database tidak tersedia','error');return}
 try{
 await supabase.from('settings').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});
 }catch(e){console.warn('Save setting failed:',e.message)}
@@ -1029,13 +1023,9 @@ showToast('Menyimpan...','info');
 const value=getValue();
 saveSetting(key,value);
 showToast('Pengaturan berhasil disimpan','success');
-// Save to localStorage for demo mode too
-if(isDemo){
-try{localStorage.setItem('razka_admin_settings_'+key,JSON.stringify(value))}catch(e){}
-}
 // Update last saved timestamp
 const savedEl=document.getElementById(key+'LastSaved');
-if(savedEl)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleString('id-ID');
+if(savedEl)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleString('id-ID')+'. Buka Preview untuk lihat perubahan.';
 }
 
 document.getElementById('saveHero').addEventListener('click',function(){
@@ -1122,34 +1112,11 @@ const savedEl=document.getElementById(key+'LastSaved');
 if(savedEl&&data)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleString('id-ID');
 }
 
-// ===== DEMO MODE =====
-function enterDemoMode(){
-isAuthenticated=true;isDemo=true;
-adminEmail='admin@razkapratama.com';
-showApp();
-updateSyncStatus();
-// Try loading from localStorage first
-const loaded=loadCacheFromLocal();
-if(!loaded){
-dataCache.services=[
-{name:'Pekerjaan Sipil',icon:'drafting-compass',desc:'Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar untuk bangunan Anda.'},
-{name:'Renovasi & Rehab',icon:'paint-roller',desc:'Perbaikan, perluasan, dan modifikasi bangunan dengan hasil rapi dan bernilai tambah.'},
-{name:'Desain Arsitektur',icon:'pencil-ruler',desc:'Perencanaan tata ruang efisien dan visualisasi fasad bangunan modern.'}
-];
-dataCache.portfolio=[
-{name:'Proyek Residensial',cat:'residensial',loc:'Banyuwangi',desc:'Rumah tinggal modern 2 lantai',img:'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&q=60',year:'2025'},
-{name:'Proyek Komersial',cat:'komersial',loc:'Banyuwangi',desc:'Renovasi gudang',img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=200&q=60',year:'2024'},
-{name:'Infrastruktur Publik',cat:'pemerintah',loc:'Songgon',desc:'Drainase lingkungan',img:'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=200&q=60',year:'2024'}
-];
-dataCache.testimonials=[
-{name:'Sariono Nugroho',position:'Kepala Desa Songgon',quote:'Proyek pembangunan balai desa selesai tepat waktu dan sesuai spesifikasi.'},
-{name:'Agus Haryanto',position:'Pemilik Usaha',quote:'Hasil renovasi gudang sangat rapi. Tim profesional dan mudah diajak diskusi.'}
-];
-}
-renderServices();renderPortfolio();renderTestimonials();renderArticles();
-const savedEl=document.getElementById('lastSavedInfo');
-if(savedEl)savedEl.textContent='Mode Demo — data disimpan di browser (localStorage).';
-showToast('Mode Demo — Data aman disimpan di browser','info');
+// ===== PREVIEW FEATURE =====
+function openPreview(){
+// Open main website with preview parameter to bypass cache
+window.open('index.html?preview='+Date.now(),'_blank');
+showToast('Membuka preview website...','info');
 }
 
 // ===== SETUP UPLOAD ZONES =====
@@ -1168,13 +1135,14 @@ if(el)setupUploadZone(z.zone,z.input,z.preview,z.progress,z.path);
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',async()=>{
-// Register demo mode button IMMEDIATELY
-document.getElementById('demoModeBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
-// Then try Supabase init (may take up to 5s for CDN timeout)
+// Try Supabase session recovery first (no login screen if already authenticated)
 const configured=await initSupabase();
-if(!configured){
-// If Supabase fails, auto-assign demo mode to login button too
-document.getElementById('loginBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
+// If not authenticated, show login screen
+if(!isAuthenticated){
+document.getElementById('loginScreen').classList.remove('hidden');
+document.getElementById('appLayout').style.display='none';
+}else{
+// Already handled in initSupabase
 }
 updateSyncStatus();
 initUploadZones().catch(e=>console.warn('Upload zones:',e));
