@@ -811,14 +811,14 @@ renderServices();renderPortfolio();renderTestimonials();renderArticles();
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
+// Register demo mode button IMMEDIATELY (before CDN load attempt)
+document.getElementById('demoModeBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
+// Then try Supabase init (may take up to 5s for CDN timeout)
 const configured=await initSupabase();
 console.log('Supabase configured:',configured,'supabase:',!!supabase);
 if(!configured){
-// Demo mode without Supabase
 document.getElementById('loginBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
 }
-// Always add demo mode button handler (works regardless of Supabase state)
-document.getElementById('demoModeBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
 });
 </script>
 </body>
