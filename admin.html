@@ -394,8 +394,8 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <script>
 // ===== CONFIG =====
 // Ganti dengan credentials Supabase Anda setelah register
-const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+const SUPABASE_URL = 'https://ncidonlsvxndynssback.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jaWRvbmxzdnhuZHluc3NiYWNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5Njg0NjgsImV4cCI6MjEwMDU0NDQ2OH0.yqEsaE7tu14lrYa4gleyLLVfyhlw7UB2HfAIUYkzgD0';
 let supabase = null;
 let isAuthenticated = false;
 let adminEmail = '';
@@ -411,13 +411,38 @@ setTimeout(()=>t.classList.remove('show'),3500);
 
 // ===== SUPABASE INIT =====
 async function initSupabase(){
-if(SUPABASE_URL.includes('YOUR_PROJECT'))return false;
 try{
 supabase=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const{data:{user}}=await supabase.auth.getUser();
 if(user){isAuthenticated=true;adminEmail=user.email;showApp();loadAllData();}
 return true;
-}catch(e){console.warn('Supabase not configured');return false}
+}catch(e){console.warn('Supabase init failed:',e.message);return false}
+}
+
+// ===== CHECK TABLES & SETUP =====
+async function checkTablesExist(){
+const allTables=['services','portfolio','testimonials','articles','settings'];
+let missing=[];
+for(const t of allTables){
+try{
+const{error}=await supabase.from(t).select('id').limit(1);
+if(error&&(error.code==='42P01'||error.message?.includes('does not exist')))missing.push(t);
+}catch(e){missing.push(t)}
+}
+return missing;
+}
+
+// Run after login — check tables and setup if missing
+// If tables are missing, we'll try to insert data (which auto-creates via Supabase)
+// For full setup, user needs to run supabase-schema.sql in SQL Editor
+async function setupMissingTables(missing){
+if(!missing.length)return true;
+// Try creating tables by inserting test data (PostgREST auto-creates if configured)
+// If that fails, show a setup notification
+const setupNotice=document.getElementById('setupNotice');
+if(setupNotice)setupNotice.style.display='block';
+showToast('Database perlu disetup. Buka Supabase SQL Editor dan jalankan supabase-schema.sql','info');
+return false;
 }
 
 // ===== LOGIN =====
@@ -644,9 +669,15 @@ async function loadAllData(){
 if(!supabase)return;
 for(const table of['services','portfolio','testimonials','articles']){
 try{
-const{data}=await supabase.from(table).select('data').eq('id',1).single();
-if(data&&data.data)dataCache[table]=data.data;
-}catch(e){console.log('Table '+table+' may not exist yet');}
+const{data,error}=await supabase.from(table).select('*').order('sort_order',{ascending:true});
+if(error)throw error;
+if(data&&data.length){
+if(table==='services')dataCache[table]=data.map(r=>({name:r.name,icon:r.icon,desc:r.description}));
+else if(table==='portfolio')dataCache[table]=data.map(r=>({name:r.name,cat:r.category,loc:r.location,desc:r.description,img:r.image_url,year:r.year}));
+else if(table==='testimonials')dataCache[table]=data.map(r=>({name:r.client_name,position:r.position,quote:r.quote}));
+else if(table==='articles')dataCache[table]=data.map(r=>({title:r.title,content:r.content,date:r.date,status:r.status}));
+}
+}catch(e){console.log('Loading '+table+':',e.message);}
 }
 renderServices();renderPortfolio();renderTestimonials();renderArticles();
 document.querySelectorAll('.stat-value').forEach(el=>{
@@ -654,12 +685,85 @@ if(el.id.startsWith('stat')){el.classList.add('counter');el.dataset.target=el.te
 });
 }
 
+// ===== LOAD SETTINGS =====
+// Di panggil saat halaman settings dibuka
+async function loadSettings(key){
+if(!supabase)return;
+try{
+const{data}=await supabase.from('settings').select('value').eq('key',key).single();
+if(data&&data.value)return data.value;
+}catch(e){}
+return null;
+}
+
+async function saveSetting(key,value){
+if(!supabase)return;
+try{
+await supabase.from('settings').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});
+}catch(e){console.warn('Save setting failed:',e.message)}
+}
+
+// ===== SYNC TO SUPABASE (new row-based) =====
+async function syncToSupabase(table){
+if(!supabase||!isAuthenticated)return;
+try{
+// Delete existing rows and re-insert
+const{data:existing}=await supabase.from(table).select('id');
+if(existing&&existing.length){
+await supabase.from(table).delete().in('id',existing.map(r=>r.id));
+}
+const rows=dataCache[table].map((item,i)=>{
+if(table==='services')return{name:item.name,icon:item.icon,description:item.desc,sort_order:i};
+if(table==='portfolio')return{name:item.name,category:item.cat,location:item.loc,description:item.desc,image_url:item.img,year:item.year,sort_order:i};
+if(table==='testimonials')return{client_name:item.name,position:item.position,quote:item.quote,sort_order:i};
+if(table==='articles')return{title:item.title,content:item.content,date:item.date,status:item.status};
+return item;
+});
+if(rows.length)await supabase.from(table).insert(rows);
+}catch(e){console.warn('Sync to Supabase failed:',e.message)}
+}
+
 // ===== COUNTER ANIMATION =====
 function animateCounter(el){const t=parseInt(el.dataset.target)||parseInt(el.textContent);if(!t)return;const d=1500,s=performance.now();function u(c){const p=Math.min((c-s)/d,1),e=p===1?1:1-Math.pow(2,-10*p);el.textContent=Math.floor(e*t);if(p<1)requestAnimationFrame(u)}requestAnimationFrame(u)}
 
-// ===== SAVE SETTINGS =====
+// ===== SAVE SETTINGS (with Supabase sync) =====
 ['saveHero','saveCompany','saveSeo','saveOverlay'].forEach(id=>{
-document.getElementById(id).addEventListener('click',function(){showToast('Pengaturan berhasil disimpan','success')});
+document.getElementById(id).addEventListener('click',async function(){
+const keyMap={saveHero:'hero',saveCompany:'company',saveSeo:'seo',saveOverlay:'overlay'};
+const key=keyMap[id];
+let value={};
+if(key==='hero'){
+value={bg_url:document.getElementById('heroBgUrl').value,title:document.getElementById('heroTitle').value,subtitle:document.getElementById('heroSubtitle').value,description:document.getElementById('heroDesc').value,badge:document.getElementById('heroBadge').value,cta:document.getElementById('heroCta').value,overlay_opacity:parseFloat(document.getElementById('heroOverlay').value)};
+}else if(key==='company'){
+value={name:document.getElementById('companyName').value,short:document.getElementById('companyShort').value,address:document.getElementById('companyAddress').value,whatsapp:document.getElementById('companyWa').value,email:document.getElementById('companyEmail').value,hours:document.getElementById('companyHours').value,year:document.getElementById('companyYear').value};
+}else if(key==='seo'){
+value={title:document.getElementById('seoTitle').value,description:document.getElementById('seoDesc').value,keywords:document.getElementById('seoKeywords').value,og_image:document.getElementById('seoOgImage').value};
+}else if(key==='overlay'){
+value={bg_url:document.getElementById('overlayBg').value,title:document.getElementById('overlayTitle').value,description:document.getElementById('overlayDesc').value,color:document.getElementById('overlayColor').value,opacity:parseFloat(document.getElementById('overlayOpacity').value)};
+}
+await saveSetting(key,value);
+showToast('Pengaturan berhasil disimpan','success');
+});
+});
+
+// Load settings when entering page
+async function loadSettingsToForm(key){
+const data=await loadSettings(key);
+if(!data)return;
+if(key==='hero'){
+if(data.bg_url)document.getElementById('heroBgUrl').value=data.bg_url;
+if(data.title)document.getElementById('heroTitle').value=data.title;
+if(data.subtitle)document.getElementById('heroSubtitle').value=data.subtitle;
+if(data.description)document.getElementById('heroDesc').value=data.description;
+if(data.badge)document.getElementById('heroBadge').value=data.badge;
+if(data.cta)document.getElementById('heroCta').value=data.cta;
+if(data.overlay_opacity)document.getElementById('heroOverlay').value=data.overlay_opacity;
+}
+}
+
+// Load hero settings when page is viewed
+document.querySelector('[data-page="hero"]').addEventListener('click',()=>{
+setTimeout(()=>loadSettingsToForm('hero'),200);
 });
 
 // ===== INIT =====
