@@ -110,7 +110,19 @@ ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 
--- ===== 7. CREATE POLICIES =====
+-- ===== 7. DROP EXISTING POLICIES (idempotent) =====
+DROP POLICY IF EXISTS "Allow authenticated users full access to services" ON services;
+DROP POLICY IF EXISTS "Allow authenticated users full access to portfolio" ON portfolio;
+DROP POLICY IF EXISTS "Allow authenticated users full access to testimonials" ON testimonials;
+DROP POLICY IF EXISTS "Allow authenticated users full access to articles" ON articles;
+DROP POLICY IF EXISTS "Allow authenticated users full access to settings" ON settings;
+DROP POLICY IF EXISTS "Allow public read access to services" ON services;
+DROP POLICY IF EXISTS "Allow public read access to portfolio" ON portfolio;
+DROP POLICY IF EXISTS "Allow public read access to testimonials" ON testimonials;
+DROP POLICY IF EXISTS "Allow public read access to articles" ON articles;
+DROP POLICY IF EXISTS "Allow public read access to settings" ON settings;
+
+-- ===== 8. CREATE POLICIES =====
 -- Hanya user terautentikasi yang bisa baca/tulis data
 CREATE POLICY "Allow authenticated users full access to services"
   ON services FOR ALL USING (auth.role() = 'authenticated');
