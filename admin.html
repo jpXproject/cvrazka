@@ -121,6 +121,20 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 .empty-state h4{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:600;color:var(--text-muted);margin-bottom:4px}
 .empty-state p{font-size:.82rem}
 
+/* UPLOAD ZONE */
+.upload-zone{position:relative;border:2px dashed var(--border);border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .3s ease;background:var(--input-bg);margin-top:8px}
+.upload-zone:hover{border-color:var(--red);background:rgba(230,57,70,.04)}
+.upload-zone i{font-size:1.6rem;color:var(--text-dim);margin-bottom:8px;display:block}
+.upload-zone span{font-size:.82rem;color:var(--text-dim)}
+.upload-zone small{display:block;font-size:.72rem;color:var(--text-dim);margin-top:4px;opacity:.6}
+.upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-zone .upload-preview{display:none;width:100%;max-height:160px;border-radius:8px;object-fit:cover;margin-top:8px}
+.upload-zone.has-image{border-style:solid;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.04);padding:12px}
+.upload-zone.has-image i{font-size:1rem;margin-bottom:4px;color:#34d399}
+.upload-zone.has-image span{font-size:.75rem;color:#34d399}
+.upload-progress{height:3px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px;display:none}
+.upload-progress .bar{height:100%;background:var(--red);border-radius:3px;width:0%;transition:width .3s ease}
+
 /* FORM CARD */
 .form-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:800px}
 .form-card .form-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:20px}
@@ -265,7 +279,10 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="form-group">
 <label>Gambar Latar Belakang</label>
 <input type="text" id="heroBgUrl" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=85" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=85">
-<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="document.getElementById('heroBgUrl').value='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=80';showToast('Gambar direset ke default','info')"><i class="fas fa-redo"></i> Reset Default</button>
+<img class="preview-img" id="heroBgPreview" src="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=200&q=60" alt="preview" style="display:block">
+<div class="upload-zone" id="heroUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="upload-progress" id="heroUploadProgress"><div class="bar"></div></div>
+<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="document.getElementById('heroBgUrl').value='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=80';document.getElementById('heroBgPreview').src='https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=200&q=60';showToast('Gambar direset ke default','info')"><i class="fas fa-redo"></i> Reset Default</button>
 </div>
 <div class="form-row">
 <div class="form-group"><label>Judul Utama</label><input type="text" id="heroTitle" placeholder="Kontraktor Bangunan & Infrastruktur Terpercaya" value="Kontraktor Bangunan & Infrastruktur Terpercaya"></div>
@@ -354,7 +371,9 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="form-group"><label>Meta Description</label><textarea id="seoDesc" rows="2" placeholder="Deskripsi untuk SEO">CV RAZKA PRATAMA MANDIRI – Kontraktor bangunan terpercaya di Banyuwangi, spesialis infrastruktur pemerintah, pekerjaan sipil, renovasi, dan desain arsitektur.</textarea></div>
 <div class="form-row">
 <div class="form-group"><label>Keywords</label><input type="text" id="seoKeywords" placeholder="kontraktor Banyuwangi, jasa bangunan" value="kontraktor pemerintah Banyuwangi, jasa bangunan, pekerjaan sipil, infrastruktur"></div>
-<div class="form-group"><label>OG Image URL</label><input type="text" id="seoOgImage" placeholder="https://images.unsplash.com/photo-xxx?w=1200&q=80" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1200&q=80"></div>
+<div class="form-group"><label>OG Image URL</label><input type="text" id="seoOgImage" placeholder="https://images.unsplash.com/photo-xxx?w=1200&q=80" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1200&q=80">
+<div class="upload-zone" id="seoUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="upload-progress" id="seoUploadProgress"><div class="bar"></div></div></div>
 </div>
 </div></div>
 
@@ -362,7 +381,9 @@ Gunakan panel ini untuk mengelola seluruh konten website CV RAZKA PRATAMA MANDIR
 <div class="page-section" id="page-overlay">
 <div class="section-header"><div><h3>Overlay Gambar</h3><p>Konfigurasi overlay teks di belakang judul dan deskripsi halaman</p></div><button class="btn btn-red btn-sm" id="saveOverlay"><i class="fas fa-save"></i> Simpan</button></div>
 <div class="form-card">
-<div class="form-group"><label>Gambar Latar Overlay</label><input type="text" id="overlayBg" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=80" value="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600&q=80"></div>
+<div class="form-group"><label>Gambar Latar Overlay</label><input type="text" id="overlayBg" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=80" value="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600&q=80">
+<div class="upload-zone" id="overlayUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="upload-progress" id="overlayUploadProgress"><div class="bar"></div></div></div>
 <div class="form-row">
 <div class="form-group"><label>Judul Overlay</label><input type="text" id="overlayTitle" placeholder="Bidang Keahlian Kami" value="Bidang Keahlian Kami"></div>
 <div class="form-group"><label>Warna Overlay</label><input type="color" id="overlayColor" value="#080e1a"></div>
@@ -459,6 +480,7 @@ if(error){err.style.display='block';err.textContent=error.message||'Email atau p
 err.style.display='none';isAuthenticated=true;adminEmail=email;
 showToast('Selamat datang, '+email,'success');
 showApp();loadAllData().then(missing=>{if(missing.length)setupMissingTables(missing)});
+initUploadZones().catch(e=>console.warn('initUploadZones:',e));
 });
 
 document.getElementById('adminAvatar').addEventListener('click',()=>document.getElementById('logoutBtn').click());
@@ -513,6 +535,68 @@ document.querySelectorAll('#'+tableId+' tbody tr').forEach(r=>{
 if(r.querySelector('td[colspan]'))return;
 const t=r.textContent.toLowerCase();
 r.style.display=t.includes(q)?'':'none';
+});
+}
+
+// ===== SUPABASE STORAGE =====
+const STORAGE_BUCKET='razka-images';
+
+async function ensureStorageBucket(){
+if(!supabase)return false;
+try{
+const{data:buckets}=await supabase.storage.listBuckets();
+if(buckets&&buckets.find(b=>b.name===STORAGE_BUCKET))return true;
+// Try to create bucket via API (may fail with anon key)
+const{error}=await supabase.storage.createBucket(STORAGE_BUCKET,{public:true});
+if(error){
+showToast('Buat bucket "razka-images" di Supabase Dashboard → Storage agar upload berfungsi','info');
+return false;
+}
+return true;
+}catch(e){console.warn('Storage bucket error:',e.message);return false}
+}
+
+async function uploadToStorage(file,path){
+if(!supabase||!file)return null;
+const ext=file.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'');
+const fileName=Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
+const filePath=path+'/'+fileName;
+const{data,error}=await supabase.storage.from(STORAGE_BUCKET).upload(filePath,file,{upsert:true});
+if(error){console.error('Upload error:',error);showToast('Gagal upload: '+error.message,'error');return null}
+const{data:{publicUrl}}=supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
+return publicUrl;
+}
+
+function setupUploadZone(zoneId,inputId,previewId,progressId,path){
+const zone=document.getElementById(zoneId);
+const input=zone.querySelector('input[type="file"]');
+if(!input)return;
+input.addEventListener('change',async function(e){
+const file=this.files[0];
+if(!file)return;
+// Show progress
+const prog=document.getElementById(progressId);
+if(prog){prog.style.display='block';prog.querySelector('.bar').style.width='30%'}
+// Validate file type
+if(!file.type.startsWith('image/')){showToast('Hanya file gambar yang diizinkan','error');return}
+// Validate size (max 5MB)
+if(file.size>5*1024*1024){showToast('Maksimal ukuran file 5MB','error');return}
+// Show preview
+const reader=new FileReader();
+reader.onload=function(ev){zone.style.backgroundImage='url('+ev.target.result+')';zone.style.backgroundSize='cover';zone.style.backgroundPosition='center'};
+reader.readAsDataURL(file);
+// Upload
+if(prog)prog.querySelector('.bar').style.width='60%';
+const url=await uploadToStorage(file,path);
+if(url){
+document.getElementById(inputId).value=url;
+zone.classList.add('has-image');
+const preview=document.getElementById(previewId);
+if(preview)preview.src=url;
+showToast('Gambar berhasil diupload!','success');
+}
+if(prog){prog.querySelector('.bar').style.width='100%';setTimeout(()=>{prog.style.display='none';prog.querySelector('.bar').style.width='0%'},1000)}
+this.value='';
 });
 }
 
@@ -590,6 +674,8 @@ openModal(idx!==undefined?'Edit Proyek':'Tambah Proyek',
 '<div class="form-group"><label>Deskripsi</label><textarea id="fPortDesc" rows="2">'+p.desc+'</textarea></div>'+
 '<div class="form-row"><div class="form-group"><label>Gambar URL</label><input type="text" id="fPortImg" value="'+p.img+'" placeholder="https://..."></div>'+
 '<div class="form-group"><label>Tahun</label><input type="text" id="fPortYear" value="'+p.year+'"></div></div>'+
+'<div class="upload-zone" id="portUploadZone" style="margin-bottom:16px"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar proyek</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>'+
+'<div class="upload-progress" id="portUploadProgress" style="margin-bottom:16px"><div class="bar"></div></div>'+
 '<button class="btn btn-red" style="width:100%;justify-content:center" onclick="savePortfolio('+(idx!==undefined?idx:'-1')+')"><i class="fas fa-save"></i> Simpan</button>'
 );
 }
@@ -810,6 +896,29 @@ dataCache.testimonials=[
 renderServices();renderPortfolio();renderTestimonials();renderArticles();
 }
 
+// ===== SETUP UPLOAD ZONES =====
+async function initUploadZones(){
+// Ensure storage bucket exists before setting up upload zones
+if(supabase)await ensureStorageBucket();
+const zones=[
+{zone:'heroUploadZone',input:'heroBgUrl',preview:'heroBgPreview',progress:'heroUploadProgress',path:'hero'},
+{zone:'overlayUploadZone',input:'overlayBg',preview:null,progress:'overlayUploadProgress',path:'overlay'},
+{zone:'seoUploadZone',input:'seoOgImage',preview:null,progress:'seoUploadProgress',path:'seo'}
+];
+zones.forEach(z=>{
+const el=document.getElementById(z.zone);
+if(el)setupUploadZone(z.zone,z.input,z.preview,z.progress,z.path);
+});
+}
+// Re-init upload zones after modal opens (for portfolio)
+const origOpenModal=openModal;
+openModal=function(title,bodyHtml){
+origOpenModal(title,bodyHtml);
+// Setup portfolio upload zone (innerHTML is synchronous, elements exist immediately)
+const portZone=document.getElementById('portUploadZone');
+if(portZone)setupUploadZone('portUploadZone','fPortImg',null,'portUploadProgress','portfolio');
+};
+
 document.addEventListener('DOMContentLoaded',async()=>{
 // Register demo mode button IMMEDIATELY (before CDN load attempt)
 document.getElementById('demoModeBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
@@ -819,6 +928,8 @@ console.log('Supabase configured:',configured,'supabase:',!!supabase);
 if(!configured){
 document.getElementById('loginBtn').addEventListener('click',function(e){e.preventDefault();enterDemoMode();});
 }
+// Init upload zones after entering the app
+initUploadZones().catch(e=>console.warn('initUploadZones:',e));
 });
 </script>
 </body>

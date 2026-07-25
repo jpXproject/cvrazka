@@ -155,6 +155,32 @@ CREATE POLICY "Allow public read access to articles"
 CREATE POLICY "Allow public read access to settings"
   ON settings FOR SELECT USING (true);
 
+-- ===== 9. STORAGE BUCKET (untuk upload gambar) =====
+-- Buat bucket storage untuk image upload
+-- Cara alternatif: Buka Supabase Dashboard → Storage → Create bucket "razka-images" (public)
+INSERT INTO storage.buckets (id, name, public, avif_autodetection)
+VALUES ('razka-images', 'razka-images', true, false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Policy: authenticated users can upload/delete
+DROP POLICY IF EXISTS "Allow authenticated upload" ON storage.objects;
+CREATE POLICY "Allow authenticated upload"
+  ON storage.objects FOR INSERT WITH CHECK (
+    bucket_id = 'razka-images' AND auth.role() = 'authenticated'
+  );
+
+DROP POLICY IF EXISTS "Allow authenticated delete" ON storage.objects;
+CREATE POLICY "Allow authenticated delete"
+  ON storage.objects FOR DELETE USING (
+    bucket_id = 'razka-images' AND auth.role() = 'authenticated'
+  );
+
+DROP POLICY IF EXISTS "Allow public read" ON storage.objects;
+CREATE POLICY "Allow public read"
+  ON storage.objects FOR SELECT USING (
+    bucket_id = 'razka-images'
+  );
+
 -- ============================================================
 -- SELESAI. Tabel siap digunakan oleh admin panel.
 -- ============================================================
