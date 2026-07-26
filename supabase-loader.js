@@ -168,7 +168,7 @@ const catColors={pemerintah:'#34d399',komersial:'#60a5fa',residensial:'#e63946'}
 const catBgColors={pemerintah:'rgba(16,185,129,.15)',komersial:'rgba(59,130,246,.15)',residensial:'rgba(230,57,70,.15)'};
 const icons={pemerintah:'landmark',komersial:'warehouse',residensial:'home'};
 grid.innerHTML=items.map((p,i)=>`<div class="portfolio-card reveal reveal-delay-${(i%4)+1}" data-category="${p.category||'residensial'}">
-<div class="portfolio-bg" style="background-image:url('${p.image_url||'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80'}')"></div>
+<div class="portfolio-bg" style="background-image:url('${p.image_url||'https://images.unsplash.com/photo?fm=webp-1564013799919-ab600027ffc6?w=800&q=80'}')"></div>
 <div class="portfolio-overlay"></div>
 <div class="portfolio-info">
 <div class="portfolio-icon" style="background:${catBgColors[p.category]||catBgColors.residensial};color:${catColors[p.category]||catColors.residensial}"><i class="fas fa-${icons[p.category]||icons.residensial}"></i></div>
@@ -223,7 +223,7 @@ const shareWa=document.getElementById('shareWa');
 const shareTw=document.getElementById('shareTw');
 const shareLink=document.getElementById('shareLink');
 if(!overlay)return;
-if(img)img.style.backgroundImage=`url('${a.image_url||'https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=800&q=80'}')`;
+if(img)img.style.backgroundImage=`url('${a.image_url||'https://images.unsplash.com/photo?fm=webp-1504711434969-e33886168d6c?w=800&q=80'}')`;
 if(date)date.querySelector('span').textContent=a.date||'';
 if(title)title.textContent=a.title||'';
 if(content){
@@ -276,7 +276,7 @@ if(!window._paData||!window._paData[i])return;
 var p=window._paData[i];
 var overlay=document.querySelector('.pa-modal-overlay');
 if(!overlay)return;
-overlay.querySelector('.pa-modal-img').style.backgroundImage="url('"+(p.image_url||'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80')+"')";
+overlay.querySelector('.pa-modal-img').style.backgroundImage="url('"+(p.image_url||'https://images.unsplash.com/photo?fm=webp-1504917595217-d4dc5ebe6122?w=800&q=80')+"')";
 overlay.querySelector('.pa-modal-tag').textContent=p.tag||'Keahlian';
 overlay.querySelector('h2').innerHTML='<span class="pm-icon" style="background:'+(p.icon_color||'#e63946')+';color:#fff"><i class="'+p.icon+'"></i></span> '+p.title;
 overlay.querySelector('.pm-desc').textContent=p.description||'';
@@ -312,8 +312,9 @@ document.querySelectorAll('.testimonial-dot').forEach((d,j)=>d.classList.toggle(
 function nextSlide(){goTo(idx+1)}
 function prevSlide(){goTo(idx-1)}
 // Wire up controls
-document.querySelectorAll('.testimonial-btn.prev').forEach(b=>b.addEventListener('click',prevSlide));
-document.querySelectorAll('.testimonial-btn.next').forEach(b=>b.addEventListener('click',nextSlide));
+var prevBtn=document.getElementById('testPrev'),nextBtn=document.getElementById('testNext');
+if(prevBtn)prevBtn.addEventListener('click',prevSlide);
+if(nextBtn)nextBtn.addEventListener('click',nextSlide);
 document.querySelectorAll('.testimonial-dot').forEach((d,i)=>d.addEventListener('click',()=>goTo(i)));
 // Auto-play (stored globally to prevent timer accumulation on re-init)
 function startAuto(){stopAuto();window._testTimer=setInterval(nextSlide,5000)}
@@ -353,12 +354,40 @@ if(idx===0&&el.dataset.target)el.dataset.target=exp;
 }
 }
 
+// Apply stats from hero setting to counters (BOTH hero-stats and stats-section)
+function applyHeroStats(stats){
+if(!stats)return;
+// Update hero-stats (top of page)
+var heroStats=document.querySelectorAll('.hero-stat .counter');
+if(heroStats.length>0&&stats.years)heroStats[0].dataset.target=stats.years;
+if(heroStats.length>1&&stats.projects)heroStats[1].dataset.target=stats.projects;
+if(heroStats.length>2&&stats.government)heroStats[2].dataset.target=stats.government;
+// Update stats-section counters (middle of page)
+var statItems=document.querySelectorAll('.stat-item .counter');
+if(statItems.length>0&&stats.years)statItems[0].dataset.target=stats.years;
+if(statItems.length>1&&stats.projects)statItems[1].dataset.target=stats.projects;
+if(statItems.length>2&&stats.government)statItems[2].dataset.target=stats.government;
+// Update on-time text (not a counter)
+var onTimeEl=document.querySelector('.hero-stat:last-child h3 span')||document.querySelector('.stat-item:last-child h3 span');
+if(onTimeEl&&stats.on_time)onTimeEl.textContent=stats.on_time;
+// Re-trigger counter animation
+setTimeout(function(){
+document.querySelectorAll('.counter').forEach(function(el){
+var t=parseInt(el.dataset.target);
+if(t){
+el.textContent='0';
+animateCounter(el);
+}
+});
+},150);
+}
+
 // Render service detail on layanan.html
 function renderServiceDetail(services){
 const container=document.querySelector('#serviceDetailContent');
 if(!container||!services.length)return;
 const icons=['drafting-compass','paint-roller','pencil-ruler','building','hard-hat','ruler-combined','store','home'];
-const images=['https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80','https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80','https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80','https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80','https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80','https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80'];
+const images=['https://images.unsplash.com/photo?fm=webp-1504917595217-d4dc5ebe6122?w=800&q=80','https://images.unsplash.com/photo?fm=webp-1564013799919-ab600027ffc6?w=800&q=80','https://images.unsplash.com/photo?fm=webp-1487958449943-2429e8be8625?w=800&q=80','https://images.unsplash.com/photo?fm=webp-1560518883-ce09059eeffa?w=800&q=80','https://images.unsplash.com/photo?fm=webp-1486406146926-c627a92ad1ab?w=800&q=80','https://images.unsplash.com/photo?fm=webp-1504384308090-c894fdcc538d?w=800&q=80'];
 container.innerHTML=services.map((s,i)=>{
 const reverse=i%2===1?' reverse':'';
 const img=s.image_url||images[i%images.length];
@@ -414,7 +443,7 @@ const grid=document.querySelector('.pa-grid');
 if(!grid||!items.length)return;
 grid.innerHTML=items.map((p,i)=>`
 <div class="pa-card reveal reveal-delay-${(i%4)+1}" onclick="openPAModal(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPAModal(${i})">
-<div class="pa-img" style="background-image:url('${p.image_url||'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600&q=80'}');background-size:contain;background-repeat:no-repeat;background-position:center;background-color:#0c1525"></div>
+<div class="pa-img" style="background-image:url('${p.image_url||'https://images.unsplash.com/photo?fm=webp-1504917595217-d4dc5ebe6122?w=600&q=80'}');background-size:contain;background-repeat:no-repeat;background-position:center;background-color:#0c1525"></div>
 <div class="pa-body">
 <div class="pa-icon" style="color:${p.icon_color||'#e63946'};background:${hexToRgba(p.icon_color,'.15')}"><i class="${p.icon||'fas fa-landmark'}"></i></div>
 <h3>${p.title}</h3>
@@ -557,7 +586,22 @@ renderBeforeAfter(beforeafter);
 // Fetch and render articles
 const articles=await getArticles();
 renderArticles(articles);
+// Article card click delegation (more robust than inline onclick)
+setTimeout(function(){
+var artGrid=document.querySelector('.articles-grid');
+if(artGrid&&!artGrid._hasDelegation){
+artGrid._hasDelegation=true;
+artGrid.addEventListener('click',function(e){
+var card=e.target.closest('.article-card');
+if(!card)return;
+var idx=Array.from(this.children).indexOf(card);
+if(idx>=0&&typeof window.openArtModal==='function')window.openArtModal(idx);
+});
+}
+},100);
 // Apply overlay settings (practice-area section)
+// Apply hero stats
+if(hero&&hero.stats)applyHeroStats(hero.stats);
 if(overlay){
 const paSection=document.querySelector('.practice-area')||document.querySelector('.pa-section');
 if(paSection){
