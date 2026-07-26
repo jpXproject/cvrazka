@@ -134,7 +134,7 @@ return `<div class="service-card reveal reveal-delay-${(i%4)+1}">
 <div class="service-icon"><i class="fas fa-${icon}"></i></div>
 <h3>${s.name}</h3>
 <p>${s.description||''}</p>
-<a href="layanan.html" class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></a>
+<a href="layanan.html#${(s.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}" class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></a>
 </div>`;
 }).join('');
 }
@@ -177,7 +177,8 @@ initTestimonialCarousel();
 function renderArticles(items){
 const grid=document.querySelector('.articles-grid');
 if(!grid||!items.length)return;
-grid.innerHTML=items.map((a,i)=>`<div class="article-card reveal reveal-delay-${(i%3)+1}">
+globalThis._articlesData=items;
+grid.innerHTML=items.map((a,i)=>`<div class="article-card reveal reveal-delay-${(i%3)+1}" onclick="openArtModal(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openArtModal(${i})">
 ${a.image_url?`<div class="article-img" style="background-image:url('${a.image_url}')"></div>`:''}
 <div class="article-body">
 <span class="article-date">${a.date||''}</span>
@@ -186,6 +187,92 @@ ${a.image_url?`<div class="article-img" style="background-image:url('${a.image_u
 ${a.status==='published'?'<span class="article-tag">Artikel</span>':''}
 </div></div>`).join('');
 }
+
+// Open article modal
+function openArtModal(idx){
+const data=globalThis._articlesData;
+if(!data||!data[idx])return;
+const a=data[idx];
+const overlay=document.getElementById('artModalOverlay');
+const img=document.getElementById('artModalImg');
+const date=document.getElementById('artModalDate');
+const title=document.getElementById('artModalTitle');
+const content=document.getElementById('artModalContent');
+const shareFb=document.getElementById('shareFb');
+const shareWa=document.getElementById('shareWa');
+const shareTw=document.getElementById('shareTw');
+const shareLink=document.getElementById('shareLink');
+if(!overlay)return;
+if(img)img.style.backgroundImage=`url('${a.image_url||'https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=800&q=80'}')`;
+if(date)date.querySelector('span').textContent=a.date||'';
+if(title)title.textContent=a.title||'';
+if(content){
+// Support basic HTML formatting
+let html=(a.content||'').replace(/\n/g,'<br>');
+// Convert **bold** to <strong>
+html=html.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+// Convert *italic* to <em>
+html=html.replace(/\*(.*?)\*/g,'<em>$1</em>');
+content.innerHTML='<p>'+html+'</p>';
+}
+// Set share URLs
+const pageUrl=encodeURIComponent(window.location.href.split('?')[0]);
+const shareText=encodeURIComponent(a.title||'Artikel CV RAZKA PRATAMA MANDIRI');
+if(shareFb)shareFb.href=`https://facebook.com/sharer/sharer.php?u=${pageUrl}&quote=${shareText}`;
+if(shareWa)shareWa.href=`https://api.whatsapp.com/send?text=${shareText}%20-%20${pageUrl}`;
+if(shareTw)shareTw.href=`https://twitter.com/intent/tweet?text=${shareText}&url=${pageUrl}`;
+if(shareLink){
+shareLink.onclick=function(e){
+e.preventDefault();
+navigator.clipboard.writeText(window.location.href.split('?')[0]).then(()=>{
+const orig=this.innerHTML;
+this.innerHTML='<i class="fas fa-check"></i>';
+setTimeout(()=>this.innerHTML=orig,2000);
+}).catch(()=>{});
+};
+}
+overlay.classList.add('open');
+document.body.style.overflow='hidden';
+}
+
+// Close article modal
+function closeArtModal(){
+const overlay=document.getElementById('artModalOverlay');
+if(!overlay)return;
+overlay.classList.remove('open');
+document.body.style.overflow='';
+}
+
+// Close on Escape key
+document.addEventListener('keydown',function(e){
+if(e.key==='Escape')closeArtModal();
+});
+
+// Expose modal functions globally for onclick handlers
+window.openArtModal=openArtModal;
+window.closeArtModal=closeArtModal;
+window.openPAModal=window.openPAModal||function(i){
+if(!window._paData||!window._paData[i])return;
+var p=window._paData[i];
+var overlay=document.querySelector('.pa-modal-overlay');
+if(!overlay)return;
+overlay.querySelector('.pa-modal-img').style.backgroundImage="url('"+(p.image_url||'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80')+"')";
+overlay.querySelector('.pa-modal-tag').textContent=p.tag||'Keahlian';
+overlay.querySelector('h2').innerHTML='<span class="pm-icon" style="background:'+(p.icon_color||'#e63946')+';color:#fff"><i class="'+p.icon+'"></i></span> '+p.title;
+overlay.querySelector('.pm-desc').textContent=p.description||'';
+if(p.features&&p.features.length){
+overlay.querySelector('.pm-features').innerHTML=p.features.map(function(f){return '<li><i class="fas fa-check-circle" style="color:'+(p.icon_color||'#e63946')+'"></i> '+f+'</li>'}).join('');
+}
+if(p.stats&&p.stats.length){
+overlay.querySelector('.pm-stats').innerHTML=p.stats.map(function(s){return '<div class="pm-stat"><h4 style="color:'+(p.icon_color||'#e63946')+'">'+s.value+'</h4><p>'+s.label+'</p></div>'}).join('');
+}
+overlay.classList.add('open');
+document.body.style.overflow='hidden';
+};
+window.closePAModal=window.closePAModal||function(){
+var overlay=document.querySelector('.pa-modal-overlay');
+if(overlay){overlay.classList.remove('open');document.body.style.overflow='';}
+};
 
 // Init testimonial carousel
 function initTestimonialCarousel(){
@@ -253,7 +340,8 @@ const images=['https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=80
 container.innerHTML=services.map((s,i)=>{
 const reverse=i%2===1?' reverse':'';
 const img=s.image_url||images[i%images.length];
-return `<div class="service-detail-grid${reverse} reveal">
+const anchor=(s.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+return `<div class="service-detail-grid${reverse} reveal" id="${anchor}">
 <div class="service-detail-text">
 <span class="section-label">${String(i+1).padStart(2,'0')}</span>
 <h2 class="section-title">${s.name}</h2>
@@ -451,10 +539,6 @@ renderPracticeAreas(practiceAreas);
 // Fetch and render clients
 const clients=await getClients();
 renderClients(clients);
-
-// Fetch and render hotspots
-const hotspots=await getHotspots();
-renderHotspots(hotspots);
 
 // Fetch marquee & beforeafter settings
 const[marquee,beforeafter]=await Promise.all([

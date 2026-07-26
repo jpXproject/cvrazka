@@ -127,32 +127,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .pa-card:nth-child(3) .pa-tag{color:#3b82f6;background:rgba(59,130,246,.1)}
 .pa-card:nth-child(4) .pa-tag{color:#10b981;background:rgba(16,185,129,.1)}
 
-/* IMAGE HOTSPOT */
-.hotspot-section{background:linear-gradient(180deg,#0c1525 0%,#0f172a 100%);position:relative}
-.hotspot-wrapper{position:relative;border-radius:20px;overflow:hidden;margin-top:52px;border:1px solid rgba(255,255,255,.06)}
-.hotspot-img{width:100%;display:block;min-height:400px;object-fit:cover;background:url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&q=80') center/cover no-repeat}
-.hotspot-img-placeholder{width:100%;height:450px;background:linear-gradient(135deg,rgba(8,14,26,.8),rgba(8,14,26,.4)),url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1200&q=80') center/cover no-repeat;display:flex;align-items:center;justify-content:center;position:relative}
-.hotspot-img-placeholder .hs-center-text{text-align:center;color:#94a3b8;z-index:2}
-.hotspot-img-placeholder .hs-center-text h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:8px}
-.hotspot-img-placeholder .hs-center-text p{font-size:.9rem;max-width:400px}
-.hotspot-dot{position:absolute;width:36px;height:36px;border-radius:50%;background:rgba(230,57,70,.85);border:3px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;animation:hotspotPulse 2.5s ease-in-out infinite;transition:all .3s ease}
-.hotspot-dot i{color:#fff;font-size:.75rem;pointer-events:none}
-.hotspot-dot:hover{transform:scale(1.2);background:#e63946;border-color:#fff}
-.hotspot-dot-1{top:25%;left:30%;animation-delay:0s}
-.hotspot-dot-2{top:55%;left:55%;animation-delay:.5s}
-.hotspot-dot-3{top:70%;left:20%;animation-delay:1s}
-.hotspot-dot::after{content:'';position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid rgba(230,57,70,.3);animation:hotspotRing 2.5s ease-in-out infinite}
-@keyframes hotspotPulse{0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.4)}50%{box-shadow:0 0 0 12px rgba(230,57,70,0)}}
-@keyframes hotspotRing{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.6);opacity:0}}
-.hotspot-tooltip{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 18px;width:220px;opacity:0;pointer-events:none;transition:all .3s ease;z-index:10;box-shadow:0 12px 36px rgba(0,0,0,.4)}
-.hotspot-dot:hover .hotspot-tooltip{opacity:1;transform:translateX(-50%) translateY(-4px)}
-.hotspot-tooltip h4{font-size:.85rem;font-weight:700;color:#fff;margin-bottom:4px}
-.hotspot-tooltip p{font-size:.75rem;color:#94a3b8}
-
 /* SERVICES */
 .services{background:linear-gradient(180deg,#0f172a 0%,#0c1525 100%)}
 .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px;margin-top:52px}
-.service-card{background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:40px 32px;transition:all .5s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;text-decoration:none;display:block}
+.service-card{background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:40px 32px;transition:all .5s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;text-decoration:none;display:block;cursor:pointer}
 .service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#e63946,transparent);opacity:0;transition:opacity .5s ease}
 .service-card:hover::before{opacity:1}
 .service-card:hover{transform:translateY(-8px);border-color:rgba(230,57,70,.25);box-shadow:0 24px 64px rgba(0,0,0,.4),0 0 50px rgba(230,57,70,.06)}
@@ -161,8 +139,46 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .service-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:10px}
 .service-card p{font-size:.88rem;color:#94a3b8;line-height:1.7}
 .service-card .service-number{position:absolute;top:16px;right:20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:3.5rem;color:rgba(255,255,255,.03);line-height:1;pointer-events:none}
-.service-link{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;color:#e63946;margin-top:16px;transition:gap .3s ease}
+.service-link{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600;color:#e63946;margin-top:16px;transition:gap .3s ease;text-decoration:none}
 .service-card:hover .service-link{gap:10px}
+
+/* ARTICLE MODAL */
+.art-modal-overlay{position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s ease;padding:20px}
+.art-modal-overlay.open{opacity:1;visibility:visible}
+.art-modal{background:linear-gradient(145deg,#0f172a,#0c1525);border:1px solid rgba(255,255,255,.08);border-radius:24px;width:100%;max-width:720px;max-height:88vh;overflow-y:auto;transform:translateY(30px) scale(.95);transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative}
+.art-modal-overlay.open .art-modal{transform:translateY(0) scale(1)}
+.art-modal-img{width:100%;height:240px;background-size:cover;background-position:center;border-radius:24px 24px 0 0;position:relative}
+.art-modal-img::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,14,26,.8) 0%,transparent 60%);border-radius:24px 24px 0 0}
+.art-modal-close{position:absolute;top:16px;right:16px;z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;backdrop-filter:blur(8px)}
+.art-modal-close:hover{background:rgba(230,57,70,.2);border-color:#e63946}
+.art-modal-body{padding:36px}
+.art-modal-body .art-date{font-size:.82rem;color:#64748b;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.art-modal-body .art-date i{color:#e63946}
+.art-modal-body h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:16px;line-height:1.3}
+.art-modal-body .art-content{font-size:.95rem;color:#cbd5e1;line-height:1.8;margin-bottom:28px}
+.art-modal-body .art-content p{margin-bottom:16px}
+.art-modal-body .art-content strong{color:#fff}
+.art-modal-body .art-content em{color:#e63946}
+.art-share{display:flex;align-items:center;gap:14px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06)}
+.art-share span{font-size:.85rem;color:#64748b;font-weight:600}
+.art-share a{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:1rem;transition:all .3s ease;color:#fff}
+.art-share a.share-fb{background:#1877f2}
+.art-share a.share-wa{background:#25d366}
+.art-share a.share-tw{background:#1da1f2}
+.art-share a.share-link{background:#64748b}
+.art-share a:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.art-share a:active{transform:translateY(0)}
+@media(max-width:768px){
+.art-modal{max-height:92vh}
+.art-modal-img{height:180px}
+.art-modal-body{padding:24px}
+.art-modal-body h2{font-size:1.3rem}
+}
+@media(max-width:480px){
+.art-modal-img{height:150px}
+.art-modal-body{padding:20px}
+.art-modal-body h2{font-size:1.1rem}
+}
 
 /* STATS */
 .stats-section{background:linear-gradient(135deg,#0c1525,#080e1a);border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
@@ -399,11 +415,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .clients-grid{grid-template-columns:repeat(2,1fr)}
 .beforeafter-wrapper{height:300px}
 .beforeafter-wrapper .ba-before,.beforeafter-wrapper .ba-after{height:100%}
-.hotspot-img-placeholder{height:350px}
 .lightbox-nav{width:40px;height:40px;font-size:1rem}
 .lightbox-nav.prev{left:8px}
 .lightbox-nav.next{right:8px}
-.hotspot-dot{width:28px;height:28px}
 }
 @media(max-width:480px){
 .navbar-brand{font-size:1rem}
@@ -417,9 +431,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .clients-grid{grid-template-columns:repeat(2,1fr);gap:16px}
 .client-card{padding:20px 16px}
 .beforeafter-wrapper{height:240px}
-.hotspot-img-placeholder{height:280px}
-.hotspot-img-placeholder .hs-center-text h3{font-size:1.1rem}
-.hotspot-img-placeholder .hs-center-text p{font-size:.8rem}
 }
 
 </style>
@@ -492,21 +503,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="pa-card reveal reveal-delay-4" onclick="openPAModal(3)" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPAModal(3)"><div class="pa-img pa-img-4"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-home"></i></div><h3>Proyek Residensial</h3><p>Pembangunan dan renovasi rumah tinggal, perumahan, dan hunian pribadi dengan sentuhan arsitektur modern dan tradisional.</p><span class="pa-tag">Residensial</span></div></div>
 </div></div></section>
 
-<!-- IMAGE HOTSPOT -->
-<section class="hotspot-section section-padding" id="hotspot">
-<div class="container">
-<div class="reveal">
-<span class="section-label"><i class="fas fa-crosshairs"></i> Eksplorasi Proyek</span>
-<h2 class="section-title">Interaktif <span class="highlight">Proyek</span></h2>
-<p class="section-subtitle">Klik titik-titik interaktif pada gambar untuk melihat detail proyek terbaru kami.</p>
-</div>
-<div class="hotspot-wrapper reveal">
-<div class="hotspot-img-placeholder">
-<div class="hs-center-text"><h3>Sentuh Titik Interaktif</h3><p>Arahkan kursor ke titik merah untuk melihat detail proyek</p></div>
-<div class="hotspot-dot hotspot-dot-1"><i class="fas fa-plus"></i><div class="hotspot-tooltip"><h4>🏛️ Gedung Pemerintahan</h4><p>Pembangunan kantor kecamatan dan balai desa di Banyuwangi.</p></div></div>
-<div class="hotspot-dot hotspot-dot-2"><i class="fas fa-plus"></i><div class="hotspot-tooltip"><h4>🛣️ Jalan & Drainase</h4><p>Proyek infrastruktur jalan lingkungan dan drainase terintegrasi.</p></div></div>
-<div class="hotspot-dot hotspot-dot-3"><i class="fas fa-plus"></i><div class="hotspot-tooltip"><h4>🏗️ Konstruksi Beton</h4><p>Pekerjaan struktur beton untuk fondasi gedung komersial.</p></div></div>
-</div></div></div></section>
+
 
 <!-- STATS -->
 <section class="stats-section section-padding" id="stats">
@@ -526,9 +523,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <p class="section-subtitle">Solusi konstruksi menyeluruh yang mencakup setiap tahap proyek Anda.</p>
 </div>
 <div class="services-grid">
-<div class="service-card reveal reveal-delay-1"><span class="service-number">01</span><div class="service-icon"><i class="fas fa-drafting-compass"></i></div><h3>Pekerjaan Sipil</h3><p>Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar yang kokoh untuk bangunan Anda.</p><span class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></span></div>
-<div class="service-card reveal reveal-delay-2"><span class="service-number">02</span><div class="service-icon"><i class="fas fa-paint-roller"></i></div><h3>Renovasi &amp; Rehab</h3><p>Perbaikan, perluasan, rehabilitasi bangunan dengan hasil rapi dan nilai tambah properti yang signifikan.</p><span class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></span></div>
-<div class="service-card reveal reveal-delay-3"><span class="service-number">03</span><div class="service-icon"><i class="fas fa-pencil-ruler"></i></div><h3>Desain Arsitektur</h3><p>Perencanaan tata ruang efisien dan visualisasi fasad bangunan modern nan estetis sesuai kebutuhan.</p><span class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></span></div>
+<div class="service-card reveal reveal-delay-1"><span class="service-number">01</span><div class="service-icon"><i class="fas fa-drafting-compass"></i></div><h3>Pekerjaan Sipil</h3><p>Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar yang kokoh untuk bangunan Anda.</p><a href="layanan.html#pekerjaan-sipil" class="service-card reveal reveal-delay-1"><span class="service-number">01</span><div class="service-icon"><i class="fas fa-drafting-compass"></i></div><h3>Pekerjaan Sipil</h3><p>Pondasi kuat, struktur beton bertulang, dan infrastruktur dasar yang kokoh untuk bangunan Anda.</p><span class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></span></a>
+<a href="layanan.html#renovasi-rehab" class="service-card reveal reveal-delay-2"><span class="service-number">02</span><div class="service-icon"><i class="fas fa-paint-roller"></i></div><h3>Renovasi &amp; Rehab</h3><p>Perbaikan, perluasan, rehabilitasi bangunan dengan hasil rapi dan nilai tambah properti yang signifikan.</p><span class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></span></a>
+<a href="layanan.html#desain-arsitektur" class="service-card reveal reveal-delay-3"><span class="service-number">03</span><div class="service-icon"><i class="fas fa-pencil-ruler"></i></div><h3>Desain Arsitektur</h3><p>Perencanaan tata ruang efisien dan visualisasi fasad bangunan modern nan estetis sesuai kebutuhan.</p><span class="service-link">Selengkapnya <i class="fas fa-arrow-right"></i></span></a>
 </div></div></section>
 
 <!-- TESTIMONIALS -->
@@ -601,6 +598,23 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="portfolio-bg portfolio-bg-6"></div><div class="portfolio-overlay"></div>
 <div class="portfolio-info"><div class="portfolio-icon"><i class="fas fa-store"></i></div><h3>Ruko Komersial</h3><p>Pembangunan 5 unit ruko 2 lantai</p><span class="portfolio-tag">Banyuwangi, 2025</span></div></div>
 </div></div></section>
+
+<!-- ARTICLE MODAL -->
+<div class="art-modal-overlay" id="artModalOverlay" onclick="if(event.target===this)closeArtModal()">
+<div class="art-modal" onclick="event.stopPropagation()">
+<div class="art-modal-img" id="artModalImg" style="background-image:url('https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=800&q=80')"></div>
+<button class="art-modal-close" onclick="closeArtModal()"><i class="fas fa-times"></i></button>
+<div class="art-modal-body">
+<div class="art-date" id="artModalDate"><i class="fas fa-calendar-alt"></i> <span></span></div>
+<h2 id="artModalTitle">Judul Artikel</h2>
+<div class="art-content" id="artModalContent"><p>Konten artikel...</p></div>
+<div class="art-share" id="artShareButtons">
+<span>Bagikan:</span>
+<a href="#" class="share-fb" target="_blank" id="shareFb" title="Bagikan ke Facebook"><i class="fab fa-facebook-f"></i></a>
+<a href="#" class="share-wa" target="_blank" id="shareWa" title="Bagikan ke WhatsApp"><i class="fab fa-whatsapp"></i></a>
+<a href="#" class="share-tw" target="_blank" id="shareTw" title="Bagikan ke Twitter"><i class="fab fa-twitter"></i></a>
+<a href="#" class="share-link" id="shareLink" title="Salin tautan"><i class="fas fa-link"></i></a>
+</div></div></div></div>
 
 <!-- CLIENTS -->
 <section class="clients-section section-padding" id="clients">

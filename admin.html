@@ -1193,14 +1193,42 @@ document.getElementById('statArticles').textContent=dataCache.articles.length;
 document.getElementById('articlesCount').textContent=dataCache.articles.length+' item';
 }
 function openArticleModal(idx){
-const a=idx!==undefined?dataCache.articles[idx]:{title:'',content:'',date:new Date().toISOString().split('T')[0],status:'draft'};
+const a=idx!==undefined?dataCache.articles[idx]:{title:'',content:'',date:new Date().toISOString().split('T')[0],status:'draft',image_url:''};
 _editingIdx.articles=idx!==undefined?idx:-1;
 openModal(idx!==undefined?'Edit Artikel':'Tambah Artikel',
 '<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Judul Artikel</label><input type="text" id="fArtTitle" value="'+escAttr(a.title)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Gambar Artikel</label><div style="display:flex;gap:8px"><input type="text" id="fArtImage" placeholder="https://..." value="'+escAttr(a.image_url)+'" style="flex:1;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"><button class="btn btn-outline btn-xs" onclick="document.getElementById(\'fArtImageUpload\').click()"><i class="fas fa-upload"></i></button></div><div class="upload-zone" id="artUploadZone" style="margin-top:6px;padding:14px"><i class="fas fa-cloud-upload-alt" style="font-size:1.2rem"></i><span>Upload gambar</span><small>PNG, JPG, WebP</small><input type="file" id="fArtImageUpload" accept="image/*"></div>'+
+(a.image_url?'<img src="'+escAttr(a.image_url)+'" style="width:80px;height:56px;border-radius:6px;object-fit:cover;border:1px solid var(--border);margin-top:6px">':'')+
+'</div>'+
 '<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Tanggal</label><input type="date" id="fArtDate" value="'+a.date+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
 '<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Status</label><select id="fArtStatus" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"><option value="draft" '+(a.status==='draft'?'selected':'')+'>Draft</option><option value="published" '+(a.status==='published'?'selected':'')+'>Published</option></select></div></div>'+
-'<div style="margin-bottom:20px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Konten</label><textarea id="fArtContent" rows="5" placeholder="Tulis konten artikel..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(a.content)+'</textarea></div>'+
+'<div style="margin-bottom:12px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Konten <span style="font-size:.72rem;color:var(--text-dim);font-weight:400">(gunakan **tebal** dan *miring*)</span></label>'+
+'<div style="display:flex;gap:6px;margin-bottom:8px"><button class="btn btn-outline btn-xs" onclick="wrapText(\'fArtContent\',\'**\',\'**\')" title="Tebal"><b>B</b></button><button class="btn btn-outline btn-xs" onclick="wrapText(\'fArtContent\',\'*\',\'*\')" title="Miring"><i>I</i></button></div>'+
+'<textarea id="fArtContent" rows="6" placeholder="Tulis konten artikel... Gunakan **teks tebal** dan *teks miring*" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(a.content)+'</textarea></div>'+
 '<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveArticle()"><i class="fas fa-save"></i> Simpan</button>');
+// Setup article image upload zone
+setTimeout(()=>setupUploadZone('artUploadZone','fArtImage',null,null,'articles'),100);
+}
+
+// Text wrap helper for formatting
+function wrapText(textareaId,start,end){
+const el=document.getElementById(textareaId);
+if(!el)return;
+const startPos=el.selectionStart,endPos=el.selectionEnd;
+const selected=el.value.substring(startPos,endPos);
+const before=el.value.substring(0,startPos);
+const after=el.value.substring(endPos);
+el.value=before+start+selected+end+after;
+el.focus();
+el.setSelectionRange(startPos+start.length,endPos+start.length);
+}
+
+function saveArticle(){
+const o={title:document.getElementById('fArtTitle').value.trim(),content:document.getElementById('fArtContent').value.trim(),date:document.getElementById('fArtDate').value,status:document.getElementById('fArtStatus').value,image_url:document.getElementById('fArtImage').value.trim()};
+if(!o.title){showToast('Judul artikel harus diisi','error');return}
+if(_editingIdx.articles===-1)dataCache.articles.push(o);
+else dataCache.articles[_editingIdx.articles]=o;
+renderArticles();closeModal();syncToSupabase('articles');showToast('Artikel berhasil disimpan');
 }
 function saveArticle(){
 const o={title:document.getElementById('fArtTitle').value.trim(),content:document.getElementById('fArtContent').value.trim(),date:document.getElementById('fArtDate').value,status:document.getElementById('fArtStatus').value};
