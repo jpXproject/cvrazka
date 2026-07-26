@@ -62,6 +62,24 @@ try{const{data}=await _sb.from('testimonials').select('*').order('sort_order');r
 catch(e){return[]}
 }
 
+async function getPracticeAreas(){
+if(!_sb)return[];
+try{const{data}=await _sb.from('practice_areas').select('*').order('sort_order');return data||[]}
+catch(e){return[]}
+}
+
+async function getClients(){
+if(!_sb)return[];
+try{const{data}=await _sb.from('clients').select('*').order('sort_order');return data||[]}
+catch(e){return[]}
+}
+
+async function getHotspots(){
+if(!_sb)return[];
+try{const{data}=await _sb.from('hotspots').select('*').order('sort_order');return data||[]}
+catch(e){return[]}
+}
+
 async function getArticles(){
 if(!_sb)return[];
 try{const{data}=await _sb.from('articles').select('*').order('created_at',{ascending:false});return data||[]}
@@ -274,7 +292,83 @@ paragraphs[2].innerHTML='Berdiri sejak tahun '+year+', kami telah berpengalaman 
 }
 }
 
-// Main data loader for all pages
+// Render practice areas on index.html
+function hexToRgba(hex,alpha){
+if(!hex||!hex.startsWith('#'))return 'rgba(230,57,70,'+alpha+')';
+const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+return 'rgba('+r+','+g+','+b+','+alpha+')';
+}
+
+function renderPracticeAreas(items){
+const grid=document.querySelector('.pa-grid');
+if(!grid||!items.length)return;
+grid.innerHTML=items.map((p,i)=>`
+<div class="pa-card reveal reveal-delay-${(i%4)+1}" onclick="openPAModal(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPAModal(${i})">
+<div class="pa-img" style="background-image:url('${p.image_url||'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600&q=80'}');background-size:contain;background-repeat:no-repeat;background-position:center;background-color:#0c1525"></div>
+<div class="pa-body">
+<div class="pa-icon" style="color:${p.icon_color||'#e63946'};background:${hexToRgba(p.icon_color,'.15')}"><i class="${p.icon||'fas fa-landmark'}"></i></div>
+<h3>${p.title}</h3>
+<p>${p.description||''}</p>
+<span class="pa-tag" style="color:${p.tag_color||'#e63946'};background:${hexToRgba(p.tag_color,'.1')}">${p.tag||'Keahlian'}</span>
+</div></div>
+`).join('');
+// Update PA modal data
+window._paData=items;
+}
+
+// Render hotspots on index.html
+function renderHotspots(items){
+const wrapper=document.querySelector('.hotspot-wrapper .hotspot-img-placeholder');
+if(!wrapper||!items.length)return;
+// Remove existing hotspot dots
+wrapper.querySelectorAll('.hotspot-dot').forEach(d=>d.remove());
+items.forEach((h,i)=>{
+const dot=document.createElement('div');
+dot.className='hotspot-dot hotspot-dot-'+(i+1);
+dot.style.top=h.position_top+'%';
+dot.style.left=h.position_left+'%';
+if(i>0)dot.style.animationDelay=(i*.5)+'s';
+dot.innerHTML='<i class="fas fa-plus"></i><div class="hotspot-tooltip"><h4>'+h.title+'</h4><p>'+(h.description||'')+'</p></div>';
+wrapper.appendChild(dot);
+});
+}
+
+// Render clients on index.html
+function renderClients(items){
+const grid=document.querySelector('.clients-grid');
+if(!grid||!items.length)return;
+grid.innerHTML=items.map(c=>`
+<div class="client-card">
+<div class="client-icon"><i class="${c.icon_class||'fas fa-building'}"></i></div>
+<span>${c.name||''}</span>
+</div>
+`).join('');
+}
+
+// Render marquee on index.html
+function renderMarquee(items){
+const track=document.querySelector('.marquee-track');
+if(!track||!items||!items.length)return;
+const name='CV RAZKA PRATAMA MANDIRI';
+const itemsHtml=items.map(text=>`<div class="marquee-item"><span class="dot"></span>${text}</div>`).join('');
+track.innerHTML=`<div class="marquee-item"><span class="dot"></span><strong>${name}</strong> — Kontraktor Bangunan & Infrastruktur Pemerintah Terpercaya</div>${itemsHtml}${itemsHtml}`;
+}
+
+// Render before/after on index.html
+function renderBeforeAfter(ba){
+if(!ba)return;
+const wrapper=document.getElementById('baWrapper');
+if(!wrapper)return;
+const before=wrapper.querySelector('.ba-before');
+const after=wrapper.querySelector('.ba-after');
+if(before&&ba.before_url)before.style.backgroundImage=`url('${ba.before_url}')`;
+if(after&&ba.after_url)after.style.backgroundImage=`url('${ba.after_url}')`;
+const labels=wrapper.querySelectorAll('.ba-label');
+if(labels.length>0&&ba.label_before)labels[0].textContent=ba.label_before;
+if(labels.length>1&&ba.label_after)labels[1].textContent=ba.label_after;
+}
+
+// ===== MAIN DATA LOADER =====
 async function loadData(){
 const ok=await initSB();
 if(!ok)return;
@@ -350,6 +444,25 @@ else{c.classList.add('hidden')}
 // Fetch and render testimonials
 const testimonials=await getTestimonials();
 renderTestimonials(testimonials);
+// Fetch and render practice areas
+const practiceAreas=await getPracticeAreas();
+renderPracticeAreas(practiceAreas);
+
+// Fetch and render clients
+const clients=await getClients();
+renderClients(clients);
+
+// Fetch and render hotspots
+const hotspots=await getHotspots();
+renderHotspots(hotspots);
+
+// Fetch marquee & beforeafter settings
+const[marquee,beforeafter]=await Promise.all([
+getSetting('marquee'),getSetting('beforeafter')
+]);
+renderMarquee(marquee);
+renderBeforeAfter(beforeafter);
+
 // Fetch and render articles
 const articles=await getArticles();
 renderArticles(articles);

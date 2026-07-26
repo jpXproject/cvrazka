@@ -294,6 +294,12 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <a href="#" data-page="company"><i class="fas fa-building"></i> Perusahaan</a>
 <a href="#" data-page="seo"><i class="fas fa-search"></i> SEO & Meta</a>
 <a href="#" data-page="overlay"><i class="fas fa-layer-group"></i> Overlay Gambar</a>
+<div class="nav-section">Konten Website</div>
+<a href="#" data-page="practice-areas"><i class="fas fa-briefcase"></i> Area Praktik</a>
+<a href="#" data-page="hotspots"><i class="fas fa-crosshairs"></i> Hotspot Proyek</a>
+<a href="#" data-page="clients"><i class="fas fa-handshake"></i> Mitra & Klien</a>
+<a href="#" data-page="marquee"><i class="fas fa-exchange-alt"></i> Marquee Teks</a>
+<a href="#" data-page="beforeafter"><i class="fas fa-sliders-h"></i> Sebelum & Sesudah</a>
 <a href="#" class="logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</a>
 </nav>
 </aside>
@@ -488,6 +494,72 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <p id="previewOverlayDesc">Berpengalaman dalam berbagai jenis proyek konstruksi</p>
 </div></div>
 <div class="last-saved" id="overlayLastSaved"></div>
+</div></div>
+
+<!-- PRACTICE AREAS -->
+<div class="page-section" id="page-practice-areas">
+<div class="section-header"><div><h3>Area Praktik</h3><p>Kelola kartu bidang keahlian (Infrastruktur, Konstruksi, Komersial, Residensial)</p></div><button class="btn btn-red btn-sm" onclick="openPAModalAdmin()"><i class="fas fa-plus"></i> Tambah Bidang</button></div>
+<div class="table-wrapper">
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari bidang..." oninput="filterTable(this,'paTable')"></div><span style="font-size:.78rem;color:var(--text-dim)" id="paCount">0 item</span></div>
+<table class="data-table" id="paTable">
+<thead><tr><th>#</th><th>Ikon</th><th>Bidang</th><th>Deskripsi</th><th style="width:100px">Aksi</th></tr></thead>
+<tbody id="paBody">
+<tr><td colspan="5" class="empty-state"><i class="fas fa-briefcase"></i><h4>Belum ada bidang</h4><p>Klik "Tambah Bidang" untuk menambahkan</p></td></tr>
+</tbody></table></div></div>
+
+<!-- HOTSPOTS -->
+<div class="page-section" id="page-hotspots">
+<div class="section-header"><div><h3>Hotspot Proyek</h3><p>Kelola titik interaktif pada gambar proyek</p></div><button class="btn btn-red btn-sm" onclick="openHotspotModal()"><i class="fas fa-plus"></i> Tambah Hotspot</button></div>
+<div class="table-wrapper">
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari hotspot..." oninput="filterTable(this,'hotspotsTable')"></div><span style="font-size:.78rem;color:var(--text-dim)" id="hotspotsCount">0 item</span></div>
+<table class="data-table" id="hotspotsTable">
+<thead><tr><th>#</th><th>Judul</th><th>Deskripsi</th><th>Posisi</th><th style="width:100px">Aksi</th></tr></thead>
+<tbody id="hotspotsBody">
+<tr><td colspan="5" class="empty-state"><i class="fas fa-crosshairs"></i><h4>Belum ada hotspot</h4><p>Klik "Tambah Hotspot" untuk menambahkan</p></td></tr>
+</tbody></table></div></div>
+
+<!-- CLIENTS -->
+<div class="page-section" id="page-clients">
+<div class="section-header"><div><h3>Mitra & Klien</h3><p>Kelola daftar mitra dan klien perusahaan</p></div><button class="btn btn-red btn-sm" onclick="openClientModal()"><i class="fas fa-plus"></i> Tambah Mitra</button></div>
+<div class="table-wrapper">
+<div class="table-toolbar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari mitra..." oninput="filterTable(this,'clientsTable')"></div><span style="font-size:.78rem;color:var(--text-dim)" id="clientsCount">0 item</span></div>
+<table class="data-table" id="clientsTable">
+<thead><tr><th>#</th><th>Ikon</th><th>Nama Mitra</th><th style="width:100px">Aksi</th></tr></thead>
+<tbody id="clientsBody">
+<tr><td colspan="4" class="empty-state"><i class="fas fa-handshake"></i><h4>Belum ada mitra</h4><p>Klik "Tambah Mitra" untuk menambahkan</p></td></tr>
+</tbody></table></div></div>
+
+<!-- MARQUEE -->
+<div class="page-section" id="page-marquee">
+<div class="section-header"><div><h3>Marquee Teks</h3><p>Teks berjalan di bawah hero banner</p></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="openPreview()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-red btn-sm" id="saveMarquee"><i class="fas fa-save"></i> Simpan</button></div></div>
+<div class="form-card">
+<div class="form-group"><label>Teks Berjalan (satu per baris)</label>
+<textarea id="marqueeItems" rows="5" placeholder="Masukkan teks marquee, satu per baris..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">🏗️ Proyek Infrastruktur Pemerintah
+🏢 Konstruksi Komersial & Perkantoran
+🏠 Bangunan Residensial & Perumahan
+📍 Banyuwangi & Jawa Timur
+✅ Tepat Waktu & Berkualitas</textarea></div>
+<div class="ratio-guide"><i class="fas fa-info-circle"></i> Tulis satu teks per baris. Maks 10 baris. Teks akan berjalan terus secara horizontal.</div>
+<div class="last-saved" id="marqueeLastSaved"></div>
+</div></div>
+
+<!-- BEFORE/AFTER -->
+<div class="page-section" id="page-beforeafter">
+<div class="section-header"><div><h3>Sebelum & Sesudah</h3><p>Pengaturan gambar slider perbandingan proyek</p></div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm" onclick="openPreview()"><i class="fas fa-eye"></i> Preview</button><button class="btn btn-red btn-sm" id="saveBeforeAfter"><i class="fas fa-save"></i> Simpan</button></div></div>
+<div class="form-card">
+<div class="form-group"><label>Gambar "Sebelum"</label>
+<div style="display:flex;gap:8px"><input type="text" id="baBefore" style="flex:1" placeholder="https://images.unsplash.com/photo-xxx?w=800&q=80" value="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('baBefore')"><i class="fas fa-paste"></i></button></div>
+<div class="upload-zone" id="baBeforeUpload"><i class="fas fa-cloud-upload-alt"></i><span>Upload gambar "Sebelum"</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="ratio-guide"><i class="fas fa-info-circle"></i> Rekomendasi rasio: <strong>4:3</strong> (800×600px).</div></div>
+<div class="form-group"><label>Gambar "Sesudah"</label>
+<div style="display:flex;gap:8px"><input type="text" id="baAfter" style="flex:1" placeholder="https://images.unsplash.com/photo-xxx?w=800&q=80" value="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('baAfter')"><i class="fas fa-paste"></i></button></div>
+<div class="upload-zone" id="baAfterUpload"><i class="fas fa-cloud-upload-alt"></i><span>Upload gambar "Sesudah"</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="ratio-guide"><i class="fas fa-info-circle"></i> Rekomendasi rasio: <strong>4:3</strong> (800×600px).</div></div>
+<div class="form-row">
+<div class="form-group"><label>Label "Sebelum"</label><input type="text" id="baLabelBefore" value="Sebelum"></div>
+<div class="form-group"><label>Label "Sesudah"</label><input type="text" id="baLabelAfter" value="Sesudah"></div>
+</div>
+<div class="last-saved" id="beforeafterLastSaved"></div>
 </div></div>
 
 </div></div></div>
@@ -1357,6 +1429,187 @@ const savedEl=document.getElementById(key+'LastSaved');
 if(savedEl&&data)savedEl.textContent='Terakhir disimpan: '+new Date().toLocaleString('id-ID');
 }
 
+// ===== CRUD: PRACTICE AREAS =====
+function renderPA(){
+const t=document.getElementById('paBody');
+if(!dataCache.pa||!dataCache.pa.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-briefcase"></i><h4>Belum ada bidang</h4><p>Klik "Tambah Bidang" untuk menambahkan</p></td></tr>';document.getElementById('paCount').textContent='0 item';return}
+t.innerHTML=dataCache.pa.map((p,i)=>'<tr><td>'+(i+1)+'</td><td><div style="width:36px;height:36px;border-radius:8px;background:'+escAttr(p.icon_color||'rgba(230,57,70,.1)')+';display:flex;align-items:center;justify-content:center;color:'+escAttr(p.icon_color||'#e63946')+'"><i class="'+escAttr(p.icon||'fas fa-landmark')+'"></i></div></td><td><strong>'+escHtml(p.title)+'</strong></td><td style="color:var(--text-muted)">'+escHtml(p.description||'').slice(0,80)+'</td><td><div class="actions"><button class="btn-icon green" onclick="editPA('+i+')" title="Edit"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deletePA('+i+')" title="Hapus"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+document.getElementById('paCount').textContent=dataCache.pa.length+' item';
+}
+function openPAModalAdmin(idx){
+const p=idx!==undefined?dataCache.pa[idx]:{icon:'fas fa-landmark',title:'',description:'',tag:'Keahlian',tag_color:'#e63946',icon_color:'#e63946',image_url:'',features:'[]',stats:'[]'};
+_editingIdx.pa=idx!==undefined?idx:-1;
+openModal(idx!==undefined?'Edit Bidang':'Tambah Bidang',
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Judul Bidang</label><input type="text" id="fPATitle" value="'+escAttr(p.title)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Icon (Font Awesome)</label><input type="text" id="fPAIcon" value="'+escAttr(p.icon)+'" placeholder="fas fa-landmark" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Deskripsi</label><textarea id="fPADesc" rows="3" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(p.description)+'</textarea></div>'+
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Tag</label><input type="text" id="fPATag" value="'+escAttr(p.tag)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Warna Tag</label><input type="color" id="fPATagColor" value="'+(p.tag_color||'#e63946')+'" style="width:100%;padding:4px;height:44px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;cursor:pointer"></div></div>'+
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Warna Icon</label><input type="color" id="fPAIconColor" value="'+(p.icon_color||'#e63946')+'" style="width:100%;padding:4px;height:44px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;cursor:pointer"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Gambar URL</label><input type="text" id="fPAImg" value="'+escAttr(p.image_url)+'" placeholder="https://..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
+'<div style="margin-bottom:20px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Fitur (JSON array, contoh: ["Fitur 1","Fitur 2"])</label><textarea id="fPAFeatures" rows="2" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+(p.features?JSON.stringify(p.features):'[]')+'</textarea></div>'+
+'<div style="margin-bottom:20px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Statistik (JSON, contoh: [{"label":"Proyek","value":"25+"}])</label><textarea id="fPAStats" rows="2" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+(p.stats?JSON.stringify(p.stats):'[]')+'</textarea></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="savePA()"><i class="fas fa-save"></i> Simpan</button>');
+}
+function savePA(){
+let features=[],stats=[];
+try{features=JSON.parse(document.getElementById('fPAFeatures').value.trim()||'[]')}catch(e){showToast('Format JSON fitur tidak valid','error');return}
+try{stats=JSON.parse(document.getElementById('fPAStats').value.trim()||'[]')}catch(e){showToast('Format JSON statistik tidak valid','error');return}
+const o={icon:document.getElementById('fPAIcon').value.trim(),title:document.getElementById('fPATitle').value.trim(),description:document.getElementById('fPADesc').value.trim(),tag:document.getElementById('fPATag').value.trim(),tag_color:document.getElementById('fPATagColor').value,icon_color:document.getElementById('fPAIconColor').value,image_url:document.getElementById('fPAImg').value.trim(),features,stats};
+if(!o.title){showToast('Judul bidang harus diisi','error');return}
+if(_editingIdx.pa===-1)dataCache.pa.push(o);else dataCache.pa[_editingIdx.pa]=o;
+renderPA();closeModal();syncToSupabase('pa');showToast('Bidang berhasil disimpan');
+}
+function editPA(i){openPAModalAdmin(i)}
+function deletePA(i){showConfirm('Hapus Bidang?','Bidang "'+dataCache.pa[i].title+'" akan dihapus.',()=>{dataCache.pa.splice(i,1);renderPA();syncToSupabase('pa');showToast('Bidang dihapus','info')},'danger');}
+
+// ===== CRUD: CLIENTS =====
+function renderClientsEntry(){
+const t=document.getElementById('clientsBody');
+if(!dataCache.clients||!dataCache.clients.length){t.innerHTML='<tr><td colspan="4" class="empty-state"><i class="fas fa-handshake"></i><h4>Belum ada mitra</h4><p>Klik "Tambah Mitra" untuk menambahkan</p></td></tr>';document.getElementById('clientsCount').textContent='0 item';return}
+t.innerHTML=dataCache.clients.map((c,i)=>'<tr><td>'+(i+1)+'</td><td><div style="font-size:1.5rem;color:var(--text-dim)"><i class="'+escAttr(c.icon_class||'fas fa-building')+'"></i></div></td><td><strong>'+escHtml(c.name)+'</strong></td><td><div class="actions"><button class="btn-icon green" onclick="editClient('+i+')"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteClient('+i+')"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+document.getElementById('clientsCount').textContent=dataCache.clients.length+' item';
+}
+function openClientModal(idx){
+const c=idx!==undefined?dataCache.clients[idx]:{name:'',icon_class:'fas fa-building'};
+_editingIdx.clients=idx!==undefined?idx:-1;
+openModal(idx!==undefined?'Edit Mitra':'Tambah Mitra',
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Nama Mitra</label><input type="text" id="fClientName" value="'+escAttr(c.name)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Icon Class</label><input type="text" id="fClientIcon" value="'+escAttr(c.icon_class)+'" placeholder="fas fa-building" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveClient()"><i class="fas fa-save"></i> Simpan</button>');
+}
+function saveClient(){
+const o={name:document.getElementById('fClientName').value.trim(),icon_class:document.getElementById('fClientIcon').value.trim()||'fas fa-building'};
+if(!o.name){showToast('Nama mitra harus diisi','error');return}
+if(_editingIdx.clients===-1)dataCache.clients.push(o);else dataCache.clients[_editingIdx.clients]=o;
+renderClientsEntry();closeModal();syncToSupabase('clients');showToast('Mitra berhasil disimpan');
+}
+function editClient(i){openClientModal(i)}
+function deleteClient(i){showConfirm('Hapus Mitra?','Mitra "'+dataCache.clients[i].name+'" akan dihapus.',()=>{dataCache.clients.splice(i,1);renderClientsEntry();syncToSupabase('clients');showToast('Mitra dihapus','info')},'danger');}
+
+// ===== CRUD: HOTSPOTS =====
+function renderHotspotsEntry(){
+const t=document.getElementById('hotspotsBody');
+if(!dataCache.hotspots||!dataCache.hotspots.length){t.innerHTML='<tr><td colspan="5" class="empty-state"><i class="fas fa-crosshairs"></i><h4>Belum ada hotspot</h4><p>Klik "Tambah Hotspot" untuk menambahkan</p></td></tr>';document.getElementById('hotspotsCount').textContent='0 item';return}
+t.innerHTML=dataCache.hotspots.map((h,i)=>'<tr><td>'+(i+1)+'</td><td><strong>'+escHtml(h.title)+'</strong></td><td style="color:var(--text-muted)">'+escHtml(h.description||'').slice(0,60)+'</td><td style="color:var(--text-muted)">T:'+h.position_top+'% L:'+h.position_left+'%</td><td><div class="actions"><button class="btn-icon green" onclick="editHotspot('+i+')"><i class="fas fa-edit"></i></button><button class="btn-icon red" onclick="deleteHotspot('+i+')"><i class="fas fa-trash"></i></button></div></td></tr>').join('');
+document.getElementById('hotspotsCount').textContent=dataCache.hotspots.length+' item';
+}
+function openHotspotModal(idx){
+const h=idx!==undefined?dataCache.hotspots[idx]:{title:'',description:'',icon:'fas fa-plus',position_top:50,position_left:50};
+_editingIdx.hotspots=idx!==undefined?idx:-1;
+openModal(idx!==undefined?'Edit Hotspot':'Tambah Hotspot',
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Judul Hotspot</label><input type="text" id="fHSTitle" value="'+escAttr(h.title)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Deskripsi</label><textarea id="fHSDesc" rows="2" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(h.description)+'</textarea></div>'+
+'<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Posisi Top (%)</label><input type="number" id="fHSTop" value="'+(h.position_top||50)+'" min="0" max="100" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div>'+
+'<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Posisi Left (%)</label><input type="number" id="fHSLeft" value="'+(h.position_left||30)+'" min="0" max="100" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
+'<button class="btn btn-red" style="width:100%;justify-content:center" onclick="saveHotspot()"><i class="fas fa-save"></i> Simpan</button>');
+}
+function saveHotspot(){
+const o={title:document.getElementById('fHSTitle').value.trim(),description:document.getElementById('fHSDesc').value.trim(),icon:'fas fa-plus',position_top:parseInt(document.getElementById('fHSTop').value)||50,position_left:parseInt(document.getElementById('fHSLeft').value)||30};
+if(!o.title){showToast('Judul hotspot harus diisi','error');return}
+if(_editingIdx.hotspots===-1)dataCache.hotspots.push(o);else dataCache.hotspots[_editingIdx.hotspots]=o;
+renderHotspotsEntry();closeModal();syncToSupabase('hotspots');showToast('Hotspot berhasil disimpan');
+}
+function editHotspot(i){openHotspotModal(i)}
+function deleteHotspot(i){showConfirm('Hapus Hotspot?','Hotspot "'+dataCache.hotspots[i].title+'" akan dihapus.',()=>{dataCache.hotspots.splice(i,1);renderHotspotsEntry();syncToSupabase('hotspots');showToast('Hotspot dihapus','info')},'danger');}
+
+// ===== MARQUEE SETTINGS =====
+document.getElementById('saveMarquee')&&document.getElementById('saveMarquee').addEventListener('click',function(){
+saveSettingsHandler('marquee',()=>{
+const val=document.getElementById('marqueeItems').value.split('\n').filter(s=>s.trim()).map(s=>s.trim());
+return val;
+});
+});
+
+// ===== BEFORE/AFTER SETTINGS =====
+document.getElementById('saveBeforeAfter')&&document.getElementById('saveBeforeAfter').addEventListener('click',function(){
+saveSettingsHandler('beforeafter',()=>({
+before_url:document.getElementById('baBefore').value,
+after_url:document.getElementById('baAfter').value,
+label_before:document.getElementById('baLabelBefore').value,
+label_after:document.getElementById('baLabelAfter').value
+}));
+});
+
+// ===== UPDATE SYNC TO SUPABASE (add new tables) =====
+// Patch syncToSupabase to include new data types
+(function(){
+const origSync=window.syncToSupabase;
+if(origSync)window.syncToSupabase=async function(table){
+const dbTable={'pa':'practice_areas','clients':'clients','hotspots':'hotspots','services':'services','portfolio':'portfolio','testimonials':'testimonials','articles':'articles'}[table]||table;
+if(!supabase||!isAuthenticated)return;
+try{
+const{data:existing}=await supabase.from(dbTable).select('id');
+if(existing&&existing.length)await supabase.from(dbTable).delete().in('id',existing.map(r=>r.id));
+const rows=dataCache[table].map((item,i)=>{
+if(table==='services')return{name:item.name,icon:item.icon,description:item.desc,sort_order:i};
+if(table==='portfolio')return{name:item.name,category:item.cat,location:item.loc,description:item.desc,image_url:item.img,year:item.year,sort_order:i};
+if(table==='testimonials')return{client_name:item.name,position:item.position,quote:item.quote,sort_order:i};
+if(table==='articles')return{title:item.title,content:item.content,date:item.date,status:item.status};
+if(table==='pa')return{icon:item.icon,title:item.title,description:item.description,tag:item.tag,tag_color:item.tag_color,icon_color:item.icon_color,image_url:item.image_url,features:item.features||[],stats:item.stats||[],sort_order:i};
+if(table==='clients')return{name:item.name,icon_class:item.icon_class||'fas fa-building',sort_order:i};
+if(table==='hotspots')return{title:item.title,description:item.description,icon:item.icon||'fas fa-plus',position_top:item.position_top,position_left:item.position_left,sort_order:i};
+return item;
+});
+if(rows.length)await supabase.from(dbTable).insert(rows);
+}catch(e){console.warn('Sync to Supabase failed:',e.message)}
+};
+})();
+
+// ===== LOAD ALL DATA (add new tables) =====
+const _origLoadAllData=window.loadAllData;
+window.loadAllData=async function(){
+const tableMap={'pa':'practice_areas','clients':'clients','hotspots':'hotspots','services':'services','portfolio':'portfolio','testimonials':'testimonials','articles':'articles'};
+const missing=[];
+let loaded=false;
+for(const table of['services','portfolio','testimonials','articles','pa','clients','hotspots']){
+const dbTable=tableMap[table]||table;
+try{
+const{data}=await supabase.from(dbTable).select('*').order('sort_order');
+if(data&&data.length){
+dataCache[table]=data.map(r=>({
+...(table==='pa'?{icon:r.icon,title:r.title,description:r.description,tag:r.tag,tag_color:r.tag_color,icon_color:r.icon_color,image_url:r.image_url,features:r.features||[],stats:r.stats||[]}:{}),
+...(table==='clients'?{name:r.name,icon_class:r.icon_class}:{}),
+...(table==='hotspots'?{title:r.title,description:r.description,icon:r.icon,position_top:r.position_top,position_left:r.position_left}:{}),
+...(table==='services'?{name:r.name,icon:r.icon,desc:r.description}:{}),
+...(table==='portfolio'?{name:r.name,cat:r.category,loc:r.location,desc:r.description,img:r.image_url,year:r.year}:{}),
+...(table==='testimonials'?{name:r.client_name,position:r.position,quote:r.quote}:{}),
+...(table==='articles'?{title:r.title,content:r.content,date:r.date,status:r.status}:{})
+}));
+loaded=true;
+}
+}catch(e){missing.push(table)}
+}
+if(loaded){
+if(dataCache.services)renderServices();
+if(dataCache.portfolio)renderPortfolio();
+if(dataCache.testimonials)renderTestimonials();
+if(dataCache.articles)renderArticles();
+if(dataCache.pa)renderPA();
+if(dataCache.clients)renderClientsEntry();
+if(dataCache.hotspots)renderHotspotsEntry();
+}
+
+// Load settings into forms
+for(const key of['hero','company','seo','overlay'])await loadSettingsToForm(key);
+
+// Load marquee & beforeafter settings
+const marqueeData=await loadSettings('marquee');
+if(marqueeData&&Array.isArray(marqueeData)){
+const el=document.getElementById('marqueeItems');
+if(el)el.value=marqueeData.join('\n');
+}
+const baData=await loadSettings('beforeafter');
+if(baData){
+if(baData.before_url)document.getElementById('baBefore').value=baData.before_url;
+if(baData.after_url)document.getElementById('baAfter').value=baData.after_url;
+if(baData.label_before)document.getElementById('baLabelBefore').value=baData.label_before;
+if(baData.label_after)document.getElementById('baLabelAfter').value=baData.label_after;
+}
+
+return ['services','portfolio','testimonials','articles'].filter(t=>missing.includes(t));
+};
+
 // ===== DEV MODE =====
 function enterDevMode(){
 isAuthenticated=true;
@@ -1403,7 +1656,9 @@ if(supabase)await ensureStorageBucket();
 const zones=[
 {zone:'heroUploadZone',input:'heroBgUrl',preview:'heroBgPreview',progress:'heroUploadProgress',path:'hero'},
 {zone:'overlayUploadZone',input:'overlayBg',preview:null,progress:'overlayUploadProgress',path:'overlay'},
-{zone:'seoUploadZone',input:'seoOgImage',preview:null,progress:'seoUploadProgress',path:'seo'}
+{zone:'seoUploadZone',input:'seoOgImage',preview:null,progress:'seoUploadProgress',path:'seo'},
+{zone:'baBeforeUpload',input:'baBefore',preview:null,progress:null,path:'beforeafter'},
+{zone:'baAfterUpload',input:'baAfter',preview:null,progress:null,path:'beforeafter'}
 ];
 zones.forEach(z=>{
 const el=document.getElementById(z.zone);
