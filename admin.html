@@ -685,8 +685,34 @@ return false;
 async function setupMissingTables(missing){
 if(!missing.length)return;
 const setupNotice=document.getElementById('setupNotice');
-if(setupNotice)setupNotice.style.display='block';
-showToast('Database perlu disetup. Buka Supabase SQL Editor, jalankan supabase-schema.sql','info');
+if(setupNotice){
+setupNotice.style.display='block';
+const errors=window._tableErrors||[];
+if(errors.length){
+setupNotice.innerHTML='<i class="fas fa-exclamation-triangle"></i> <strong>Database error:</strong> Tabel tidak bisa diakses.<br><div style="font-size:.75rem;margin-top:8px;padding:8px 12px;background:rgba(0,0,0,.2);border-radius:8px;font-family:monospace">'+errors.join('<br>')+'</div><p style="margin-top:8px;font-size:.82rem">Cara 1: <strong>Klik tombol Test Koneksi</strong> di bawah untuk cek langsung ke Supabase.<br>Cara 2: Buka Supabase Dashboard → SQL Editor → paste & jalankan ulang <code>supabase-schema.sql</code> (aman di-run ulang — pakai IF NOT EXISTS).</p><button class="btn btn-outline btn-xs" onclick="testConnection()" style="margin-top:8px"><i class="fas fa-plug"></i> Test Koneksi Supabase</button><div id="testResult" style="margin-top:8px;font-size:.78rem"></div>';
+}else{
+setupNotice.innerHTML='<i class="fas fa-database"></i> <strong>Database perlu disetup.</strong> Buka Supabase Dashboard → SQL Editor → paste & jalankan file <code>supabase-schema.sql</code> dari repo ini. Aman di-run ulang.';
+}
+}
+showToast('Database perlu disetup — cek detail error di dashboard','info');
+}
+
+async function testConnection(){
+if(!supabase){showToast('Supabase client tidak tersedia','error');return}
+const el=document.getElementById('testResult');
+if(!el)return;
+el.innerHTML='<span class="spinner spinner-sm"></span> Mengecek koneksi...';
+const results=[];
+for(const table of['services','portfolio','testimonials','articles','settings']){
+try{
+const{data,error,count}=await supabase.from(table).select('*',{count:'exact',head:true});
+if(error)results.push('<span style="color:var(--red)">✗</span> '+table+': '+error.message);
+else results.push('<span style="color:#34d399">✓</span> '+table+': '+(count||'0')+' baris');
+}catch(e){
+results.push('<span style="color:var(--red)">✗</span> '+table+': '+e.message);
+}
+}
+el.innerHTML=results.join('<br>')+'<br><br><button class="btn btn-red btn-xs" onclick="window.location.reload()"><i class="fas fa-sync"></i> Refresh halaman</button>';
 }
 
 // ===== SYNC STATUS =====
@@ -1080,6 +1106,7 @@ reader.readAsText(file);
 async function loadAllData(){
 if(!supabase)return[];
 const missing=[];
+const errors=[];
 for(const table of['services','portfolio','testimonials','articles']){
 try{
 const{data,error}=await supabase.from(table).select('*').order('sort_order',{ascending:true});
@@ -1090,7 +1117,11 @@ else if(table==='portfolio')dataCache[table]=data.map(r=>({name:r.name||'',cat:r
 else if(table==='testimonials')dataCache[table]=data.map(r=>({name:r.client_name||'',position:r.position||'',quote:r.quote||''}));
 else if(table==='articles')dataCache[table]=data.map(r=>({title:r.title||'',content:r.content||'',date:r.date||'',status:r.status||'draft'}));
 }
-}catch(e){missing.push(table)}
+}catch(e){
+missing.push(table);
+errors.push(table+': '+e.message);
+console.warn('Table '+table+':',e.message);
+}
 }
 renderServices();renderPortfolio();renderTestimonials();renderArticles();
 // Animate counters
@@ -1101,6 +1132,8 @@ if(t>0){el.dataset.target=t;animateCounter(el)}
 // Update dashboard last-saved info
 const savedEl=document.getElementById('lastSavedInfo');
 if(savedEl)savedEl.textContent='Data dari database Supabase — '+new Date().toLocaleString('id-ID');
+// Store errors for display in setup notice
+window._tableErrors = errors;
 return missing;
 }
 
