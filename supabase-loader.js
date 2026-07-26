@@ -425,22 +425,7 @@ grid.innerHTML=items.map((p,i)=>`
 window._paData=items;
 }
 
-// Render hotspots on index.html
-function renderHotspots(items){
-const wrapper=document.querySelector('.hotspot-wrapper .hotspot-img-placeholder');
-if(!wrapper||!items.length)return;
-// Remove existing hotspot dots
-wrapper.querySelectorAll('.hotspot-dot').forEach(d=>d.remove());
-items.forEach((h,i)=>{
-const dot=document.createElement('div');
-dot.className='hotspot-dot hotspot-dot-'+(i+1);
-dot.style.top=h.position_top+'%';
-dot.style.left=h.position_left+'%';
-if(i>0)dot.style.animationDelay=(i*.5)+'s';
-dot.innerHTML='<i class="fas fa-plus"></i><div class="hotspot-tooltip"><h4>'+h.title+'</h4><p>'+(h.description||'')+'</p></div>';
-wrapper.appendChild(dot);
-});
-}
+
 
 // Render clients on index.html
 function renderClients(items){
@@ -581,6 +566,8 @@ const label=paSection.querySelector('.section-label');
 if(label&&overlay.title)label.innerHTML=`<i class="fas fa-briefcase"></i> ${overlay.title}`;
 const subtitle=paSection.querySelector('.section-subtitle');
 if(subtitle&&overlay.description)subtitle.textContent=overlay.description;
+// Apply overlay background color
+if(overlay.color)paSection.style.backgroundColor=overlay.color;
 }
 }
 // Render company profile on tentang.html
