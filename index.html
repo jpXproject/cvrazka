@@ -246,6 +246,45 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .lightbox-nav.prev{left:24px}
 .lightbox-nav.next{right:24px}
 
+/* PRACTICE AREA MODAL */
+.pa-modal-overlay{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s ease;padding:20px}
+.pa-modal-overlay.open{opacity:1;visibility:visible}
+.pa-modal{background:linear-gradient(145deg,#0f172a,#0c1525);border:1px solid rgba(255,255,255,.08);border-radius:24px;width:100%;max-width:680px;max-height:85vh;overflow-y:auto;transform:translateY(30px) scale(.95);transition:all .4s cubic-bezier(.34,1.56,.64,1);position:relative}
+.pa-modal-overlay.open .pa-modal{transform:translateY(0) scale(1)}
+.pa-modal-img{width:100%;height:220px;background-size:cover;background-position:center;border-radius:24px 24px 0 0;position:relative}
+.pa-modal-img::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,14,26,.8) 0%,transparent 60%);border-radius:24px 24px 0 0}
+.pa-modal-close{position:absolute;top:16px;right:16px;z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;backdrop-filter:blur(8px)}
+.pa-modal-close:hover{background:rgba(230,57,70,.2);border-color:#e63946}
+.pa-modal-body{padding:32px}
+.pa-modal-tag{display:inline-block;font-size:.72rem;font-weight:600;color:#e63946;background:rgba(230,57,70,.1);padding:4px 14px;border-radius:20px;margin-bottom:12px}
+.pa-modal-body h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.pa-modal-body h2 .pm-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.pa-modal-body .pm-desc{font-size:.92rem;color:#94a3b8;line-height:1.8;margin-bottom:20px}
+.pm-features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.pm-features li{list-style:none;font-size:.85rem;color:#94a3b8;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;display:flex;align-items:center;gap:10px}
+.pm-features li i{width:20px;text-align:center;font-size:.8rem}
+.pm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.pm-stat{padding:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;text-align:center}
+.pm-stat h4{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#fff}
+.pm-stat p{font-size:.72rem;color:#64748b;margin-top:2px}
+.pm-cta{display:flex;gap:12px;flex-wrap:wrap}
+.pm-cta .btn-3d{flex:1;min-width:160px;justify-content:center}
+@media(max-width:768px){
+.pa-modal{max-height:90vh}
+.pa-modal-img{height:160px}
+.pa-modal-body{padding:24px}
+.pa-modal-body h2{font-size:1.3rem}
+.pm-features{grid-template-columns:1fr}
+.pm-stats{grid-template-columns:repeat(3,1fr);gap:8px}
+.pm-stat{padding:12px 8px}
+.pm-stat h4{font-size:1.2rem}
+}
+@media(max-width:480px){
+.pa-modal-img{height:130px}
+.pa-modal-body{padding:20px}
+.pm-stats{grid-template-columns:1fr}
+}
+
 /* BEFORE/AFTER */
 .beforeafter-section{background:linear-gradient(180deg,#0f172a 0%,#0c1525 100%);position:relative}
 .beforeafter-wrapper{position:relative;border-radius:20px;overflow:hidden;margin-top:52px;border:1px solid rgba(255,255,255,.06);max-width:720px;margin-left:auto;margin-right:auto;cursor:ew-resize;user-select:none;-webkit-user-select:none}
@@ -432,10 +471,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <p class="section-subtitle">Berpengalaman dalam berbagai jenis proyek konstruksi, dari infrastruktur pemerintah hingga bangunan residensial.</p>
 </div>
 <div class="pa-grid">
-<div class="pa-card reveal reveal-delay-1"><div class="pa-img pa-img-1"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-landmark"></i></div><h3>Infrastruktur Pemerintah</h3><p>Proyek pembangunan dan pemeliharaan infrastruktur publik seperti jalan, jembatan, irigasi, drainase, dan fasilitas umum lainnya.</p><span class="pa-tag">Proyek Pemerintah</span></div></div>
-<div class="pa-card reveal reveal-delay-2"><div class="pa-img pa-img-2"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-building"></i></div><h3>Konstruksi Umum</h3><p>Pekerjaan konstruksi menyeluruh untuk bangunan komersial, perkantoran, gudang, dan fasilitas umum dengan standar kualitas tinggi.</p><span class="pa-tag">Konstruksi</span></div></div>
-<div class="pa-card reveal reveal-delay-3"><div class="pa-img pa-img-3"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-store"></i></div><h3>Proyek Komersial</h3><p>Renovasi dan pembangunan ruang usaha, ruko, pertokoan, dan fasilitas komersial dengan desain fungsional dan estetis.</p><span class="pa-tag">Komersial</span></div></div>
-<div class="pa-card reveal reveal-delay-4"><div class="pa-img pa-img-4"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-home"></i></div><h3>Proyek Residensial</h3><p>Pembangunan dan renovasi rumah tinggal, perumahan, dan hunian pribadi dengan sentuhan arsitektur modern dan tradisional.</p><span class="pa-tag">Residensial</span></div></div>
+<div class="pa-card reveal reveal-delay-1" onclick="openPAModal(0)" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPAModal(0)"><div class="pa-img pa-img-1"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-landmark"></i></div><h3>Infrastruktur Pemerintah</h3><p>Proyek pembangunan dan pemeliharaan infrastruktur publik seperti jalan, jembatan, irigasi, drainase, dan fasilitas umum lainnya.</p><span class="pa-tag">Proyek Pemerintah</span></div></div>
+<div class="pa-card reveal reveal-delay-2" onclick="openPAModal(1)" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPAModal(1)"><div class="pa-img pa-img-2"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-building"></i></div><h3>Konstruksi Umum</h3><p>Pekerjaan konstruksi menyeluruh untuk bangunan komersial, perkantoran, gudang, dan fasilitas umum dengan standar kualitas tinggi.</p><span class="pa-tag">Konstruksi</span></div></div>
+<div class="pa-card reveal reveal-delay-3" onclick="openPAModal(2)" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPAModal(2)"><div class="pa-img pa-img-3"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-store"></i></div><h3>Proyek Komersial</h3><p>Renovasi dan pembangunan ruang usaha, ruko, pertokoan, dan fasilitas komersial dengan desain fungsional dan estetis.</p><span class="pa-tag">Komersial</span></div></div>
+<div class="pa-card reveal reveal-delay-4" onclick="openPAModal(3)" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openPAModal(3)"><div class="pa-img pa-img-4"></div><div class="pa-body"><div class="pa-icon"><i class="fas fa-home"></i></div><h3>Proyek Residensial</h3><p>Pembangunan dan renovasi rumah tinggal, perumahan, dan hunian pribadi dengan sentuhan arsitektur modern dan tradisional.</p><span class="pa-tag">Residensial</span></div></div>
 </div></div></section>
 
 <!-- IMAGE HOTSPOT -->
@@ -611,6 +650,23 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="lightbox-caption"><h3 id="lbTitle"></h3><p id="lbDesc"></p></div>
 </div>
 
+<!-- PRACTICE AREA MODAL -->
+<div class="pa-modal-overlay" id="paModal" onclick="if(event.target===this)closePAModal()">
+<div class="pa-modal" onclick="event.stopPropagation()">
+<button class="pa-modal-close" onclick="closePAModal()"><i class="fas fa-times"></i></button>
+<div class="pa-modal-img" id="paModalImg"></div>
+<div class="pa-modal-body">
+<span class="pa-modal-tag" id="paModalTag"></span>
+<h2><span class="pm-icon" id="paModalIcon"></span><span id="paModalTitle"></span></h2>
+<p class="pm-desc" id="paModalDesc"></p>
+<ul class="pm-features" id="paModalFeatures"></ul>
+<div class="pm-stats" id="paModalStats"></div>
+<div class="pm-cta">
+<a href="https://wa.me/6282234613934?text=Halo%20CV%20RAZKA%20PRATAMA%20MANDIRI" target="_blank" class="btn-3d btn-primary"><i class="fab fa-whatsapp"></i> Konsultasi Sekarang</a>
+<a href="layanan.html" class="btn-3d btn-outline">Lihat Layanan <i class="fas fa-arrow-right"></i></a>
+</div>
+</div></div></div>
+
 <script>
 // LOADER
 window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('pageLoader').classList.add('hidden')},700)});
@@ -653,6 +709,46 @@ portfolioCards.forEach(c=>{const bg=window.getComputedStyle(c.querySelector('.po
 portfolioCards.forEach((c,i)=>{c.addEventListener('click',()=>{lbIdx=Math.min(i,lbItems.length-1);openLightbox(lbIdx)})});
 function openLightbox(i){lbIdx=i;const item=lbItems[lbIdx];if(!item)return;lbImg.src=item.url;lbTitle.textContent=item.title;lbDesc.textContent=item.desc;lightbox.classList.add('open');document.body.style.overflow='hidden'}
 function closeLightbox(){lightbox.classList.remove('open');document.body.style.overflow=''}
+
+// PRACTICE AREA MODAL DATA
+const paData=[
+{tag:'Proyek Pemerintah',icon:'landmark',iconColor:'#e63946',iconBg:'rgba(230,57,70,.15)',imgClass:'pa-img-1',title:'Infrastruktur Pemerintah',desc:'Kami berpengalaman dalam menangani proyek infrastruktur publik yang melayani masyarakat luas. Dari pembangunan jalan lingkungan, jembatan penghubung, sistem drainase dan irigasi, hingga fasilitas umum seperti balai desa, pasar rakyat, dan gedung serbaguna pemerintah.',features:['Pembangunan & rehab jalan lingkungan','Konstruksi jembatan & talud','Sistem drainase & irigasi','Fasilitas umum & balai desa','Sarana air bersih & sanitasi','Lanskap & taman publik'],stats:[{val:'15+',label:'Proyek Pemerintah'},{val:'10th',label:'Pengalaman'},{val:'100%',label:'Tepat Waktu'}]},
+{tag:'Konstruksi Umum',icon:'building',iconColor:'#f59e0b',iconBg:'rgba(245,158,11,.15)',imgClass:'pa-img-2',title:'Konstruksi Umum',desc:'Layanan konstruksi umum mencakup pembangunan dan renovasi gedung komersial, perkantoran, gudang, serta fasilitas publik lainnya. Kami mengerjakan setiap proyek dengan standar kualitas tinggi, pengawasan ketat, dan material terbaik untuk hasil yang kokoh dan tahan lama.',features:['Bangunan komersial & perkantoran','Konstruksi gudang & pabrik','Renovasi fasilitas umum','Struktur beton bertulang','Pekerjaan finishing interior','Pengawasan teknis & quality control'],stats:[{val:'20+',label:'Proyek Umum'},{val:'98%',label:'Kepuasan'},{val:'5thn',label:'Garansi'}]},
+{tag:'Komersial',icon:'store',iconColor:'#3b82f6',iconBg:'rgba(59,130,246,.15)',imgClass:'pa-img-3',title:'Proyek Komersial',desc:'Spesialis renovasi dan pembangunan ruang usaha, ruko, pertokoan, dan pusat perbelanjaan. Kami memahami bahwa setiap ruang bisnis membutuhkan desain yang fungsional dan estetis untuk menarik pelanggan dan meningkatkan produktivitas usaha Anda.',features:['Renovasi total ruko & toko','Pembangunan ruko baru','Desain interior komersial','Instalasi listrik & plumbing','Sistem keamanan & CCTV','Perizinan & dokumen proyek'],stats:[{val:'10+',label:'Proyek Komersial'},{val:'3bln',label:'Rata-rata Waktu'},{val:'100%',label:'Sesuai Budget'}]},
+{tag:'Residensial',icon:'home',iconColor:'#10b981',iconBg:'rgba(16,185,129,.15)',imgClass:'pa-img-4',title:'Proyek Residensial',desc:'Wujudkan hunian impian Anda bersama kami. Dari pembangunan rumah tinggal baru, renovasi total, hingga pengembangan kompleks perumahan — setiap proyek residensial dikerjakan dengan perhatian penuh pada detail, estetika, dan kenyamanan penghuni.',features:['Pembangunan rumah tinggal baru','Renovasi & rehab rumah','Perumahan & cluster','Desain arsitektur personal','Taman & lanskap rumah','Interior & furnitur built-in'],stats:[{val:'15+',label:'Proyek Rumah'},{val:'85%',label:'Rujukan Klien'},{val:'2bln',label:'Rata-rata Waktu'}]}
+];
+
+function openPAModal(i){
+const d=paData[i];if(!d)return;
+const img=document.querySelector('.'+d.imgClass);
+let bgUrl='';
+if(img)bgUrl=getComputedStyle(img).backgroundImage.replace(/^url\(["']?|["']?\)$/g,'');
+document.getElementById('paModalImg').style.backgroundImage=bgUrl||'linear-gradient(135deg,#0f172a,#0c1525)';
+document.getElementById('paModalImg').style.backgroundColor='#0f172a';
+document.getElementById('paModalTag').textContent=d.tag;
+document.getElementById('paModalTag').style.color=d.iconColor;
+document.getElementById('paModalTag').style.background=d.iconBg.replace('15','10');
+document.getElementById('paModalIcon').innerHTML='<i class="fas fa-'+d.icon+'"></i>';
+document.getElementById('paModalIcon').style.background=d.iconBg;
+document.getElementById('paModalIcon').style.color=d.iconColor;
+document.getElementById('paModalTitle').textContent=d.title;
+document.getElementById('paModalDesc').textContent=d.desc;
+document.getElementById('paModalFeatures').innerHTML=d.features.map(f=>'<li><i class="fas fa-check-circle" style="color:'+d.iconColor+'"></i>'+f+'</li>').join('');
+document.getElementById('paModalStats').innerHTML=d.stats.map(s=>'<div class="pm-stat"><h4>'+s.val+'</h4><p>'+s.label+'</p></div>').join('');
+document.getElementById('paModal').classList.add('open');
+document.body.style.overflow='hidden';
+}
+
+function closePAModal(){
+document.getElementById('paModal').classList.remove('open');
+document.body.style.overflow='';
+}
+
+document.addEventListener('keydown',e=>{
+const modal=document.getElementById('paModal');
+if(!modal.classList.contains('open'))return;
+if(e.key==='Escape')closePAModal();
+});
 function navLightbox(d){lbIdx+=d;if(lbIdx<0)lbIdx=lbItems.length-1;if(lbIdx>=lbItems.length)lbIdx=0;openLightbox(lbIdx)}
 lbClose.addEventListener('click',closeLightbox);
 lbPrev.addEventListener('click',()=>navLightbox(-1));
