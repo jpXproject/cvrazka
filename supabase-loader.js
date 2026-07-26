@@ -175,8 +175,7 @@ grid.innerHTML=items.map((p,i)=>`<div class="portfolio-card reveal reveal-delay-
 <h3>${p.name}</h3>
 <p>${p.description||''}</p>
 <span class="portfolio-tag" style="color:${catColors[p.category]||catColors.residensial};background:${catBgColors[p.category]||catBgColors.residensial}">${p.location||'Banyuwangi'}${p.year?', '+p.year:''}</span>
-</div></div>`).join('');
-}
+</div></div>`).join(''); if(typeof window.refreshLightboxItems==='function')window.refreshLightboxItems(); }
 
 // Render testimonials on index.html
 function renderTestimonials(items){
@@ -297,12 +296,14 @@ if(overlay){overlay.classList.remove('open');document.body.style.overflow='';}
 
 // Init testimonial carousel
 function initTestimonialCarousel(){
+// Clear any previous auto-play timer to prevent accumulation
+if(window._testTimer)clearInterval(window._testTimer);
 const track=document.getElementById('testimonialTrack');
 const dotsContainer=document.getElementById('testDots');
 if(!track)return;
 const slides=track.querySelectorAll('.testimonial-slide');
 if(slides.length<2)return;
-let idx=0,autoTimer=null;
+let idx=0;
 function goTo(i){
 idx=(i+slides.length)%slides.length;
 track.style.transform=`translateX(-${idx*100}%)`;
@@ -314,9 +315,9 @@ function prevSlide(){goTo(idx-1)}
 document.querySelectorAll('.testimonial-btn.prev').forEach(b=>b.addEventListener('click',prevSlide));
 document.querySelectorAll('.testimonial-btn.next').forEach(b=>b.addEventListener('click',nextSlide));
 document.querySelectorAll('.testimonial-dot').forEach((d,i)=>d.addEventListener('click',()=>goTo(i)));
-// Auto-play
-function startAuto(){stopAuto();autoTimer=setInterval(nextSlide,5000)}
-function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null}}
+// Auto-play (stored globally to prevent timer accumulation on re-init)
+function startAuto(){stopAuto();window._testTimer=setInterval(nextSlide,5000)}
+function stopAuto(){if(window._testTimer){clearInterval(window._testTimer);window._testTimer=null}}
 track.parentElement.addEventListener('mouseenter',stopAuto);
 track.parentElement.addEventListener('mouseleave',startAuto);
 startAuto();
