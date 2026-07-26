@@ -120,6 +120,27 @@ const cleanWa=wa.replace(/[^0-9]/g,'');
 const text=a.getAttribute('href')?.includes('konsultasi')?'konsultasi%20proyek':'';
 a.href=`https://wa.me/${cleanWa}?text=Halo%20${encodeURIComponent(name)}%2C%20saya%20ingin%20${text}`;
 });
+// Update social media links
+const fb=company.facebook||false;
+const ig=company.instagram||false;
+document.querySelectorAll('.footer-col a[href*="facebook.com"]').forEach(a=>{
+if(fb)a.href=fb;
+});
+document.querySelectorAll('.footer-col a[href*="instagram.com"]').forEach(a=>{
+if(ig)a.href=ig;
+});
+// Update contact page social items
+document.querySelectorAll('.contact-item').forEach(item=>{
+const label=item.querySelector('h4')?.textContent||'';
+if(label.includes('Facebook')&&fb){
+const a=item.querySelector('a');
+if(a){a.href=fb;a.target='_blank';}
+}
+if(label.includes('Instagram')&&ig){
+const a=item.querySelector('a');
+if(a){a.href=ig;a.target='_blank';}
+}
+});
 }
 
 // Render services on any page

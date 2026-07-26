@@ -76,7 +76,9 @@ INSERT INTO settings (key, value) VALUES
   "whatsapp": "082234613934",
   "email": "pratamamandiri945@gmail.com",
   "hours": "Senin – Sabtu: 08:00 – 17:00 WIB",
-  "year": "2016"
+  "year": "2016",
+  "facebook": "https://www.facebook.com/share/184uWS9FLW/",
+  "instagram": "https://www.instagram.com/rpm0026"
 }'::jsonb),
 ('hero', '{
   "bg_url": "https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=85",
