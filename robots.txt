@@ -1,0 +1,6 @@
+# robots.txt for CV RAZKA PRATAMA MANDIRI
+User-agent: *
+Allow: /
+Disallow: /admin.html
+
+Sitemap: https://jpxproject.github.io/cvrazka/sitemap.xml
