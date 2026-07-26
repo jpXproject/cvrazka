@@ -167,15 +167,7 @@ if(hero){
 const bg=document.getElementById('heroBg');
 if(bg&&hero.bg_url){
 bg.style.backgroundImage=`url('${hero.bg_url}')`;
-// Responsive background positioning based on viewport
-const setHeroPos=()=>{
-const w=window.innerWidth;
-if(w<480)bg.style.backgroundPosition='center 10%';
-else if(w<768)bg.style.backgroundPosition='center 20%';
-else bg.style.backgroundPosition='center 30%';
-};
-setHeroPos();
-window.addEventListener('resize',setHeroPos);
+bg.style.backgroundPosition='center center';
 }
 const badge=document.querySelector('.hero-badge');
 if(badge&&hero.badge)badge.innerHTML=`<i class="fas fa-hard-hat"></i> ${hero.badge}`;
