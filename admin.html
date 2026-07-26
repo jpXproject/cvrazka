@@ -148,6 +148,16 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 .upload-zone.has-image span{font-size:.75rem;color:#34d399}
 .upload-progress{height:3px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px;display:none}
 .upload-progress .bar{height:100%;background:var(--red);border-radius:3px;width:0%;transition:width .3s ease}
+/* RATIO GUIDE */
+.ratio-guide{font-size:.72rem;color:var(--text-dim);padding:8px 12px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.1);border-radius:8px;margin-top:6px;line-height:1.5}
+.ratio-guide i{font-size:.7rem;display:inline;margin-bottom:0;color:#60a5fa}
+.ratio-guide strong{color:#60a5fa}
+.dim-warning{font-size:.72rem;color:#f59e0b;padding:6px 10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.15);border-radius:8px;margin-top:4px;display:none;line-height:1.5}
+.dim-warning.show{display:block}
+.dim-warning i{font-size:.7rem;display:inline;margin-bottom:0;color:#f59e0b}
+.dim-good{font-size:.72rem;color:#34d399;padding:6px 10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);border-radius:8px;margin-top:4px;display:none;line-height:1.5}
+.dim-good.show{display:block}
+.dim-good i{font-size:.7rem;display:inline;margin-bottom:0;color:#34d399}
 
 /* FORM CARD */
 .form-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:800px}
@@ -346,6 +356,9 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <div style="display:flex;gap:8px"><input type="text" id="heroBgUrl" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=85" style="flex:1" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1600&q=85"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('heroBgUrl')" title="Tempel dari clipboard"><i class="fas fa-paste"></i></button></div>
 <img class="preview-img" id="heroBgPreview" src="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=200&q=60" alt="preview" style="display:block">
 <div class="upload-zone" id="heroUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="ratio-guide"><i class="fas fa-info-circle"></i> Rekomendasi rasio: <strong>16:9</strong> (1920×1080px). Min: 1280×720px. Maks: 5MB.</div>
+<div class="dim-warning" id="heroDimWarning"><i class="fas fa-exclamation-triangle"></i> <span id="heroDimMsg"></span></div>
+<div class="dim-good" id="heroDimGood"><i class="fas fa-check-circle"></i> Rasio gambar sesuai rekomendasi ✅</div>
 <div class="upload-progress" id="heroUploadProgress"><div class="bar"></div></div>
 <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="resetHeroBg()"><i class="fas fa-redo"></i> Reset Default</button>
 </div>
@@ -441,6 +454,9 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <div class="form-group"><label>OG Image URL</label>
 <div style="display:flex;gap:8px"><input type="text" id="seoOgImage" style="flex:1" placeholder="https://images.unsplash.com/photo-xxx?w=1200&q=80" value="https://images.unsplash.com/photo-1541888946425-d81bb52b7f7b?w=1200&q=80"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('seoOgImage')"><i class="fas fa-paste"></i></button></div>
 <div class="upload-zone" id="seoUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="ratio-guide"><i class="fas fa-info-circle"></i> Rekomendasi rasio: <strong>1.91:1</strong> (1200×630px) — standar Open Graph. Min: 600×315px.</div>
+<div class="dim-warning" id="seoDimWarning"><i class="fas fa-exclamation-triangle"></i> <span id="seoDimMsg"></span></div>
+<div class="dim-good" id="seoDimGood"><i class="fas fa-check-circle"></i> Rasio gambar sesuai rekomendasi ✅</div>
 <div class="upload-progress" id="seoUploadProgress"><div class="bar"></div></div>
 </div>
 </div>
@@ -454,6 +470,9 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);lin
 <div class="form-group"><label>Gambar Latar Overlay</label>
 <div style="display:flex;gap:8px"><input type="text" id="overlayBg" style="flex:1" placeholder="https://images.unsplash.com/photo-xxx?w=1600&q=80" value="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600&q=80"><button class="btn btn-outline btn-xs" onclick="pasteFromClipboard('overlayBg')"><i class="fas fa-paste"></i></button></div>
 <div class="upload-zone" id="overlayUploadZone"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>
+<div class="ratio-guide"><i class="fas fa-info-circle"></i> Rekomendasi rasio: <strong>16:9</strong> (1920×1080px). Min: 1280×720px.</div>
+<div class="dim-warning" id="overlayDimWarning"><i class="fas fa-exclamation-triangle"></i> <span id="overlayDimMsg"></span></div>
+<div class="dim-good" id="overlayDimGood"><i class="fas fa-check-circle"></i> Rasio gambar sesuai rekomendasi ✅</div>
 <div class="upload-progress" id="overlayUploadProgress"><div class="bar"></div></div></div>
 <div class="form-row">
 <div class="form-group"><label>Judul Overlay</label><input type="text" id="overlayTitle" placeholder="Bidang Keahlian Kami" value="Bidang Keahlian Kami"></div>
@@ -857,6 +876,45 @@ return true;
 }catch(e){console.warn('Storage:',e.message);return false}
 }
 
+// ===== IMAGE DIMENSION GUIDES =====
+const IMAGE_RATIOS = {
+hero: {label:'Hero Banner',ratio:{w:16,h:9},minW:1280,minH:720,perfectW:1920,perfectH:1080,tolerance:0.05},
+overlay: {label:'Overlay',ratio:{w:16,h:9},minW:1280,minH:720,perfectW:1920,perfectH:1080,tolerance:0.08},
+seo: {label:'SEO / OG Image',ratio:{w:1.91,h:1},minW:600,minH:315,perfectW:1200,perfectH:630,tolerance:0.08},
+portfolio: {label:'Portofolio',ratio:{w:4,h:3},minW:400,minH:300,perfectW:800,perfectH:600,tolerance:0.08}
+};
+
+async function validateImageDimensions(file,zoneKey){
+return new Promise((resolve)=>{
+const img=new Image();
+const url=URL.createObjectURL(file);
+img.onload=function(){
+URL.revokeObjectURL(url);
+const w=img.naturalWidth,h=img.naturalHeight;
+const cfg=IMAGE_RATIOS[zoneKey];
+if(!cfg){resolve({valid:true,w,h});return}
+const actualRatio=w/h;
+const targetRatio=cfg.ratio.w/cfg.ratio.h;
+const ratioDiff=Math.abs(actualRatio-targetRatio);
+const warnings=[];
+let valid=true;
+if(w<cfg.minW||h<cfg.minH){
+warnings.push('Ukuran terlalu kecil ('+w+'×'+h+'). Minimal: '+cfg.minW+'×'+cfg.minH+'px.');
+valid=false;
+}
+if(ratioDiff>cfg.tolerance){
+const r=cfg.ratio.w+':'+cfg.ratio.h;
+warnings.push('Rasio '+(w/h).toFixed(2)+' tidak sesuai rekomendasi '+r+'. Gambar mungkin terpotong.');
+valid=false;
+}
+const ratioGood=ratioDiff<=cfg.tolerance&&w>=cfg.minW&&h>=cfg.minH;
+resolve({valid,ratioGood,w,h,warnings,actualRatio:actualRatio.toFixed(2),targetRatio:cfg.ratio.w+':'+cfg.ratio.h});
+};
+img.onerror=function(){URL.revokeObjectURL(url);resolve({valid:true,w:0,h:0})};
+img.src=url;
+});
+}
+
 async function uploadToStorage(file,path){
 if(!supabase||!file)return null;
 const ext=file.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -873,6 +931,11 @@ const zone=document.getElementById(zoneId);
 if(!zone)return;
 const input=zone.querySelector('input[type="file"]');
 if(!input)return;
+// Map zoneId to ratio key
+const ratioKey=zoneId.includes('hero')?'hero':zoneId.includes('overlay')?'overlay':zoneId.includes('seo')?'seo':'portfolio';
+const dimWarn=document.getElementById(ratioKey+'DimWarning');
+const dimGood=document.getElementById(ratioKey+'DimGood');
+const dimMsg=document.getElementById(ratioKey+'DimMsg');
 // Remove old listener by cloning
 const newInput=input.cloneNode(true);
 input.parentNode.replaceChild(newInput,input);
@@ -883,6 +946,16 @@ const prog=document.getElementById(progressId);
 if(prog){prog.style.display='block';prog.querySelector('.bar').style.width='30%'}
 if(!file.type.startsWith('image/')){showToast('Hanya file gambar','error');return}
 if(file.size>5*1024*1024){showToast('Maks 5MB','error');return}
+// Validate dimensions
+const dim=await validateImageDimensions(file,ratioKey);
+if(dimWarn)dimWarn.classList.remove('show');
+if(dimGood)dimGood.classList.remove('show');
+if(dim.warnings&&dim.warnings.length&&dimMsg){
+dimMsg.innerHTML=dim.warnings.join('<br>');
+dimWarn.classList.add('show');
+}else if(dim.ratioGood&&dimGood){
+dimGood.classList.add('show');
+}
 const reader=new FileReader();
 reader.onload=function(ev){zone.style.backgroundImage='url('+ev.target.result+')';zone.style.backgroundSize='cover';zone.style.backgroundPosition='center'};
 reader.readAsDataURL(file);
@@ -988,7 +1061,10 @@ openModal(idx!==undefined?'Edit Proyek':'Tambah Proyek',
 '<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Deskripsi</label><textarea id="fPortDesc" rows="2" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none;resize:vertical">'+escHtml(p.desc)+'</textarea></div>'+
 '<div class="form-row"><div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Gambar URL</label><input type="text" id="fPortImg" value="'+escAttr(p.img)+'" placeholder="https://..." style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none">'+(p.img?'<img src="'+p.img+'" style="width:60px;height:40px;border-radius:6px;object-fit:cover;margin-top:6px" onerror="this.style.display=\'none\'">':'')+'</div>'+
 '<div style="margin-bottom:16px"><label style="display:block;font-size:.82rem;font-weight:600;color:var(--text-muted);margin-bottom:6px">Tahun</label><input type="text" id="fPortYear" value="'+escAttr(p.year)+'" style="width:100%;padding:12px 16px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:Inter,sans-serif;font-size:.9rem;outline:none"></div></div>'+
-'<div class="upload-zone" id="portUploadZone" style="margin-bottom:16px"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar proyek</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>'+
+'<div class="upload-zone" id="portUploadZone" style="margin-bottom:8px"><i class="fas fa-cloud-upload-alt"></i><span>Klik untuk upload gambar proyek</span><small>PNG, JPG, WebP maks 5MB</small><input type="file" accept="image/*"></div>'+
+'<div class="ratio-guide" style="margin-bottom:8px"><i class="fas fa-info-circle"></i> Rekomendasi rasio: <strong>4:3</strong> (800×600px). Min: 400×300px.</div>'+
+'<div class="dim-warning" id="portfolioDimWarning"><i class="fas fa-exclamation-triangle"></i> <span id="portfolioDimMsg"></span></div>'+
+'<div class="dim-good" id="portfolioDimGood"><i class="fas fa-check-circle"></i> Rasio gambar sesuai rekomendasi ✅</div>'+
 '<div class="upload-progress" id="portUploadProgress" style="margin-bottom:16px"><div class="bar"></div></div>'+
 '<button class="btn btn-red" style="width:100%;justify-content:center" onclick="savePortfolio()"><i class="fas fa-save"></i> Simpan</button>');
 setTimeout(()=>{const z=document.getElementById('portUploadZone');if(z)setupUploadZone('portUploadZone','fPortImg',null,'portUploadProgress','portfolio')},50);
