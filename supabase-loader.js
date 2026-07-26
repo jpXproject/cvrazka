@@ -147,7 +147,7 @@ if(a){a.href=ig;a.target='_blank';}
 function renderServices(services){
 const grid=document.querySelector('.services-grid');
 if(!grid||!services.length)return;
-const icons=['drafting-compass','paint-roller','pencil-ruler','tools','hard-hat','ruler-combined'];
+const icons=['drafting-compass','paint-roller','pencil-ruler','building','hard-hat','ruler-combined','store','home'];
 grid.innerHTML=services.map((s,i)=>{
 const icon=s.icon||icons[i%icons.length];
 return `<div class="service-card reveal reveal-delay-${(i%4)+1}">
@@ -356,8 +356,8 @@ if(idx===0&&el.dataset.target)el.dataset.target=exp;
 function renderServiceDetail(services){
 const container=document.querySelector('#serviceDetailContent');
 if(!container||!services.length)return;
-const icons=['drafting-compass','paint-roller','pencil-ruler','tools','hard-hat','ruler-combined'];
-const images=['https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80','https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80','https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80'];
+const icons=['drafting-compass','paint-roller','pencil-ruler','building','hard-hat','ruler-combined','store','home'];
+const images=['https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80','https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80','https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80','https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80','https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80','https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80'];
 container.innerHTML=services.map((s,i)=>{
 const reverse=i%2===1?' reverse':'';
 const img=s.image_url||images[i%images.length];
