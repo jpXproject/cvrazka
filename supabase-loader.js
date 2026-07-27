@@ -553,7 +553,9 @@ renderServiceDetail(services);
 // Fetch and render portfolio
 const portfolio=await getPortfolio();
 renderPortfolio(portfolio,'portfolioGrid');
-// Re-init portfolio filter buttons
+// Re-init portfolio filter buttons (with flag to prevent duplicates)
+if(!window._pfInited){
+window._pfInited=true;
 document.querySelectorAll('.portfolio-filter-btn').forEach(btn=>{
 btn.addEventListener('click',function(){
 document.querySelectorAll('.portfolio-filter-btn').forEach(b=>b.classList.remove('active'));
@@ -565,6 +567,7 @@ else{c.classList.add('hidden')}
 });
 });
 });
+}
 // Fetch and render testimonials
 const testimonials=await getTestimonials();
 renderTestimonials(testimonials);
@@ -613,6 +616,8 @@ const subtitle=paSection.querySelector('.section-subtitle');
 if(subtitle&&overlay.description)subtitle.textContent=overlay.description;
 // Apply overlay background color
 if(overlay.color)paSection.style.backgroundColor=overlay.color;
+// Apply overlay opacity
+if(overlay.opacity!=null)paSection.style.opacity=overlay.opacity;
 }
 }
 // Render company profile on tentang.html
