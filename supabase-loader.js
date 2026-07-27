@@ -354,21 +354,15 @@ if(idx===0&&el.dataset.target)el.dataset.target=exp;
 }
 }
 
-// Apply stats from hero setting to counters (BOTH hero-stats and stats-section)
+// Apply stats from hero setting to counters (hero-stats only)
 function applyHeroStats(stats){
 if(!stats)return;
-// Update hero-stats (top of page)
 var heroStats=document.querySelectorAll('.hero-stat .counter');
 if(heroStats.length>0&&stats.years)heroStats[0].dataset.target=stats.years;
 if(heroStats.length>1&&stats.projects)heroStats[1].dataset.target=stats.projects;
 if(heroStats.length>2&&stats.government)heroStats[2].dataset.target=stats.government;
-// Update stats-section counters (middle of page)
-var statItems=document.querySelectorAll('.stat-item .counter');
-if(statItems.length>0&&stats.years)statItems[0].dataset.target=stats.years;
-if(statItems.length>1&&stats.projects)statItems[1].dataset.target=stats.projects;
-if(statItems.length>2&&stats.government)statItems[2].dataset.target=stats.government;
-// Update on-time text (not a counter)
-var onTimeEl=document.querySelector('.hero-stat:last-child h3 span')||document.querySelector('.stat-item:last-child h3 span');
+// Update on-time text
+var onTimeEl=document.querySelector('.hero-stat:last-child h3 span');
 if(onTimeEl&&stats.on_time)onTimeEl.textContent=stats.on_time;
 // Re-trigger counter animation
 setTimeout(function(){
